@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Listings</title>
+  <link rel="stylesheet" href="../style2landing.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="nav-container">
+      <a href="landingpage.html" class="logo">Student Hub</a>
+      <div class="nav-actions">
+        <a href="./my_listings.html" class="btn btn-outline">My Listings</a>
+        <a href="./purchase_history.html" class="btn btn-outline">Purchase History</a>
+        <a href="./messages.html" class="btn btn-primary">Messages</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Section -->
+  <section class="featured-products" style="margin-top:100px;">
+    <div class="container">
+      <h2 class="section-title">My Listings</h2>
+      <p class="section-subtitle">Products you’ve uploaded for sale</p>
+
+      <div id="myListingsGrid" class="product-grid">
+        <!-- Dynamically populated with listings.js -->
+      </div>
+    </div>
+  </section>
+
+  <script src="js/listings.js"></script>
+</body>
+</html>

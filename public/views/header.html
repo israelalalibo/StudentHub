@@ -1,0 +1,73 @@
+<!-- <script src="../loadHeader.js"></script> -->
+<header class="header">
+        <nav class="nav-container">
+            <a href="landingpage.html" class="logo">StudentHub</a>
+            
+            <div class="search-bar">
+                <div class="search-icon">🔍</div>
+                <input type="text" 
+                    class="search-input" 
+                    id="liveSearchInput"
+                    placeholder="Search for books, supplies, electronics...">
+                    <div id="searchResultsDropdown" class="search-results-dropdown"></div>
+            </div>
+
+            <div class="categories-dropdown">
+                <button class="categories-btn" onclick="showCategories()">Categories ▼</button>
+                <div class="categories-menu">
+                    <a href="#" onclick="viewCategory('textbooks')">📚 Textbooks</a>
+                    <a href="#" onclick="viewCategory('electronics')">💻 Electronics</a>
+                    <a href="#" onclick="viewCategory('supplies')">✏️ Supplies</a>
+                    <a href="#" onclick="viewCategory('furniture')">🪑 Dorm Furniture</a>
+                    <a href="#" onclick="viewCategory('clothing')">👕 Clothing</a>
+                    <a href="#" onclick="viewCategory('other')">🎒 Other</a>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <!-- AI Book Valuator Button -->
+                <a href="./BookValuator.html" class="ai-valuator-btn">
+                    <span class="ai-icon">✨</span>
+                    <span class="btn-text">AI Book Valuator</span>
+                    <span class="ai-pulse"></span>
+                </a>
+                
+                <div class="profile-container">
+                    <a href="./sellItem.html" class="btn btn-outline" onclick="">Sell Item</a>
+                    <!-- <div class="profile-dropdown" id="sellOptionDropdown">
+                        <ul>
+                            <li><a href="./BookValuator.html">Sell a Book</a></li>
+                            <li><a href="listings.html">Other</a></li>
+                        </ul>
+                    </div> -->
+                </div>
+                
+                
+                <div class="cart-icon" onclick="toggleCart()">
+                    🛒
+                    <span class="cart-badge" id="cartBadge">3</span>
+                    <div class="cart-dropdown" id="cartDropdown">
+                        <h4>Shopping Cart</h4>
+                        <div style="margin: 15px 0; padding: 10px; background: #f8fafc; border-radius: 8px;">
+                            <div style="font-weight: 500;">Calculus Textbook</div>
+                            <div style="color: #6b7280; font-size: 14px;">$45.00</div>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">View Cart</button>
+                    </div>
+                </div>
+
+                <div class="profile-container">
+                    <img src="../images/profile-icon.png" alt="Profile" class="profile-icon" id="profileIcon" onclick="showProfile()"/>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <ul>
+                        <li><a href="./account_settings.html">Account Settings</a></li>
+                        <li><a href="./my_listings.html">My Listings</a></li>
+                        <li><a href="./purchase_history.html">Purchase History</a></li>
+                        <li><a href="./messages.html">Messages</a></li>
+                        <li id="logoutBtn" onclick="logout()">Logout</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>

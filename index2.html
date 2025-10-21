@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Signup</title>
+</head>
+<body>
+  <h1>Signup</h1>
+  <form id="signupForm">
+    <input type="email" name="email" placeholder="Enter email" required />
+    <input type="password" name="password" placeholder="Enter password" required />
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <script>
+    // Listen for form submission
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); // prevent default browser reload
+
+      const formData = {
+        email: e.target.email.value,
+        password: e.target.password.value
+      };
+
+      // Send data to backend
+      const response = await fetch('http://localhost:3000/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+      console.log(result);
+      alert(result.message || 'Signup complete!');
+    });
+  </script>
+</body>
+</html>
