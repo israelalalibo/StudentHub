@@ -159,9 +159,10 @@ function handleSelectFromDropdown(index) {
     const allResults = JSON.parse(localStorage.getItem("searchResults"));
     const clickedItem = allResults[index];
 
-    // Store the *entire list* so landing page can display them
-    localStorage.setItem("searchResults", JSON.stringify(allResults));
+    // ✅ Store ONLY the selected item
+    localStorage.setItem("selectedProduct", JSON.stringify(clickedItem));
 
+    // Navigate to landing page
     window.location.href = "landingpage.html";
   } catch (err) {
     console.error("Error selecting search result:", err);

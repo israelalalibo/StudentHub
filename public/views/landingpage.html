@@ -240,105 +240,99 @@
     </footer>
     <script src="../landing_page.js"></script>
     <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-    const savedResults = localStorage.getItem("searchResults");
-    const savedQuery = localStorage.getItem("searchQuery");
+        document.addEventListener("DOMContentLoaded", async () => {
+        const savedResults = localStorage.getItem("searchResults");
+        const savedQuery   = localStorage.getItem("searchQuery");
+        const selectedItem = localStorage.getItem("selectedProduct");
 
-    console.log(savedQuery);
-    console.log(savedResults);
+        let products = [];
+        let queryTerm = null;
 
-    let queryTerm = null;
-    let products = [];
-
-    //persist search query
-    if (savedQuery) {
-     document.querySelector(".section-subtitle").innerText = `Here’s what we found for your search "${savedQuery}"`;
-    }
-
-    try {
-        if (savedResults) {
-        products = JSON.parse(savedResults);
-        console.log(products);
-        queryTerm = (products.length && products[0].title) ? "related items" : "";
-        } else if (savedQuery) {
-        queryTerm = savedQuery;
-        const res = await fetch(`/search?query=${encodeURIComponent(savedQuery)}`);
-        products = await res.json();
+        try {
+            if (selectedItem) {
+            // ✅ Case 1: user clicked one product
+            const item = JSON.parse(selectedItem);
+            products = [item];  // wrap in array for uniform rendering
+            queryTerm = item.title || item.name;
+            } else if (savedResults) {
+            // Case 2: multiple results saved
+            products = JSON.parse(savedResults);
+            queryTerm = products.length ? products[0].title || products[0].name : "";
+            } else if (savedQuery) {
+            // Case 3: user pressed Enter
+            queryTerm = savedQuery;
+            const res = await fetch(`/search?query=${encodeURIComponent(savedQuery)}`);
+            products = await res.json();
+            }
+        } catch (err) {
+            console.error("Error parsing saved search:", err);
         }
-    } catch (err) {
-        console.error("Error parsing saved results:", err);
-    }
 
-    // Cleanup storage
-    localStorage.removeItem("searchResults");
-    localStorage.removeItem("searchQuery");
+        // Clear storage so future reloads don’t repeat
+        localStorage.removeItem("searchResults");
+        localStorage.removeItem("searchQuery");
+        localStorage.removeItem("selectedProduct");
 
-    const featuredSection = document.getElementById("featuredSection");
-    const searchResultsSection = document.getElementById("searchResultsSection");
-    const searchResultsGrid = document.getElementById("searchResultsGrid");
+        const featuredSection      = document.getElementById("featuredSection");
+        const searchResultsSection = document.getElementById("searchResultsSection");
+        const searchResultsGrid    = document.getElementById("searchResultsGrid");
 
-    if (!products || products.length === 0) {
-        featuredSection.style.display = "block";
-        searchResultsSection.style.display = "none";
-        searchResultsGrid.innerHTML = `
-        <div class="no-results-anim">
-            <div class="emoji">🔍</div>
-            <p>No items found for "<strong>${queryTerm || "your search"}</strong>"</p>
-        </div>`;
-        if (window.gsap) gsap.from(".no-results-anim", { opacity: 0, y: 20, duration: 0.6 });
-        return;
-    }
+        featuredSection.style.display = "none";
+        searchResultsSection.style.display = "block";
 
-    featuredSection.style.display = "none";
-    searchResultsSection.style.display = "block";
+        if (!products.length) {
+            searchResultsGrid.innerHTML = `
+            <div class="no-results-anim">
+                <div class="emoji">🔍</div>
+                <p>No items found for "<strong>${queryTerm || "your search"}</strong>"</p>
+            </div>`;
+            if (window.gsap) gsap.from(".no-results-anim",{opacity:0,y:20,duration:0.6});
+            return;
+        }
 
-    // ✅ Render multiple results (real Supabase images)
-    searchResultsGrid.innerHTML = products
-        .map(item => `
-        <div class="product-card fade-in" style="opacity:1">
+        // ✅ Uniform grid rendering (even for one item)
+        searchResultsGrid.innerHTML = products.map(item => `
+            <div class="product-card fade-in">
             <img src="${sanitizeImageUrl(item.image_url)}"
                 alt="${escapeHtml(item.title || item.name)}"
                 onerror="this.src='../images/default-placeholder.png';"
-                style="width:100%; height:200px; object-fit:cover; border-top-left-radius:20px; border-top-right-radius:20px;">
+                style="width:100%;height:200px;object-fit:cover;border-top-left-radius:20px;border-top-right-radius:20px;">
             <div class="product-info">
-            <h3 class="product-title">${escapeHtml(item.title || item.name)}</h3>
-            <div class="product-price">$${item.price || "N/A"}</div>
-            <span class="product-condition">${item.condition || "Good"}</span>
-            <div class="product-seller">Sold by ${item.seller || "Student"}</div>
-            <div class="product-actions">
+                <h3 class="product-title">${escapeHtml(item.title || item.name)}</h3>
+                <div class="product-price">$${item.price || "N/A"}</div>
+                <span class="product-condition">${item.condition || "Good"}</span>
+                <div class="product-seller">Sold by ${item.seller || "Student"}</div>
+                <div class="product-actions">
                 <button class="btn btn-primary btn-sm">Add to Cart</button>
                 <button class="btn btn-outline btn-sm">Contact</button>
+                </div>
             </div>
             </div>
-        </div>
-        `)
-        .join("");
+        `).join("");
 
-    // GSAP animation
-    if (window.gsap) {
-        gsap.from(".fade-in", {
-        opacity: 0,
-        y: 30,
-        duration: 0.5,
-        stagger: 0.15,
-        ease: "power2.out"
+        // Adjust grid layout if only one item
+        if (products.length === 1) {
+        searchResultsGrid.classList.add("single-item");
+        } else {
+        searchResultsGrid.classList.remove("single-item");
+        }
+
+        // Animate cards
+        if (window.gsap) {
+            gsap.from(".fade-in",{opacity:0,y:30,duration:0.5,stagger:0.15,ease:"power2.out"});
+        }
         });
-    }
-    });
 
-    // --- helpers ---
-    function sanitizeImageUrl(url) {
-    if (!url) return "../images/default-placeholder.png";
-    if (url.startsWith("http")) return url;
-    return `https://your-supabase-project-url.supabase.co/storage/v1/object/public/${url}`;
-    }
+        function sanitizeImageUrl(url){
+        if(!url) return "../images/default-placeholder.png";
+        if(url.startsWith("http")) return url;
+        return `https://bfpaawywaljnfudynnke.supabase.co/storage/v1/object/public/${url}`;
+        }
+        function escapeHtml(str){
+        return str ? str.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : "";
+        }
+</script>
 
-    function escapeHtml(str) {
-    return str
-        ? str.replace(/[&<>"']/g, (m) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))
-        : "";
-    }
-    </script>
 
 </body>
 </html>

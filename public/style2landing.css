@@ -818,3 +818,19 @@ body {
   box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
+/* Keep search results grid looking consistent */
+#searchResultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 30px;
+  justify-items: center;
+  align-items: start;
+  padding: 20px 0;
+}
+
+/* Ensure a single product doesn’t stretch full width */
+#searchResultsGrid.single-item {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  justify-content: center;
+}
+
