@@ -245,6 +245,8 @@
         const savedQuery   = localStorage.getItem("searchQuery");
         const selectedItem = localStorage.getItem("selectedProduct");
 
+        console.log(savedQuery);
+
         let products = [];
         let queryTerm = null;
 
@@ -277,8 +279,14 @@
         const searchResultsSection = document.getElementById("searchResultsSection");
         const searchResultsGrid    = document.getElementById("searchResultsGrid");
 
-        featuredSection.style.display = "none";
-        searchResultsSection.style.display = "block";
+        if (!savedQuery){
+            searchResultsSection.style.display = "none";
+            featuredSection.style.display = "block";
+        }else{
+            featuredSection.style.display = "none";
+            searchResultsSection.style.display = "block";
+        }
+        
 
         if (!products.length) {
             searchResultsGrid.innerHTML = `
@@ -292,7 +300,7 @@
 
         // ✅ Uniform grid rendering (even for one item)
         searchResultsGrid.innerHTML = products.map(item => `
-            <div class="product-card fade-in">
+            <div class="product-card fade-in" onclick='viewProductDetails(${JSON.stringify(item).replace(/"/g, "&quot; style='opacity: 1;'")})'>
             <img src="${sanitizeImageUrl(item.image_url)}"
                 alt="${escapeHtml(item.title || item.name)}"
                 onerror="this.src='../images/default-placeholder.png';"
@@ -330,6 +338,11 @@
         }
         function escapeHtml(str){
         return str ? str.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : "";
+        }
+
+        function viewProductDetails(item) {
+            localStorage.setItem("selectedItem", JSON.stringify(item));
+            window.location.href = "productDetails.html";
         }
 </script>
 

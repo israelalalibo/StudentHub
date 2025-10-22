@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details | StudentHub</title>
+  <link rel="stylesheet" href="../style2landing.css" />
+  <script src="../loadHeader.js" defer></script>
+  <script src="../landing_page.js"></script>
+  <style>
+    .details-container {
+      margin-top: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      flex-wrap: wrap;
+      padding: 40px 60px;
+      min-height: 100vh;
+      background: #f3f4f6;
+      border-radius: 20px;
+      padding: 60px;
+    }
+
+    .details-image {
+      flex: 1;
+      max-width: 500px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .details-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+
+    .details-info {
+      flex: 1;
+      max-width: 500px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      padding: 30px;
+    }
+
+    .details-info h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: #111827;
+    }
+
+    .details-price {
+      font-size: 1.5rem;
+      color: #047857;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .details-description {
+      font-size: 1rem;
+      color: #4b5563;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .details-meta {
+      font-size: 0.95rem;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #047857;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .btn-primary:hover {
+      background: #065f46;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 20px 0 0 60px;
+      color: #2563eb;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .seller-box {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .seller-box h3 {
+      margin-bottom: 10px;
+      color: #111827;
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <a href="landingpage.html" class="back-link">← Back to Marketplace</a>
+
+  <div class="details-container" id="detailsContainer">
+    <!-- dynamically filled -->
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById("detailsContainer");
+      const savedItem = localStorage.getItem("selectedItem");
+
+      if (!savedItem) {
+        container.innerHTML = `
+          <div style="text-align:center; width:100%; padding:80px;">
+            <p style="font-size:1.2rem; color:#6b7280;">
+              Item not found. <a href='landingpage.html' style='color:#2563eb;'>Return to Marketplace</a>.
+            </p>
+          </div>`;
+        return;
+      }
+
+      const item = JSON.parse(savedItem);
+
+      container.innerHTML = `
+        <div class="details-image">
+          <img src="${sanitizeImageUrl(item.image_url)}" 
+               alt="${escapeHtml(item.title || item.name)}"
+               onerror="this.src='../images/default-placeholder.png';" />
+        </div>
+
+        <div class="details-info">
+          <div class="details-meta">${escapeHtml(item.category || "")} • ${escapeHtml(item.condition || "")}</div>
+          <h1>${escapeHtml(item.title || item.name)}</h1>
+          <div class="details-price">$${item.price || "N/A"}</div>
+
+          <div class="details-description">
+            ${escapeHtml(item.description || "No description provided.")}
+          </div>
+
+          <button class="btn-primary">Buy Now - $${item.price || ""}</button>
+
+          <div class="seller-box">
+            <h3>Seller Information</h3>
+            <p>${escapeHtml(item.seller || "Student User")}</p>
+            <p><small>Member since ${item.joined || "2025"}</small></p>
+          </div>
+        </div>
+      `;
+    });
+
+    function sanitizeImageUrl(url){
+      if(!url) return "../images/default-placeholder.png";
+      if(url.startsWith("http")) return url;
+      return `https://bfpaawywaljnfudynnke.supabase.co/storage/v1/object/public/\${url}`;
+    }
+
+    function escapeHtml(str){
+      return str ? str.replace(/[&<>"']/g, (m) => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[m])) : "";
+    }
+  </script>
+</body>
+</html>
+
+
