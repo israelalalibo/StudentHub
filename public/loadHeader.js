@@ -1,6 +1,14 @@
 // loadHeader.js
 
 // ============================================
+// SESSION TIMEOUT CONFIGURATION
+// ============================================
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes of inactivity
+const SESSION_CHECK_INTERVAL_MS = 60 * 1000; // Check every minute
+let sessionCheckInterval = null;
+let lastActivityTime = Date.now();
+
+// ============================================
 // DEFINE ALL FUNCTIONS FIRST (before DOMContentLoaded)
 // so onclick handlers in header.html can use them
 // ============================================
@@ -87,12 +95,160 @@ window.closeMobileMenu = closeMobileMenu;
 window.performMobileSearch = performMobileSearch;
 
 // ============================================
+// SESSION TIMEOUT FUNCTIONS
+// ============================================
+
+// Update last activity time (called on user interactions)
+function updateLastActivity() {
+  lastActivityTime = Date.now();
+  localStorage.setItem('lastActivityTime', lastActivityTime.toString());
+}
+
+// Check if session has timed out due to inactivity
+function checkSessionTimeout() {
+  const storedSession = localStorage.getItem('supabase_session');
+  if (!storedSession) {
+    // No session - stop checking
+    stopSessionMonitoring();
+    return;
+  }
+
+  const storedLastActivity = localStorage.getItem('lastActivityTime');
+  const lastActivity = storedLastActivity ? parseInt(storedLastActivity) : lastActivityTime;
+  const timeSinceLastActivity = Date.now() - lastActivity;
+
+  if (timeSinceLastActivity >= SESSION_TIMEOUT_MS) {
+    console.log('Session timed out due to inactivity');
+    handleSessionTimeout();
+  }
+}
+
+// Handle session timeout - logout and redirect
+async function handleSessionTimeout() {
+  stopSessionMonitoring();
+  
+  // Clear all session data
+  localStorage.removeItem('supabase_session');
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('lastActivityTime');
+  localStorage.removeItem('searchResults');
+  localStorage.removeItem('categoryResults');
+  localStorage.removeItem('selectedCategory');
+  localStorage.removeItem('priceFilter');
+  localStorage.removeItem('persistedSearchQuery');
+  localStorage.removeItem('persistedCategory');
+  localStorage.removeItem('persistedPriceFilter');
+  localStorage.removeItem('categoryPriceFilter');
+
+  // Try to logout from server (don't wait for response)
+  try {
+    fetch('/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+  } catch (e) {
+    // Ignore errors
+  }
+
+  // Show session expired message and redirect
+  showSessionExpiredModal();
+}
+
+// Start monitoring session timeout
+function startSessionMonitoring() {
+  // Only monitor if user is logged in
+  const storedSession = localStorage.getItem('supabase_session');
+  if (!storedSession) return;
+
+  // Initialize last activity
+  updateLastActivity();
+
+  // Set up activity listeners
+  const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+  activityEvents.forEach(event => {
+    document.addEventListener(event, updateLastActivity, { passive: true });
+  });
+
+  // Start periodic session checks
+  if (sessionCheckInterval) {
+    clearInterval(sessionCheckInterval);
+  }
+  sessionCheckInterval = setInterval(checkSessionTimeout, SESSION_CHECK_INTERVAL_MS);
+  
+  console.log('Session monitoring started');
+}
+
+// Stop monitoring session timeout
+function stopSessionMonitoring() {
+  if (sessionCheckInterval) {
+    clearInterval(sessionCheckInterval);
+    sessionCheckInterval = null;
+  }
+}
+
+// Show session expired modal
+function showSessionExpiredModal() {
+  // Remove any existing modal
+  const existing = document.getElementById('sessionExpiredModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'sessionExpiredModal';
+  modal.innerHTML = `
+    <div style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    ">
+      <div style="
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      ">
+        <div style="font-size: 3rem; margin-bottom: 16px;">⏰</div>
+        <h2 style="margin: 0 0 12px 0; color: #111827; font-size: 1.5rem;">Session Expired</h2>
+        <p style="color: #6b7280; margin: 0 0 24px 0;">
+          Your session has expired due to inactivity. Please log in again to continue.
+        </p>
+        <button onclick="window.location.href='../index.html'" style="
+          padding: 14px 32px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 1rem;
+        ">
+          Log In Again
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+// ============================================
 // DOM CONTENT LOADED - Initialize after page loads
 // ============================================
 document.addEventListener("DOMContentLoaded", async () => {
   // Restore session first, then load header
-  await restoreSession();
+  const sessionRestored = await restoreSession();
   await loadHeader();
+  
+  // Start session monitoring if logged in
+  if (sessionRestored) {
+    startSessionMonitoring();
+  }
 });
 
 // Restore session from localStorage to server
@@ -107,7 +263,18 @@ async function restoreSession() {
     const session = JSON.parse(storedSession);
     if (!session.access_token || !session.refresh_token) {
       console.log('Invalid stored session format');
+      clearSessionData();
       return false;
+    }
+
+    // Check if session might be expired based on stored expiry
+    if (session.expires_at) {
+      const expiresAt = new Date(session.expires_at * 1000);
+      if (expiresAt < new Date()) {
+        console.log('Session token expired');
+        clearSessionData();
+        return false;
+      }
     }
 
     // Always try to restore the session to the server
@@ -128,19 +295,33 @@ async function restoreSession() {
       console.warn('Session restoration failed:', errorData.error || 'Unknown error');
       
       // Session restoration failed, clear local storage
-      localStorage.removeItem('supabase_session');
-      localStorage.removeItem('user_id');
+      clearSessionData();
       return false;
     }
     
     const result = await restoreResponse.json();
     console.log('Session restored successfully for user:', result.userId);
+    
+    // Update last activity time on successful restore
+    updateLastActivity();
+    
     return true;
     
   } catch (err) {
     console.error('Error restoring session:', err);
+    clearSessionData();
     return false;
   }
+}
+
+// Clear all session-related data from localStorage
+function clearSessionData() {
+  localStorage.removeItem('supabase_session');
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('lastActivityTime');
+  stopSessionMonitoring();
 }
 
 // Export for use in other scripts if needed

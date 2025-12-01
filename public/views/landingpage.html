@@ -33,9 +33,16 @@
         <div class="container">
         <div class="section-header">
             <h2 class="section-title">Search Results</h2>
-            <p class="section-subtitle">Here’s what we found for your search</p>
+            <p class="section-subtitle">Here's what we found for your search</p>
         </div>
         <div class="product-grid" id="searchResultsGrid"></div>
+        
+        <!-- Search Results Pagination -->
+        <div class="pagination-container" id="searchPagination" style="display: none;">
+            <button class="pagination-btn" id="searchPrevBtn" onclick="changeSearchPage(-1)">← Previous</button>
+            <span class="pagination-info" id="searchPageInfo">Page 1 of 1</span>
+            <button class="pagination-btn" id="searchNextBtn" onclick="changeSearchPage(1)">Next →</button>
+        </div>
         </div>
     </section>
         <!-- Categories 
@@ -95,61 +102,18 @@
                 </div>
 
                 <div class="product-grid" id="featuredProductsGrid">
-                    <div class="product-card featured-card" data-product='{"title":"Calculus: Early Transcendentals","price":45,"condition":"Excellent","seller":"Sarah M.","category":"textbooks"}'>
-                        <div class="product-image">📖</div>
-                        <div class="product-info">
-                            <h3 class="product-title">Calculus: Early Transcendentals</h3>
-                            <div class="product-price">$45.00</div>
-                            <span class="product-condition">Excellent</span>
-                            <div class="product-seller">Sold by Sarah M. • Engineering</div>
-                            <div class="product-actions">
-                                <button class="btn btn-primary btn-sm featured-add-cart">Add to Cart</button>
-                                <button class="btn btn-outline btn-sm featured-contact">Contact</button>
-                            </div>
-                        </div>
+                    <!-- Loading state -->
+                    <div class="loading-featured" id="featuredLoading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading featured items...</p>
                     </div>
-
-                    <div class="product-card featured-card" data-product='{"title":"MacBook Pro 13\" (2021)","price":899,"condition":"Good","seller":"Mike R.","category":"electronics"}'>
-                        <div class="product-image">💻</div>
-                        <div class="product-info">
-                            <h3 class="product-title">MacBook Pro 13" (2021)</h3>
-                            <div class="product-price">$899.00</div>
-                            <span class="product-condition">Good</span>
-                            <div class="product-seller">Sold by Mike R. • Computer Science</div>
-                            <div class="product-actions">
-                                <button class="btn btn-primary btn-sm featured-add-cart">Add to Cart</button>
-                                <button class="btn btn-outline btn-sm featured-contact">Contact</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="product-card featured-card" data-product='{"title":"TI-84 Plus Calculator","price":65,"condition":"Like New","seller":"Emma L.","category":"electronics"}'>
-                        <div class="product-image">🧮</div>
-                        <div class="product-info">
-                            <h3 class="product-title">TI-84 Plus Calculator</h3>
-                            <div class="product-price">$65.00</div>
-                            <span class="product-condition">Like New</span>
-                            <div class="product-seller">Sold by Emma L. • Mathematics</div>
-                            <div class="product-actions">
-                                <button class="btn btn-primary btn-sm featured-add-cart">Add to Cart</button>
-                                <button class="btn btn-outline btn-sm featured-contact">Contact</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="product-card featured-card" data-product='{"title":"Ergonomic Study Chair","price":80,"condition":"Good","seller":"Alex T.","category":"furniture"}'>
-                        <div class="product-image">🪑</div>
-                        <div class="product-info">
-                            <h3 class="product-title">Ergonomic Study Chair</h3>
-                            <div class="product-price">$80.00</div>
-                            <span class="product-condition">Good</span>
-                            <div class="product-seller">Sold by Alex T. • Business</div>
-                            <div class="product-actions">
-                                <button class="btn btn-primary btn-sm featured-add-cart">Add to Cart</button>
-                                <button class="btn btn-outline btn-sm featured-contact">Contact</button>
-                            </div>
-                        </div>
-                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination-container" id="featuredPagination" style="display: none;">
+                    <button class="pagination-btn" id="featuredPrevBtn" onclick="changeFeaturedPage(-1)">← Previous</button>
+                    <span class="pagination-info" id="featuredPageInfo">Page 1 of 1</span>
+                    <button class="pagination-btn" id="featuredNextBtn" onclick="changeFeaturedPage(1)">Next →</button>
                 </div>
             </div>
         </section>
@@ -243,12 +207,12 @@
         <script>
             // Category name mapping for display
             const categoryDisplayNames = {
-                'textbooks': '📚 Textbooks',
-                'electronics': '💻 Electronics',
-                'supplies': '✏️ Supplies',
-                'furniture': '🪑 Dorm Furniture',
-                'clothing': '👕 Clothing',
-                'other': '🎒 Other'
+                'textbooks': ' Textbooks',
+                'electronics': ' Electronics',
+                'supplies': ' Supplies',
+                'furniture': 'Dorm Furniture',
+                'clothing': 'Clothing',
+                'other': 'Other'
             };
 
             document.addEventListener("DOMContentLoaded", async () => {
@@ -284,7 +248,7 @@
                     // Clean URL without reloading
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else if (categoryResults) {
-                // ✅ Case: Category search
+                // Case: Category search
                 products = JSON.parse(categoryResults);
                 queryTerm = categoryDisplayNames[selectedCategory] || selectedCategory;
                 persistCategory = selectedCategory;
@@ -447,65 +411,25 @@
             
             if (!products.length) return;
 
-            // ✅ Uniform grid rendering (even for one item)
-            searchResultsGrid.innerHTML = products.map((item, index) => `
-                <div class="product-card fade-in" style="opacity: 1" data-product-index="${index}">
-                <img src="${sanitizeImageUrl(item.image_url)}"
-                    alt="${escapeHtml(item.title || item.name)}"
-                    onerror="this.src='../images/default-placeholder.png';"
-                    style="width:100%;height:200px;object-fit:cover;border-top-left-radius:20px;border-top-right-radius:20px;">
-                <div class="product-info">
-                    <h3 class="product-title">${escapeHtml(item.title || item.name)}</h3>
-                    <div class="product-price">£${item.price || "N/A"}</div>
-                    <span class="product-condition">${item.condition || "Good"}</span>
-                    <div class="product-seller">Sold by ${item.seller || item.first_name || "Student"}</div>
-                    <div class="product-actions">
-                    <button class="btn btn-primary btn-sm add-to-cart-btn" data-product-index="${index}">Add to Cart</button>
-                    <button class="btn btn-outline btn-sm contact-btn" data-product-index="${index}">Contact</button>
-                    </div>
-                </div>
-                </div>
-            `).join("");
-
-            // Store products globally for click handlers
+            // Store all products for pagination
+            allSearchProducts = products;
             window.searchProducts = products;
-
-            // Attach click handlers to product cards (for navigation)
-            document.querySelectorAll('#searchResultsGrid .product-card').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    // Don't navigate if clicking on buttons
-                    if (e.target.closest('.add-to-cart-btn') || e.target.closest('.contact-btn')) {
-                        return;
-                    }
-                    const index = parseInt(card.dataset.productIndex);
-                    const item = window.searchProducts[index];
-                    if (item) viewProductDetails(item);
-                });
-            });
-
-            // Attach click handlers to Add to Cart buttons
-            document.querySelectorAll('#searchResultsGrid .add-to-cart-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const index = parseInt(btn.dataset.productIndex);
-                    const item = window.searchProducts[index];
-                    if (item && window.Cart) {
-                        Cart.addItem(item);
-                    }
-                });
-            });
-
-            // Attach click handlers to Contact buttons
-            document.querySelectorAll('#searchResultsGrid .contact-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const index = parseInt(btn.dataset.productIndex);
-                    const item = window.searchProducts[index];
-                    if (item) {
-                        alert(`Contact seller: ${item.seller || item.first_name || 'Student'}\nIn a real app, this would open a messaging interface.`);
-                    }
-                });
-            });
+            
+            // Calculate pagination
+            searchTotalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
+            searchCurrentPage = 1;
+            
+            // Render first page
+            renderSearchPage();
+            
+            // Show/hide pagination
+            const searchPagination = document.getElementById('searchPagination');
+            if (searchTotalPages > 1) {
+                searchPagination.style.display = 'flex';
+                updateSearchPaginationUI();
+            } else {
+                searchPagination.style.display = 'none';
+            }
 
             // Adjust grid layout if only one item
             if (products.length === 1) {
@@ -513,10 +437,10 @@
             } else {
             searchResultsGrid.classList.remove("single-item");
             }
-
-            // Animate cards
-            if (window.gsap) {
-                gsap.from(".fade-in",{opacity:0,y:30,duration:0.5,stagger:0.15,ease:"power2.out"});
+            
+            // Load featured products if showing featured section
+            if (featuredSection.style.display !== 'none') {
+                loadFeaturedProducts();
             }
             });
 
@@ -534,55 +458,284 @@
                 window.location.href = "productDetails.html";
             }
 
-            // Handle featured products section
-            document.querySelectorAll('.featured-card').forEach(card => {
-                // Card click - navigate to product details
-                card.addEventListener('click', (e) => {
-                    if (e.target.closest('.featured-add-cart') || e.target.closest('.featured-contact')) {
+            // Pagination state
+            const ITEMS_PER_PAGE = 8;
+            let featuredCurrentPage = 1;
+            let featuredTotalPages = 1;
+            let allFeaturedProducts = [];
+            
+            let searchCurrentPage = 1;
+            let searchTotalPages = 1;
+            let allSearchProducts = [];
+
+            // Load featured products from API
+            async function loadFeaturedProducts() {
+                const featuredGrid = document.getElementById('featuredProductsGrid');
+                const paginationContainer = document.getElementById('featuredPagination');
+                
+                try {
+                    // Fetch more products for pagination (up to 50)
+                    const response = await fetch('/api/featured-products?limit=50');
+                    if (!response.ok) throw new Error('Failed to fetch featured products');
+                    
+                    const products = await response.json();
+                    
+                    if (!products || products.length === 0) {
+                        featuredGrid.innerHTML = `
+                            <div class="no-results-anim" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                                <div class="emoji">📦</div>
+                                <p>No featured products available yet</p>
+                            </div>
+                        `;
+                        paginationContainer.style.display = 'none';
                         return;
                     }
-                    try {
-                        const product = JSON.parse(card.dataset.product);
-                        viewProductDetails(product);
-                    } catch(err) {
-                        console.error('Error parsing product data:', err);
+                    
+                    // Store all products
+                    allFeaturedProducts = products;
+                    window.featuredProducts = products;
+                    
+                    // Calculate pagination
+                    featuredTotalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
+                    featuredCurrentPage = 1;
+                    
+                    // Render first page
+                    renderFeaturedPage();
+                    
+                    // Show/hide pagination
+                    if (featuredTotalPages > 1) {
+                        paginationContainer.style.display = 'flex';
+                        updateFeaturedPaginationUI();
+                    } else {
+                        paginationContainer.style.display = 'none';
                     }
+                    
+                } catch (err) {
+                    console.error('Error loading featured products:', err);
+                    featuredGrid.innerHTML = `
+                        <div class="no-results-anim" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                            <div class="emoji">⚠️</div>
+                            <p>Error loading featured products</p>
+                            <button class="btn btn-primary btn-sm" onclick="loadFeaturedProducts()">Try Again</button>
+                        </div>
+                    `;
+                }
+            }
+            
+            function renderFeaturedPage() {
+                const featuredGrid = document.getElementById('featuredProductsGrid');
+                const startIndex = (featuredCurrentPage - 1) * ITEMS_PER_PAGE;
+                const endIndex = startIndex + ITEMS_PER_PAGE;
+                const pageProducts = allFeaturedProducts.slice(startIndex, endIndex);
+                
+                featuredGrid.innerHTML = pageProducts.map((item, index) => {
+                    const globalIndex = startIndex + index;
+                    return `
+                        <div class="product-card featured-card fade-in" data-featured-index="${globalIndex}">
+                            <div class="product-image-container">
+                                <img src="${sanitizeImageUrl(item.image_url)}"
+                                    alt="${escapeHtml(item.title)}"
+                                    onerror="this.src='../images/default-placeholder.png';"
+                                    class="product-image">
+                                ${item.review_count > 0 ? `<span class="review-badge">⭐ ${item.review_count} review${item.review_count > 1 ? 's' : ''}</span>` : ''}
+                            </div>
+                            <div class="product-info">
+                                <span class="product-category">${escapeHtml(item.category || 'Other')}</span>
+                                <h3 class="product-title">${escapeHtml(item.title)}</h3>
+                                <div class="product-price">$${parseFloat(item.price).toFixed(2)}</div>
+                                <span class="product-condition">${escapeHtml(item.condition || 'Good')}</span>
+                                <div class="product-seller">Sold by ${escapeHtml(item.seller_name || 'Student')}</div>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary btn-sm featured-add-cart" data-featured-index="${globalIndex}">Add to Cart</button>
+                                    <button class="btn btn-outline btn-sm featured-contact" data-featured-index="${globalIndex}">Contact</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Attach click handlers
+                attachFeaturedClickHandlers();
+                
+                // Animate cards
+                if (window.gsap) {
+                    gsap.from(".featured-card", {
+                        opacity: 0, 
+                        y: 30, 
+                        duration: 0.5, 
+                        stagger: 0.1, 
+                        ease: "power2.out"
+                    });
+                }
+            }
+            
+            function changeFeaturedPage(direction) {
+                const newPage = featuredCurrentPage + direction;
+                if (newPage >= 1 && newPage <= featuredTotalPages) {
+                    featuredCurrentPage = newPage;
+                    renderFeaturedPage();
+                    updateFeaturedPaginationUI();
+                    // Scroll to top of featured section
+                    document.getElementById('featuredSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+            
+            function updateFeaturedPaginationUI() {
+                document.getElementById('featuredPageInfo').textContent = `Page ${featuredCurrentPage} of ${featuredTotalPages}`;
+                document.getElementById('featuredPrevBtn').disabled = featuredCurrentPage === 1;
+                document.getElementById('featuredNextBtn').disabled = featuredCurrentPage === featuredTotalPages;
+            }
+            
+            // Make pagination functions global
+            window.changeFeaturedPage = changeFeaturedPage;
+            
+            // Search Results Pagination Functions
+            function renderSearchPage() {
+                const searchResultsGrid = document.getElementById('searchResultsGrid');
+                const startIndex = (searchCurrentPage - 1) * ITEMS_PER_PAGE;
+                const endIndex = startIndex + ITEMS_PER_PAGE;
+                const pageProducts = allSearchProducts.slice(startIndex, endIndex);
+                
+                searchResultsGrid.innerHTML = pageProducts.map((item, index) => {
+                    const globalIndex = startIndex + index;
+                    return `
+                        <div class="product-card fade-in" style="opacity: 1" data-product-index="${globalIndex}">
+                            <img src="${sanitizeImageUrl(item.image_url)}"
+                                alt="${escapeHtml(item.title || item.name)}"
+                                onerror="this.src='../images/default-placeholder.png';"
+                                style="width:100%;height:200px;object-fit:cover;border-top-left-radius:20px;border-top-right-radius:20px;">
+                            <div class="product-info">
+                                <h3 class="product-title">${escapeHtml(item.title || item.name)}</h3>
+                                <div class="product-price">$${parseFloat(item.price || 0).toFixed(2)}</div>
+                                <span class="product-condition">${item.condition || "Good"}</span>
+                                <div class="product-seller">Sold by ${item.seller_name || item.seller || item.first_name || "Student"}</div>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary btn-sm add-to-cart-btn" data-product-index="${globalIndex}">Add to Cart</button>
+                                    <button class="btn btn-outline btn-sm contact-btn" data-product-index="${globalIndex}">Contact</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Attach click handlers
+                attachSearchClickHandlers();
+                
+                // Animate cards
+                if (window.gsap) {
+                    gsap.from("#searchResultsGrid .fade-in", {
+                        opacity: 0, 
+                        y: 30, 
+                        duration: 0.5, 
+                        stagger: 0.1, 
+                        ease: "power2.out"
+                    });
+                }
+            }
+            
+            function attachSearchClickHandlers() {
+                // Card click - navigate to product details
+                document.querySelectorAll('#searchResultsGrid .product-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.closest('.add-to-cart-btn') || e.target.closest('.contact-btn')) {
+                            return;
+                        }
+                        const index = parseInt(card.dataset.productIndex);
+                        const item = window.searchProducts[index];
+                        if (item) viewProductDetails(item);
+                    });
                 });
-            });
 
-            // Featured Add to Cart buttons
-            document.querySelectorAll('.featured-add-cart').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const card = btn.closest('.featured-card');
-                    if (card && window.Cart) {
-                        try {
-                            const product = JSON.parse(card.dataset.product);
+                // Add to Cart buttons
+                document.querySelectorAll('#searchResultsGrid .add-to-cart-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.dataset.productIndex);
+                        const item = window.searchProducts[index];
+                        if (item && window.Cart) {
+                            Cart.addItem(item);
+                        }
+                    });
+                });
+
+                // Contact buttons
+                document.querySelectorAll('#searchResultsGrid .contact-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.dataset.productIndex);
+                        const item = window.searchProducts[index];
+                        if (item && item.seller_id) {
+                            window.location.href = `messages.html?seller=${item.seller_id}&product=${item.product_id}`;
+                        } else {
+                            alert('Unable to contact seller. Please try again.');
+                        }
+                    });
+                });
+            }
+            
+            function changeSearchPage(direction) {
+                const newPage = searchCurrentPage + direction;
+                if (newPage >= 1 && newPage <= searchTotalPages) {
+                    searchCurrentPage = newPage;
+                    renderSearchPage();
+                    updateSearchPaginationUI();
+                    // Scroll to top of search results
+                    document.getElementById('searchResultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+            
+            function updateSearchPaginationUI() {
+                document.getElementById('searchPageInfo').textContent = `Page ${searchCurrentPage} of ${searchTotalPages}`;
+                document.getElementById('searchPrevBtn').disabled = searchCurrentPage === 1;
+                document.getElementById('searchNextBtn').disabled = searchCurrentPage === searchTotalPages;
+            }
+            
+            // Make search pagination function global
+            window.changeSearchPage = changeSearchPage;
+            
+            function attachFeaturedClickHandlers() {
+                // Card click - navigate to product details
+                document.querySelectorAll('.featured-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.closest('.featured-add-cart') || e.target.closest('.featured-contact')) {
+                            return;
+                        }
+                        const index = parseInt(card.dataset.featuredIndex);
+                        const product = window.featuredProducts[index];
+                        if (product) viewProductDetails(product);
+                    });
+                });
+
+                // Add to Cart buttons
+                document.querySelectorAll('.featured-add-cart').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.dataset.featuredIndex);
+                        const product = window.featuredProducts[index];
+                        if (product && window.Cart) {
                             Cart.addItem(product);
-                        } catch(err) {
-                            console.error('Error adding to cart:', err);
                         }
-                    }
+                    });
                 });
-            });
 
-            // Featured Contact buttons
-            document.querySelectorAll('.featured-contact').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const card = btn.closest('.featured-card');
-                    if (card) {
-                        try {
-                            const product = JSON.parse(card.dataset.product);
-                            alert(`Contact seller: ${product.seller}\nIn a real app, this would open a messaging interface.`);
-                        } catch(err) {
-                            console.error('Error:', err);
+                // Contact buttons
+                document.querySelectorAll('.featured-contact').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.dataset.featuredIndex);
+                        const product = window.featuredProducts[index];
+                        if (product && product.seller_id) {
+                            // Navigate to messages with seller
+                            window.location.href = `messages.html?seller=${product.seller_id}&product=${product.product_id}`;
+                        } else {
+                            alert('Unable to contact seller. Please try again.');
                         }
-                    }
+                    });
                 });
-            });
+            }
 
         </script>
     </body>
 </html>      
+
 

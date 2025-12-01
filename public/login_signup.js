@@ -219,6 +219,8 @@ loginForm.addEventListener('submit', async function(e) {
             if (result.session && result.session.access_token) {
                 localStorage.setItem('supabase_session', JSON.stringify(result.session));
                 localStorage.setItem('user_id', result.userID);
+                // Initialize last activity time for session timeout tracking
+                localStorage.setItem('lastActivityTime', Date.now().toString());
                 console.log('Session tokens stored successfully');
             }
 

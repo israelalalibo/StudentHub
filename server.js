@@ -469,6 +469,74 @@ app.post("/uploadProduct", upload.single("image"), async (req, res) => {
   }
 });
 
+// ============ FEATURED PRODUCTS API ============
+// Get featured products prioritized by review count
+app.get("/api/featured-products", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 8;
+
+    // Get all products with seller info
+    const { data: products, error: productsError } = await supabaseAdmin
+      .from("ProductTable")
+      .select(`
+        *,
+        student:seller_id (first_name, last_name)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (productsError) throw productsError;
+
+    if (!products || products.length === 0) {
+      return res.json([]);
+    }
+
+    // Get review counts for all products
+    const { data: reviewCounts, error: reviewsError } = await supabaseAdmin
+      .from("reviews")
+      .select("product_id");
+
+    if (reviewsError) {
+      console.error("Error fetching reviews:", reviewsError);
+    }
+
+    // Count reviews per product
+    const reviewCountMap = {};
+    if (reviewCounts) {
+      reviewCounts.forEach(review => {
+        const pid = review.product_id;
+        reviewCountMap[pid] = (reviewCountMap[pid] || 0) + 1;
+      });
+    }
+
+    // Add review count to each product and format seller name
+    const productsWithReviews = products.map(product => ({
+      ...product,
+      review_count: reviewCountMap[product.product_id] || 0,
+      seller_name: product.student 
+        ? `${product.student.first_name || ''} ${product.student.last_name || ''}`.trim() 
+        : 'Student'
+    }));
+
+    // Sort by review count (descending), then by created_at (descending)
+    productsWithReviews.sort((a, b) => {
+      if (b.review_count !== a.review_count) {
+        return b.review_count - a.review_count;
+      }
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+
+    // Return top featured products
+    const featured = productsWithReviews.slice(0, limit);
+    
+    console.log(`Returning ${featured.length} featured products`);
+    res.json(featured);
+
+  } catch (err) {
+    console.error("Featured products error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/search", async (req, res) => {
   const query = req.query.query || "";
   const priceFilter = req.query.price || "";
@@ -1580,7 +1648,7 @@ app.get("/api/my-listings/stats", async (req, res) => {
 });
 
 // Update a listing
-app.patch("/api/my-listings/:listingId", async (req, res) => {
+app.patch("/api/my-listings/:listingId", upload.array("images", 5), async (req, res) => {
   try {
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
@@ -1589,11 +1657,12 @@ app.patch("/api/my-listings/:listingId", async (req, res) => {
 
     const { listingId } = req.params;
     const { title, description, price, category, condition } = req.body;
+    const files = req.files || [];
 
     // Verify ownership
     const { data: existing, error: fetchError } = await supabaseAdmin
       .from("ProductTable")
-      .select("seller_id")
+      .select("seller_id, image_url")
       .eq("product_id", listingId)
       .maybeSingle();
 
@@ -1611,16 +1680,72 @@ app.patch("/api/my-listings/:listingId", async (req, res) => {
       return res.status(403).json({ error: "You can only edit your own listings" });
     }
 
+    // Prepare update data
+    let updateData = {
+      title: title,
+      description: description,
+      price: parseFloat(price),
+      category: category,
+      condition: condition,
+      updated_at: new Date().toISOString()
+    };
+
+    // Handle image uploads if any new images were provided
+    if (files.length > 0) {
+      // Upload the first image as the main image (can extend to multiple images later)
+      const file = files[0];
+      const fileExt = file.originalname.split(".").pop();
+      const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+      const fileBuffer = fs.readFileSync(file.path);
+      const filePath = `${user.id}/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(filePath, fileBuffer, {
+          contentType: file.mimetype,
+          upsert: false
+        });
+
+      // Delete temporary files
+      files.forEach(f => {
+        try {
+          fs.unlinkSync(f.path);
+        } catch (e) {
+          console.error("Error deleting temp file:", e);
+        }
+      });
+
+      if (uploadError) {
+        console.error("Image upload error:", uploadError);
+        throw uploadError;
+      }
+
+      // Get public URL for the uploaded image
+      const { data: urlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(filePath);
+
+      updateData.image_url = urlData.publicUrl;
+
+      // Optionally delete old image from storage (if it exists and is different)
+      if (existing.image_url && existing.image_url !== updateData.image_url) {
+        try {
+          // Extract path from URL
+          const oldPath = existing.image_url.split('/product-images/')[1];
+          if (oldPath) {
+            await supabase.storage.from("product-images").remove([oldPath]);
+          }
+        } catch (e) {
+          console.error("Error deleting old image:", e);
+          // Don't fail the update if old image deletion fails
+        }
+      }
+    }
+
     // Update the listing
     const { data, error } = await supabaseAdmin
       .from("ProductTable")
-      .update({
-        title: title,
-        description: description,
-        price: parseFloat(price),
-        category: category,
-        condition: condition
-      })
+      .update(updateData)
       .eq("product_id", listingId)
       .select()
       .single();

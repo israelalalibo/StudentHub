@@ -1,11 +1,18 @@
 // My Listings functionality
 let allListings = [];
+let selectedNewImages = []; // Store selected files for upload
+
+// Pagination state
+const ITEMS_PER_PAGE = 8;
+let currentPage = 1;
+let totalPages = 1;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
   await loadStats();
   await loadListings();
   setupEditForm();
+  setupImageUpload();
 });
 
 // Load listing statistics
@@ -40,6 +47,7 @@ async function loadStats() {
 // Load all listings
 async function loadListings() {
   const listingsGrid = document.getElementById('listingsGrid');
+  const paginationContainer = document.getElementById('listingsPagination');
 
   try {
     const response = await fetch('/api/my-listings');
@@ -54,6 +62,7 @@ async function loadListings() {
             <a href="../index.html" class="btn-new-listing">Log In</a>
           </div>
         `;
+        if (paginationContainer) paginationContainer.style.display = 'none';
         return;
       }
       throw new Error('Failed to load listings');
@@ -71,10 +80,26 @@ async function loadListings() {
           <a href="sellItem.html" class="btn-new-listing">➕ Create Your First Listing</a>
         </div>
       `;
+      if (paginationContainer) paginationContainer.style.display = 'none';
       return;
     }
 
-    listingsGrid.innerHTML = listings.map(listing => renderListingCard(listing)).join('');
+    // Calculate pagination
+    totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
+    currentPage = 1;
+    
+    // Render first page
+    renderListingsPage();
+    
+    // Show/hide pagination
+    if (paginationContainer) {
+      if (totalPages > 1) {
+        paginationContainer.style.display = 'flex';
+        updatePaginationUI();
+      } else {
+        paginationContainer.style.display = 'none';
+      }
+    }
 
   } catch (err) {
     console.error('Error loading listings:', err);
@@ -86,8 +111,45 @@ async function loadListings() {
         <button class="btn-new-listing" onclick="loadListings()">Try Again</button>
       </div>
     `;
+    if (paginationContainer) paginationContainer.style.display = 'none';
   }
 }
+
+// Render current page of listings
+function renderListingsPage() {
+  const listingsGrid = document.getElementById('listingsGrid');
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const pageListings = allListings.slice(startIndex, endIndex);
+  
+  listingsGrid.innerHTML = pageListings.map(listing => renderListingCard(listing)).join('');
+}
+
+// Change page
+function changeListingsPage(direction) {
+  const newPage = currentPage + direction;
+  if (newPage >= 1 && newPage <= totalPages) {
+    currentPage = newPage;
+    renderListingsPage();
+    updatePaginationUI();
+    // Scroll to top of listings
+    document.querySelector('.listings-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// Update pagination UI
+function updatePaginationUI() {
+  const pageInfo = document.getElementById('listingsPageInfo');
+  const prevBtn = document.getElementById('listingsPrevBtn');
+  const nextBtn = document.getElementById('listingsNextBtn');
+  
+  if (pageInfo) pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+  if (prevBtn) prevBtn.disabled = currentPage === 1;
+  if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+}
+
+// Make pagination function global
+window.changeListingsPage = changeListingsPage;
 
 // Render a listing card
 function renderListingCard(listing) {
@@ -128,6 +190,64 @@ function setupEditForm() {
   });
 }
 
+// Setup image upload functionality
+function setupImageUpload() {
+  const imageInput = document.getElementById('editImages');
+  if (!imageInput) return;
+
+  imageInput.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Validate file count
+    if (files.length + selectedNewImages.length > 5) {
+      showNotification('Maximum 5 images allowed', 'error');
+      return;
+    }
+
+    // Validate each file
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification(`${file.name} is too large (max 5MB)`, 'error');
+        continue;
+      }
+      if (!file.type.startsWith('image/')) {
+        showNotification(`${file.name} is not an image`, 'error');
+        continue;
+      }
+      selectedNewImages.push(file);
+    }
+
+    renderNewImagesPreview();
+    // Reset input so same file can be selected again
+    imageInput.value = '';
+  });
+}
+
+// Render preview of newly selected images
+function renderNewImagesPreview() {
+  const previewContainer = document.getElementById('newImagesPreview');
+  if (!previewContainer) return;
+
+  previewContainer.innerHTML = selectedNewImages.map((file, index) => {
+    const url = URL.createObjectURL(file);
+    return `
+      <div class="new-image-item" data-index="${index}">
+        <img src="${url}" alt="New image ${index + 1}">
+        <button type="button" class="remove-image" onclick="removeNewImage(${index})">&times;</button>
+      </div>
+    `;
+  }).join('');
+}
+
+// Remove a newly selected image
+function removeNewImage(index) {
+  selectedNewImages.splice(index, 1);
+  renderNewImagesPreview();
+}
+
+// Make removeNewImage globally available
+window.removeNewImage = removeNewImage;
+
 // Open edit modal
 function openEditModal(listingId) {
   // Find listing by product_id or id
@@ -137,12 +257,25 @@ function openEditModal(listingId) {
     return;
   }
 
+  // Reset selected images
+  selectedNewImages = [];
+  renderNewImagesPreview();
+
   document.getElementById('editListingId').value = listingId;
   document.getElementById('editTitle').value = listing.title || '';
   document.getElementById('editDescription').value = listing.description || '';
   document.getElementById('editPrice').value = listing.price || '';
-  document.getElementById('editCategory').value = listing.category || 'other';
+  document.getElementById('editCategory').value = listing.category || 'Other';
   document.getElementById('editCondition').value = listing.condition || 'Good';
+
+  // Show current image
+  const currentMainImage = document.getElementById('currentMainImage');
+  if (currentMainImage) {
+    currentMainImage.src = sanitizeImageUrl(listing.image_url);
+    currentMainImage.onerror = function() {
+      this.src = '../images/default-placeholder.png';
+    };
+  }
 
   const modal = document.getElementById('editModal');
   modal.classList.add('active');
@@ -165,16 +298,22 @@ async function saveListingChanges() {
   saveBtn.textContent = 'Saving...';
 
   try {
+    // Use FormData to support file uploads
+    const formData = new FormData();
+    formData.append('title', document.getElementById('editTitle').value);
+    formData.append('description', document.getElementById('editDescription').value);
+    formData.append('price', document.getElementById('editPrice').value);
+    formData.append('category', document.getElementById('editCategory').value);
+    formData.append('condition', document.getElementById('editCondition').value);
+
+    // Append new images if any
+    selectedNewImages.forEach((file, index) => {
+      formData.append('images', file);
+    });
+
     const response = await fetch(`/api/my-listings/${listingId}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: document.getElementById('editTitle').value,
-        description: document.getElementById('editDescription').value,
-        price: document.getElementById('editPrice').value,
-        category: document.getElementById('editCategory').value,
-        condition: document.getElementById('editCondition').value
-      })
+      body: formData // Don't set Content-Type header - browser sets it with boundary for FormData
     });
 
     const result = await response.json();
@@ -185,6 +324,9 @@ async function saveListingChanges() {
 
     showNotification('Listing updated successfully!', 'success');
     closeEditModal();
+    
+    // Clear selected images
+    selectedNewImages = [];
     
     // Reload listings and stats
     await loadListings();
