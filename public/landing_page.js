@@ -71,10 +71,6 @@ function toggleCart() {
     dropdown.classList.toggle('show');
 }
 
-function viewCategory(category) {
-    console.log(`Viewing category: ${category}`);
-    alert(`Navigating to ${category} category. In a real app, this would filter products by category.`);
-}
 
 // Product functions
 function addToCart(productId) {
@@ -140,14 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // });
 
 // Close cart dropdown when clicking outside
-document.addEventListener('click', function(e) {
-    const cartIcon = document.querySelector('.cart-icon');
-    const cartDropdown = document.getElementById('cartDropdown');
-    
-    if (!cartIcon.contains(e.target)) {
-        cartDropdown.classList.remove('show');
-    }
-});
+
 
 // Animations
 // gsap.registerPlugin();
@@ -197,19 +186,19 @@ document.addEventListener('click', function(e) {
 // });
 
 // Header scroll effect
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-    const header = document.querySelector('.header');
-    const currentScroll = window.pageYOffset;
+// let lastScroll = 0;
+// window.addEventListener('scroll', () => {
+//     const header = document.querySelector('.header');
+//     const currentScroll = window.pageYOffset;
     
-    if (currentScroll > lastScroll && currentScroll > 100) {
-        header.style.transform = 'translateY(-100%)';
-    } else {
-        header.style.transform = 'translateY(0)';
-    }
+//     if (currentScroll > lastScroll && currentScroll > 100) {
+//         header.style.transform = 'translateY(-100%)';
+//     } else {
+//         header.style.transform = 'translateY(0)';
+//     }
     
-    lastScroll = currentScroll;
-});
+//     lastScroll = currentScroll;
+// });
 
 // Add CSS for slide in animation
 const style = document.createElement('style');

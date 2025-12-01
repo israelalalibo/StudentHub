@@ -1,73 +1,126 @@
-<!-- <script src="../loadHeader.js"></script> -->
+<!-- Mobile-responsive header -->
 <header class="header">
-        <nav class="nav-container">
-            <a href="landingpage.html" class="logo">StudentHub</a>
+    <nav class="nav-container">
+        <a href="landingpage.html" class="logo">StudentHub</a>
+        
+        <!-- Hamburger Menu Button (Mobile) -->
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu(event)">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        
+        <!-- Search Bar with Filters -->
+        <div class="search-bar">
+            <div class="search-icon">🔍</div>
+            <input type="text" 
+                class="search-input" 
+                id="liveSearchInput"
+                placeholder="Search products...">
             
-            <div class="search-bar">
-                <div class="search-icon">🔍</div>
-                <input type="text" 
-                    class="search-input" 
-                    id="liveSearchInput"
-                    placeholder="Search for books, supplies, electronics...">
-                    <div id="searchResultsDropdown" class="search-results-dropdown"></div>
+            <!-- Filter Controls Container -->
+            <div class="search-filters">
+                <!-- Category Filter -->
+                <select id="categoryFilter" class="category-filter" onchange="applyCategoryFilter()">
+                    <option value="">Category</option>
+                    <option value="textbooks">📚 Textbooks</option>
+                    <option value="electronics">💻 Electronics</option>
+                    <option value="supplies">✏️ Supplies</option>
+                    <option value="furniture">🪑 Furniture</option>
+                    <option value="clothing">👕 Clothing</option>
+                    <option value="other">🎒 Other</option>
+                </select>
+                
+                <!-- Price Filter -->
+                <select id="priceFilter" class="price-filter" onchange="applyPriceFilter()">
+                    <option value="">Price</option>
+                    <option value="0-25">&lt;£25</option>
+                    <option value="25-50">£25-50</option>
+                    <option value="50-100">£50-100</option>
+                    <option value="100-200">£100-200</option>
+                    <option value="200+">£200+</option>
+                </select>
             </div>
+            
+            <div id="searchResultsDropdown" class="search-results-dropdown"></div>
+        </div>
 
-            <div class="categories-dropdown">
-                <button class="categories-btn" onclick="showCategories()">Categories ▼</button>
-                <div class="categories-menu">
-                    <a href="#" onclick="viewCategory('textbooks')">📚 Textbooks</a>
-                    <a href="#" onclick="viewCategory('electronics')">💻 Electronics</a>
-                    <a href="#" onclick="viewCategory('supplies')">✏️ Supplies</a>
-                    <a href="#" onclick="viewCategory('furniture')">🪑 Dorm Furniture</a>
-                    <a href="#" onclick="viewCategory('clothing')">👕 Clothing</a>
-                    <a href="#" onclick="viewCategory('other')">🎒 Other</a>
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+
+        <!-- Navigation Content (Desktop & Mobile) -->
+        <div class="nav-content" id="navContent">
+            <!-- Close button for mobile -->
+            <button class="mobile-close-btn" onclick="closeMobileMenu()">✕</button>
+            
+            <!-- Mobile Search (shown only in mobile menu) -->
+            <div class="mobile-search">
+                <input type="text" 
+                    class="mobile-search-input" 
+                    id="mobileSearchInput"
+                    placeholder="Search products...">
+                <div class="mobile-filters-row">
+                    <select class="mobile-category-filter" id="mobileCategoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="textbooks">📚 Textbooks</option>
+                        <option value="electronics">💻 Electronics</option>
+                        <option value="supplies">✏️ Supplies</option>
+                        <option value="furniture">🪑 Furniture</option>
+                        <option value="clothing">👕 Clothing</option>
+                        <option value="other">🎒 Other</option>
+                    </select>
+                    <select class="mobile-price-filter" id="mobilePriceFilter">
+                        <option value="">Any Price</option>
+                        <option value="0-25">Under £25</option>
+                        <option value="25-50">£25 - £50</option>
+                        <option value="50-100">£50 - £100</option>
+                        <option value="100-200">£100 - £200</option>
+                        <option value="200+">£200+</option>
+                    </select>
                 </div>
+                <button class="mobile-search-btn" onclick="performMobileSearch()">Search</button>
             </div>
 
             <div class="nav-actions">
                 <!-- AI Book Valuator Button -->
                 <a href="./BookValuator.html" class="ai-valuator-btn">
                     <span class="ai-icon">✨</span>
-                    <span class="btn-text">AI Book Valuator</span>
-                    <span class="ai-pulse"></span>
+                    <span class="btn-text">AI Valuator</span>
                 </a>
                 
-                <div class="profile-container">
-                    <a href="./sellItem.html" class="btn btn-outline" onclick="">Sell Item</a>
-                    <!-- <div class="profile-dropdown" id="sellOptionDropdown">
-                        <ul>
-                            <li><a href="./BookValuator.html">Sell a Book</a></li>
-                            <li><a href="listings.html">Other</a></li>
-                        </ul>
-                    </div> -->
-                </div>
+                <a href="./sellItem.html" class="btn btn-outline sell-btn">Sell Item</a>
                 
-                
-                <div class="cart-icon" onclick="toggleCart()">
+                <div class="cart-icon" onclick="goToCart()" title="View Cart">
                     🛒
-                    <span class="cart-badge" id="cartBadge">3</span>
-                    <div class="cart-dropdown" id="cartDropdown">
-                        <h4>Shopping Cart</h4>
-                        <div style="margin: 15px 0; padding: 10px; background: #f8fafc; border-radius: 8px;">
-                            <div style="font-weight: 500;">Calculus Textbook</div>
-                            <div style="color: #6b7280; font-size: 14px;">$45.00</div>
-                        </div>
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">View Cart</button>
-                    </div>
+                    <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
                 </div>
 
                 <div class="profile-container">
-                    <img src="../images/profile-icon.png" alt="Profile" class="profile-icon" id="profileIcon" onclick="showProfile()"/>
+                    <div class="profile-icon-wrapper" id="profileIconWrapper" onclick="showProfile()">
+                        <img src="../images/profile-icon.png" alt="Profile" class="profile-icon" id="profileIcon"/>
+                    </div>
                     <div class="profile-dropdown" id="profileDropdown">
                         <ul>
-                        <li><a href="./account_settings.html">Account Settings</a></li>
-                        <li><a href="./my_listings.html">My Listings</a></li>
-                        <li><a href="./purchase_history.html">Purchase History</a></li>
-                        <li><a href="./messages.html">Messages</a></li>
-                        <li id="logoutBtn" onclick="logout()">Logout</li>
+                            <li><a href="./account_settings.html">⚙️ Account Settings</a></li>
+                            <li><a href="./profile.html">👤 My Profile</a></li>
+                            <li><a href="./my_listings.html">📦 My Listings</a></li>
+                            <li><a href="./purchase_history.html">🛍️ Purchase History</a></li>
+                            <li><a href="./messages.html">💬 Messages</a></li>
+                            <li id="logoutBtn" onclick="logout()">🚪 Logout</li>
                         </ul>
                     </div>
                 </div>
             </div>
-        </nav>
-    </header>
+
+            <!-- Mobile-only quick links -->
+            <div class="mobile-quick-links">
+                <a href="./account_settings.html">⚙️ Settings</a>
+                <a href="./profile.html">👤 Profile</a>
+                <a href="./my_listings.html">📦 My Listings</a>
+                <a href="./purchase_history.html">🛍️ Purchases</a>
+                <a href="./messages.html">💬 Messages</a>
+                <a href="#" onclick="logout(); return false;">🚪 Logout</a>
+            </div>
+        </div>
+    </nav>
+</header>

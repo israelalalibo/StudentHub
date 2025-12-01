@@ -1,351 +1,588 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudentHub - Buy & Sell Student Items</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    
-    <script src="../loadHeader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-
-    <link rel="stylesheet" href="../style2landing.css">
-</head>
-
-<body>
-<!-- Header -->
-    <div id="header"></div>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Buy & Sell Student Items</h1>
-            <p>The ultimate marketplace for students to trade textbooks, supplies, electronics, and more with fellow students on campus.</p>
-            <div class="hero-actions">
-                <a href="#" class="btn btn-primary">Start Shopping</a>
-                <a href="./sellItem.html" class="btn btn-outline">List Your Items</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- SEARCH RESULTS SECTION (Dynamic) -->
-  <section class="featured-products" id="searchResultsSection" style="display:none;">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Search Results</h2>
-        <p class="section-subtitle">Here’s what we found for your search</p>
-      </div>
-      <div class="product-grid" id="searchResultsGrid"></div>
-    </div>
-  </section>
-    <!-- Categories 
-    <section class="categories">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Shop by Category</h2>
-                <p class="section-subtitle">Find exactly what you need for your studies</p>
-            </div>
-
-            <div class="category-grid">
-                <div class="category-card" onclick="viewCategory('textbooks')">
-                    <div class="category-icon">📚</div>
-                    <h3 class="category-title">Textbooks</h3>
-                    <p class="category-description">Course materials, study guides, and reference books</p>
-                </div>
-
-                <div class="category-card" onclick="viewCategory('electronics')">
-                    <div class="category-icon">💻</div>
-                    <h3 class="category-title">Electronics</h3>
-                    <p class="category-description">Laptops, tablets, calculators, and accessories</p>
-                </div>
-
-                <div class="category-card" onclick="viewCategory('supplies')">
-                    <div class="category-icon">✏️</div>
-                    <h3 class="category-title">Supplies</h3>
-                    <p class="category-description">Notebooks, pens, backpacks, and study materials</p>
-                </div>
-
-                <div class="category-card" onclick="viewCategory('furniture')">
-                    <div class="category-icon">🪑</div>
-                    <h3 class="category-title">Dorm Furniture</h3>
-                    <p class="category-description">Chairs, desks, storage, and room essentials</p>
-                </div>
-
-                <div class="category-card" onclick="viewCategory('clothing')">
-                    <div class="category-icon">👕</div>
-                    <h3 class="category-title">Clothing</h3>
-                    <p class="category-description">University merchandise, casual wear, and accessories</p>
-                </div>
-
-                <div class="category-card" onclick="viewCategory('other')">
-                    <div class="category-icon">🎒</div>
-                    <h3 class="category-title">Other</h3>
-                    <p class="category-description">Sports equipment, art supplies, and miscellaneous</p>
-                </div>
-            </div>
-        </div>
-    </section> -->
-
-    <!-- Featured Products -->
-    <section class="featured-products" id="featuredSection">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Featured Items</h2>
-                <p class="section-subtitle">Popular items from fellow students</p>
-            </div>
-
-            <div class="product-grid">
-                <div class="product-card">
-                    <div class="product-image">📖</div>
-                    <div class="product-info">
-                        <h3 class="product-title">Calculus: Early Transcendentals</h3>
-                        <div class="product-price">$45.00</div>
-                        <span class="product-condition">Excellent</span>
-                        <div class="product-seller">Sold by Sarah M. • Engineering</div>
-                        <div class="product-actions">
-                            <button class="btn btn-primary btn-sm">Add to Cart</button>
-                            <button class="btn btn-outline btn-sm">Contact</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">💻</div>
-                    <div class="product-info">
-                        <h3 class="product-title">MacBook Pro 13" (2021)</h3>
-                        <div class="product-price">$899.00</div>
-                        <span class="product-condition">Good</span>
-                        <div class="product-seller">Sold by Mike R. • Computer Science</div>
-                        <div class="product-actions">
-                            <button class="btn btn-primary btn-sm">Add to Cart</button>
-                            <button class="btn btn-outline btn-sm">Contact</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">🧮</div>
-                    <div class="product-info">
-                        <h3 class="product-title">TI-84 Plus Calculator</h3>
-                        <div class="product-price">$65.00</div>
-                        <span class="product-condition">Like New</span>
-                        <div class="product-seller">Sold by Emma L. • Mathematics</div>
-                        <div class="product-actions">
-                            <button class="btn btn-primary btn-sm">Add to Cart</button>
-                            <button class="btn btn-outline btn-sm">Contact</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">🪑</div>
-                    <div class="product-info">
-                        <h3 class="product-title">Ergonomic Study Chair</h3>
-                        <div class="product-price">$80.00</div>
-                        <span class="product-condition">Good</span>
-                        <div class="product-seller">Sold by Alex T. • Business</div>
-                        <div class="product-actions">
-                            <button class="btn btn-primary btn-sm">Add to Cart</button>
-                            <button class="btn btn-outline btn-sm">Contact</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works -->
-    <section class="how-it-works">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">How It Works</h2>
-                <p class="section-subtitle">Simple steps to buy and sell on StudentHub</p>
-            </div>
-
-            <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h3 class="step-title">Browse & Search</h3>
-                    <p class="step-description">Find items you need using our search or browse by category</p>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h3 class="step-title">Connect & Chat</h3>
-                    <p class="step-description">Message sellers directly to ask questions or negotiate prices</p>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h3 class="step-title">Meet & Exchange</h3>
-                    <p class="step-description">Meet safely on campus to complete your transaction</p>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">4</div>
-                    <h3 class="step-title">Rate & Review</h3>
-                    <p class="step-description">Leave feedback to help build our trusted community</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>StudentHub</h3>
-                <ul>
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">How It Works</a></li>
-                    <li><a href="#">Safety Tips</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>Categories</h3>
-                <ul>
-                    <li><a href="#">Textbooks</a></li>
-                    <li><a href="#">Electronics</a></li>
-                    <li><a href="#">Supplies</a></li>
-                    <li><a href="#">Furniture</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>Account</h3>
-                <ul>
-                    <li><a href="#">Sign Up</a></li>
-                    <li><a href="#">Log In</a></li>
-                    <li><a href="#">My Account</a></li>
-                    <li><a href="#">Sell Item</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>Support</h3>
-                <ul>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Report Issue</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <p>&copy; 2025 StudentHub. All rights reserved. Made for students, by students.</p>
-        </div>
-    </footer>
-    <script src="../landing_page.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-        const savedResults = localStorage.getItem("searchResults");
-        const savedQuery   = localStorage.getItem("searchQuery");
-        const selectedItem = localStorage.getItem("selectedProduct");
-
-        console.log(savedQuery);
-
-        let products = [];
-        let queryTerm = null;
-
-        try {
-            if (selectedItem) {
-            // ✅ Case 1: user clicked one product
-            const item = JSON.parse(selectedItem);
-            products = [item];  // wrap in array for uniform rendering
-            queryTerm = item.title || item.name;
-            } else if (savedResults) {
-            // Case 2: multiple results saved
-            products = JSON.parse(savedResults);
-            queryTerm = products.length ? products[0].title || products[0].name : "";
-            } else if (savedQuery) {
-            // Case 3: user pressed Enter
-            queryTerm = savedQuery;
-            const res = await fetch(`/search?query=${encodeURIComponent(savedQuery)}`);
-            products = await res.json();
-            }
-        } catch (err) {
-            console.error("Error parsing saved search:", err);
-        }
-
-        // Clear storage so future reloads don’t repeat
-        localStorage.removeItem("searchResults");
-        localStorage.removeItem("searchQuery");
-        localStorage.removeItem("selectedProduct");
-
-        const featuredSection      = document.getElementById("featuredSection");
-        const searchResultsSection = document.getElementById("searchResultsSection");
-        const searchResultsGrid    = document.getElementById("searchResultsGrid");
-
-        if (!savedQuery){
-            searchResultsSection.style.display = "none";
-            featuredSection.style.display = "block";
-        }else{
-            featuredSection.style.display = "none";
-            searchResultsSection.style.display = "block";
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>StudentHub - Buy & Sell Student Items</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
         
+        <script src="../loadHeader.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
-        if (!products.length) {
-            searchResultsGrid.innerHTML = `
-            <div class="no-results-anim">
-                <div class="emoji">🔍</div>
-                <p>No items found for "<strong>${queryTerm || "your search"}</strong>"</p>
-            </div>`;
-            if (window.gsap) gsap.from(".no-results-anim",{opacity:0,y:20,duration:0.6});
-            return;
-        }
+        <link rel="stylesheet" href="../style2landing.css">
+    </head>
 
-        // ✅ Uniform grid rendering (even for one item)
-        searchResultsGrid.innerHTML = products.map(item => `
-            <div class="product-card fade-in" onclick='viewProductDetails(${JSON.stringify(item).replace(/"/g, "&quot; style='opacity: 1;'")})'>
-            <img src="${sanitizeImageUrl(item.image_url)}"
-                alt="${escapeHtml(item.title || item.name)}"
-                onerror="this.src='../images/default-placeholder.png';"
-                style="width:100%;height:200px;object-fit:cover;border-top-left-radius:20px;border-top-right-radius:20px;">
-            <div class="product-info">
-                <h3 class="product-title">${escapeHtml(item.title || item.name)}</h3>
-                <div class="product-price">$${item.price || "N/A"}</div>
-                <span class="product-condition">${item.condition || "Good"}</span>
-                <div class="product-seller">Sold by ${item.seller || "Student"}</div>
-                <div class="product-actions">
-                <button class="btn btn-primary btn-sm">Add to Cart</button>
-                <button class="btn btn-outline btn-sm">Contact</button>
+    <body>
+    <!-- Header -->
+        <div id="header"></div>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Buy & Sell Student Items</h1>
+                <p>The ultimate marketplace for students to trade textbooks, supplies, electronics, and more with fellow students on campus.</p>
+                <div class="hero-actions">
+                    <a href="#" class="btn btn-primary">Start Shopping</a>
+                    <a href="./sellItem.html" class="btn btn-outline">List Your Items</a>
                 </div>
             </div>
+        </section>
+
+        <!-- SEARCH RESULTS SECTION (Dynamic) -->
+    <section class="featured-products" id="searchResultsSection" style="display:none;">
+        <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Search Results</h2>
+            <p class="section-subtitle">Here’s what we found for your search</p>
+        </div>
+        <div class="product-grid" id="searchResultsGrid"></div>
+        </div>
+    </section>
+        <!-- Categories 
+        <section class="categories">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Shop by Category</h2>
+                    <p class="section-subtitle">Find exactly what you need for your studies</p>
+                </div>
+
+                <div class="category-grid">
+                    <div class="category-card" onclick="viewCategory('textbooks')">
+                        <div class="category-icon">📚</div>
+                        <h3 class="category-title">Textbooks</h3>
+                        <p class="category-description">Course materials, study guides, and reference books</p>
+                    </div>
+
+                    <div class="category-card" onclick="viewCategory('electronics')">
+                        <div class="category-icon">💻</div>
+                        <h3 class="category-title">Electronics</h3>
+                        <p class="category-description">Laptops, tablets, calculators, and accessories</p>
+                    </div>
+
+                    <div class="category-card" onclick="viewCategory('supplies')">
+                        <div class="category-icon">✏️</div>
+                        <h3 class="category-title">Supplies</h3>
+                        <p class="category-description">Notebooks, pens, backpacks, and study materials</p>
+                    </div>
+
+                    <div class="category-card" onclick="viewCategory('furniture')">
+                        <div class="category-icon">🪑</div>
+                        <h3 class="category-title">Dorm Furniture</h3>
+                        <p class="category-description">Chairs, desks, storage, and room essentials</p>
+                    </div>
+
+                    <div class="category-card" onclick="viewCategory('clothing')">
+                        <div class="category-icon">👕</div>
+                        <h3 class="category-title">Clothing</h3>
+                        <p class="category-description">University merchandise, casual wear, and accessories</p>
+                    </div>
+
+                    <div class="category-card" onclick="viewCategory('other')">
+                        <div class="category-icon">🎒</div>
+                        <h3 class="category-title">Other</h3>
+                        <p class="category-description">Sports equipment, art supplies, and miscellaneous</p>
+                    </div>
+                </div>
             </div>
-        `).join("");
+        </section> -->
 
-        // Adjust grid layout if only one item
-        if (products.length === 1) {
-        searchResultsGrid.classList.add("single-item");
-        } else {
-        searchResultsGrid.classList.remove("single-item");
-        }
+        <!-- Featured Products -->
+        <section class="featured-products" id="featuredSection">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Featured Items</h2>
+                    <p class="section-subtitle">Popular items from fellow students</p>
+                </div>
 
-        // Animate cards
-        if (window.gsap) {
-            gsap.from(".fade-in",{opacity:0,y:30,duration:0.5,stagger:0.15,ease:"power2.out"});
-        }
-        });
+                <div class="product-grid" id="featuredProductsGrid">
+                    <div class="product-card featured-card" data-product='{"title":"Calculus: Early Transcendentals","price":45,"condition":"Excellent","seller":"Sarah M.","category":"textbooks"}'>
+                        <div class="product-image">📖</div>
+                        <div class="product-info">
+                            <h3 class="product-title">Calculus: Early Transcendentals</h3>
+                            <div class="product-price">$45.00</div>
+                            <span class="product-condition">Excellent</span>
+                            <div class="product-seller">Sold by Sarah M. • Engineering</div>
+                            <div class="product-actions">
+                                <button class="btn btn-primary btn-sm featured-add-cart">Add to Cart</button>
+                                <button class="btn btn-outline btn-sm featured-contact">Contact</button>
+                            </div>
+                        </div>
+                    </div>
 
-        function sanitizeImageUrl(url){
-        if(!url) return "../images/default-placeholder.png";
-        if(url.startsWith("http")) return url;
-        return `https://bfpaawywaljnfudynnke.supabase.co/storage/v1/object/public/${url}`;
-        }
-        function escapeHtml(str){
-        return str ? str.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : "";
-        }
+                    <div class="product-card featured-card" data-product='{"title":"MacBook Pro 13\" (2021)","price":899,"condition":"Good","seller":"Mike R.","category":"electronics"}'>
+                        <div class="product-image">💻</div>
+                        <div class="product-info">
+                            <h3 class="product-title">MacBook Pro 13" (2021)</h3>
+                            <div class="product-price">$899.00</div>
+                            <span class="product-condition">Good</span>
+                            <div class="product-seller">Sold by Mike R. • Computer Science</div>
+                            <div class="product-actions">
+                                <button class="btn btn-primary btn-sm featured-add-cart">Add to Cart</button>
+                                <button class="btn btn-outline btn-sm featured-contact">Contact</button>
+                            </div>
+                        </div>
+                    </div>
 
-        function viewProductDetails(item) {
-            localStorage.setItem("selectedItem", JSON.stringify(item));
-            window.location.href = "productDetails.html";
-        }
-</script>
+                    <div class="product-card featured-card" data-product='{"title":"TI-84 Plus Calculator","price":65,"condition":"Like New","seller":"Emma L.","category":"electronics"}'>
+                        <div class="product-image">🧮</div>
+                        <div class="product-info">
+                            <h3 class="product-title">TI-84 Plus Calculator</h3>
+                            <div class="product-price">$65.00</div>
+                            <span class="product-condition">Like New</span>
+                            <div class="product-seller">Sold by Emma L. • Mathematics</div>
+                            <div class="product-actions">
+                                <button class="btn btn-primary btn-sm featured-add-cart">Add to Cart</button>
+                                <button class="btn btn-outline btn-sm featured-contact">Contact</button>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="product-card featured-card" data-product='{"title":"Ergonomic Study Chair","price":80,"condition":"Good","seller":"Alex T.","category":"furniture"}'>
+                        <div class="product-image">🪑</div>
+                        <div class="product-info">
+                            <h3 class="product-title">Ergonomic Study Chair</h3>
+                            <div class="product-price">$80.00</div>
+                            <span class="product-condition">Good</span>
+                            <div class="product-seller">Sold by Alex T. • Business</div>
+                            <div class="product-actions">
+                                <button class="btn btn-primary btn-sm featured-add-cart">Add to Cart</button>
+                                <button class="btn btn-outline btn-sm featured-contact">Contact</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-</body>
-</html>
+        <!-- How It Works -->
+        <section class="how-it-works">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">How It Works</h2>
+                    <p class="section-subtitle">Simple steps to buy and sell on StudentHub</p>
+                </div>
+
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">Browse & Search</h3>
+                        <p class="step-description">Find items you need using our search or browse by category</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">Connect & Chat</h3>
+                        <p class="step-description">Message sellers directly to ask questions or negotiate prices</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">Meet & Exchange</h3>
+                        <p class="step-description">Meet safely on campus to complete your transaction</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <h3 class="step-title">Rate & Review</h3>
+                        <p class="step-description">Leave feedback to help build our trusted community</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>StudentHub</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Safety Tips</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Categories</h3>
+                    <ul>
+                        <li><a href="#">Textbooks</a></li>
+                        <li><a href="#">Electronics</a></li>
+                        <li><a href="#">Supplies</a></li>
+                        <li><a href="#">Furniture</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Account</h3>
+                    <ul>
+                        <li><a href="#">Sign Up</a></li>
+                        <li><a href="#">Log In</a></li>
+                        <li><a href="#">My Account</a></li>
+                        <li><a href="#">Sell Item</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Report Issue</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 StudentHub. All rights reserved. Made for students, by students.</p>
+            </div>
+        </footer>
+        <script src="../cart.js"></script>
+        <script src="../landing_page.js"></script>
+        <script>
+            // Category name mapping for display
+            const categoryDisplayNames = {
+                'textbooks': '📚 Textbooks',
+                'electronics': '💻 Electronics',
+                'supplies': '✏️ Supplies',
+                'furniture': '🪑 Dorm Furniture',
+                'clothing': '👕 Clothing',
+                'other': '🎒 Other'
+            };
+
+            document.addEventListener("DOMContentLoaded", async () => {
+            // Check for URL search parameter (from mobile redirect)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlSearch = urlParams.get('search');
+            
+            const savedResults = localStorage.getItem("searchResults");
+            const savedQuery   = localStorage.getItem("searchQuery");
+            const selectedItem = localStorage.getItem("selectedProduct");
+            const categoryResults = localStorage.getItem("categoryResults");
+            const selectedCategory = localStorage.getItem("selectedCategory");
+
+            console.log(savedQuery);
+
+            let products = [];
+            let queryTerm = null;
+            let isCategory = false;
+            
+            // Variables to persist in header after loading
+            let persistSearchQuery = '';
+            let persistCategory = '';
+            let persistPriceFilter = localStorage.getItem("priceFilter") || '';
+
+            try {
+                // Check URL search parameter first (for mobile redirects)
+                if (urlSearch) {
+                    queryTerm = urlSearch;
+                    persistSearchQuery = urlSearch;
+                    const res = await fetch(`/search?query=${encodeURIComponent(urlSearch)}`);
+                    products = await res.json();
+                    console.log("URL search:", urlSearch, products.length, "items");
+                    // Clean URL without reloading
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else if (categoryResults) {
+                // ✅ Case: Category search
+                products = JSON.parse(categoryResults);
+                queryTerm = categoryDisplayNames[selectedCategory] || selectedCategory;
+                persistCategory = selectedCategory;
+                isCategory = true;
+                console.log("Category search:", selectedCategory, products.length, "items");
+                } else if (selectedItem) {
+                // Case 1: user clicked one product
+                const item = JSON.parse(selectedItem);
+                products = [item];  // wrap in array for uniform rendering
+                queryTerm = item.title || item.name;
+                } else if (savedResults) {
+                // Case 2: multiple results saved
+                products = JSON.parse(savedResults);
+                queryTerm = products.length ? products[0].title || products[0].name : "";
+                persistSearchQuery = savedQuery || '';
+                } else if (savedQuery) {
+                // Case 3: user pressed Enter
+                queryTerm = savedQuery;
+                persistSearchQuery = savedQuery;
+                const res = await fetch(`/search?query=${encodeURIComponent(savedQuery)}`);
+                products = await res.json();
+                }
+            } catch (err) {
+                console.error("Error parsing saved search:", err);
+            }
+
+            // Get price filter used for category search (if any)
+            const categoryPriceFilter = localStorage.getItem("categoryPriceFilter");
+            if (categoryPriceFilter) {
+                persistPriceFilter = categoryPriceFilter;
+            }
+
+            // Clear storage so future reloads don't repeat
+            localStorage.removeItem("searchResults");
+            localStorage.removeItem("searchQuery");
+            localStorage.removeItem("selectedProduct");
+            
+            // Save persisted values for header restoration
+            if (persistSearchQuery) {
+                localStorage.setItem("persistedSearchQuery", persistSearchQuery);
+            } else {
+                localStorage.removeItem("persistedSearchQuery");
+            }
+            
+            if (persistCategory) {
+                localStorage.setItem("persistedCategory", persistCategory);
+            } else {
+                localStorage.removeItem("persistedCategory");
+            }
+            
+            if (persistPriceFilter) {
+                localStorage.setItem("persistedPriceFilter", persistPriceFilter);
+            } else {
+                localStorage.removeItem("persistedPriceFilter");
+            }
+            
+            // Restore values to header inputs after a short delay (to ensure header is loaded)
+            setTimeout(() => {
+                const searchInput = document.getElementById('liveSearchInput');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const priceFilter = document.getElementById('priceFilter');
+                
+                if (searchInput && persistSearchQuery) {
+                    searchInput.value = persistSearchQuery;
+                }
+                if (categoryFilter && persistCategory) {
+                    categoryFilter.value = persistCategory;
+                }
+                if (priceFilter && persistPriceFilter) {
+                    priceFilter.value = persistPriceFilter;
+                }
+            }, 100);
+            localStorage.removeItem("categoryResults");
+            localStorage.removeItem("selectedCategory");
+            localStorage.removeItem("categoryPriceFilter");
+
+            const featuredSection      = document.getElementById("featuredSection");
+            const searchResultsSection = document.getElementById("searchResultsSection");
+            const searchResultsGrid    = document.getElementById("searchResultsGrid");
+            const sectionTitle         = searchResultsSection.querySelector(".section-title");
+            const sectionSubtitle      = searchResultsSection.querySelector(".section-subtitle");
+
+            // Price filter display names
+            const priceFilterNames = {
+                '0-25': 'Under $25',
+                '25-50': '$25 - $50',
+                '50-100': '$50 - $100',
+                '100-200': '$100 - $200',
+                '200+': '$200+'
+            };
+
+            // Update section title based on search type
+            if (isCategory && sectionTitle && sectionSubtitle) {
+                sectionTitle.textContent = queryTerm;
+                if (categoryPriceFilter && priceFilterNames[categoryPriceFilter]) {
+                    sectionSubtitle.textContent = `Filtered by: ${priceFilterNames[categoryPriceFilter]}`;
+                } else {
+                    sectionSubtitle.textContent = `Browse all items in this category`;
+                }
+            } else if (sectionTitle && sectionSubtitle) {
+                sectionTitle.textContent = "Search Results";
+                sectionSubtitle.textContent = `Here's what we found for your search`;
+            }
+
+            //check to see user has pressed enter to select multiple items or if user has clicked an item only from dropdown
+            let shouldScrollToResults = false;
+            
+            if (urlSearch || isCategory || savedQuery){
+                searchResultsSection.style.display = "block";
+                featuredSection.style.display = "none";
+                shouldScrollToResults = true;
+                console.log("Showing search/category results");
+            }
+            else if (!savedResults){
+                searchResultsSection.style.display = "none";
+                featuredSection.style.display = "block";
+                // Clear persisted filters when showing default view
+                localStorage.removeItem("persistedSearchQuery");
+                localStorage.removeItem("persistedCategory");
+                localStorage.removeItem("persistedPriceFilter");
+                localStorage.removeItem("priceFilter");
+                console.log("from block 2");
+            }
+            else if (!selectedItem){
+                searchResultsSection.style.display = "none";
+                featuredSection.style.display = "block";
+                // Clear persisted filters when showing default view
+                localStorage.removeItem("persistedSearchQuery");
+                localStorage.removeItem("persistedCategory");
+                localStorage.removeItem("persistedPriceFilter");
+                localStorage.removeItem("priceFilter");
+                console.log("from block 3");
+            }else{
+                featuredSection.style.display = "none";
+                searchResultsSection.style.display = "block";
+                shouldScrollToResults = true;
+                console.log("from block 4");
+            }
+            
+            // Scroll to search results section after a short delay
+            if (shouldScrollToResults) {
+                setTimeout(() => {
+                    searchResultsSection.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }, 150);
+            }
+            
+
+            if (!products.length && (isCategory || savedQuery || savedResults || selectedItem)) {
+                searchResultsGrid.innerHTML = `
+                <div class="no-results-anim">
+                    <div class="emoji">${isCategory ? '📦' : '🔍'}</div>
+                    <p>No items found ${isCategory ? 'in' : 'for'} "<strong>${queryTerm || "your search"}</strong>"</p>
+                </div>`;
+                if (window.gsap) gsap.from(".no-results-anim",{opacity:0,y:20,duration:0.6});
+                return;
+            }
+            
+            if (!products.length) return;
+
+            // ✅ Uniform grid rendering (even for one item)
+            searchResultsGrid.innerHTML = products.map((item, index) => `
+                <div class="product-card fade-in" style="opacity: 1" data-product-index="${index}">
+                <img src="${sanitizeImageUrl(item.image_url)}"
+                    alt="${escapeHtml(item.title || item.name)}"
+                    onerror="this.src='../images/default-placeholder.png';"
+                    style="width:100%;height:200px;object-fit:cover;border-top-left-radius:20px;border-top-right-radius:20px;">
+                <div class="product-info">
+                    <h3 class="product-title">${escapeHtml(item.title || item.name)}</h3>
+                    <div class="product-price">£${item.price || "N/A"}</div>
+                    <span class="product-condition">${item.condition || "Good"}</span>
+                    <div class="product-seller">Sold by ${item.seller || item.first_name || "Student"}</div>
+                    <div class="product-actions">
+                    <button class="btn btn-primary btn-sm add-to-cart-btn" data-product-index="${index}">Add to Cart</button>
+                    <button class="btn btn-outline btn-sm contact-btn" data-product-index="${index}">Contact</button>
+                    </div>
+                </div>
+                </div>
+            `).join("");
+
+            // Store products globally for click handlers
+            window.searchProducts = products;
+
+            // Attach click handlers to product cards (for navigation)
+            document.querySelectorAll('#searchResultsGrid .product-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Don't navigate if clicking on buttons
+                    if (e.target.closest('.add-to-cart-btn') || e.target.closest('.contact-btn')) {
+                        return;
+                    }
+                    const index = parseInt(card.dataset.productIndex);
+                    const item = window.searchProducts[index];
+                    if (item) viewProductDetails(item);
+                });
+            });
+
+            // Attach click handlers to Add to Cart buttons
+            document.querySelectorAll('#searchResultsGrid .add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.productIndex);
+                    const item = window.searchProducts[index];
+                    if (item && window.Cart) {
+                        Cart.addItem(item);
+                    }
+                });
+            });
+
+            // Attach click handlers to Contact buttons
+            document.querySelectorAll('#searchResultsGrid .contact-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.productIndex);
+                    const item = window.searchProducts[index];
+                    if (item) {
+                        alert(`Contact seller: ${item.seller || item.first_name || 'Student'}\nIn a real app, this would open a messaging interface.`);
+                    }
+                });
+            });
+
+            // Adjust grid layout if only one item
+            if (products.length === 1) {
+            searchResultsGrid.classList.add("single-item");
+            } else {
+            searchResultsGrid.classList.remove("single-item");
+            }
+
+            // Animate cards
+            if (window.gsap) {
+                gsap.from(".fade-in",{opacity:0,y:30,duration:0.5,stagger:0.15,ease:"power2.out"});
+            }
+            });
+
+            function sanitizeImageUrl(url){
+            if(!url) return "../images/default-placeholder.png";
+            if(url.startsWith("http")) return url;
+            return `https://bfpaawywaljnfudynnke.supabase.co/storage/v1/object/public/${url}`;
+            }
+            function escapeHtml(str){
+            return str ? str.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : "";
+            }
+
+            function viewProductDetails(item) {
+                localStorage.setItem("selectedItem", JSON.stringify(item));
+                window.location.href = "productDetails.html";
+            }
+
+            // Handle featured products section
+            document.querySelectorAll('.featured-card').forEach(card => {
+                // Card click - navigate to product details
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.featured-add-cart') || e.target.closest('.featured-contact')) {
+                        return;
+                    }
+                    try {
+                        const product = JSON.parse(card.dataset.product);
+                        viewProductDetails(product);
+                    } catch(err) {
+                        console.error('Error parsing product data:', err);
+                    }
+                });
+            });
+
+            // Featured Add to Cart buttons
+            document.querySelectorAll('.featured-add-cart').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const card = btn.closest('.featured-card');
+                    if (card && window.Cart) {
+                        try {
+                            const product = JSON.parse(card.dataset.product);
+                            Cart.addItem(product);
+                        } catch(err) {
+                            console.error('Error adding to cart:', err);
+                        }
+                    }
+                });
+            });
+
+            // Featured Contact buttons
+            document.querySelectorAll('.featured-contact').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const card = btn.closest('.featured-card');
+                    if (card) {
+                        try {
+                            const product = JSON.parse(card.dataset.product);
+                            alert(`Contact seller: ${product.seller}\nIn a real app, this would open a messaging interface.`);
+                        } catch(err) {
+                            console.error('Error:', err);
+                        }
+                    }
+                });
+            });
+
+        </script>
+    </body>
+</html>      
+

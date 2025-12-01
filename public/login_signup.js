@@ -215,10 +215,20 @@ loginForm.addEventListener('submit', async function(e) {
                 throw new Error(result.error || 'Signin failed');
             }
 
+            // Store session tokens for persistence
+            if (result.session && result.session.access_token) {
+                localStorage.setItem('supabase_session', JSON.stringify(result.session));
+                localStorage.setItem('user_id', result.userID);
+                console.log('Session tokens stored successfully');
+            }
+
             loginForm.reset();
            
             console.log('✅ User Signed In:', result);
-            showSuccessMessage('Log in successful!');
+            showSuccessMessage('Log in successful! Redirecting...');
+            
+            // Wait a moment for session to be fully established, then redirect
+            await new Promise(resolve => setTimeout(resolve, 300));
             window.location.href = result.redirect;
 
         } catch (err) {
