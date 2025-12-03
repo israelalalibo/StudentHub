@@ -139,10 +139,9 @@ body {
     border-radius: 50%;
     overflow: hidden;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: all 0.2s ease;
+    background: #f8fafc;
+    flex-shrink: 0;
 }
 
 .profile-icon-wrapper:hover {
@@ -153,10 +152,20 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
+    display: block;
 }
 
 .profile-icon-wrapper.has-picture {
     border: 2px solid #667eea;
+    /* Adjust size to account for border */
+    width: 40px;
+    height: 40px;
+}
+
+.profile-icon-wrapper.has-picture .profile-icon {
+    width: 100%;
+    height: 100%;
 }
 
 .nav-actions {
@@ -199,7 +208,7 @@ body {
     color: white;
 }
 
-.cart-icon, .profile-icon {
+.cart-icon {
     position: relative;
     padding: 10px;
     border-radius: 50%;
@@ -208,7 +217,7 @@ body {
     transition: all 0.3s ease;
 }
 
-.cart-icon:hover, .profile-icon:hover {
+.cart-icon:hover {
     background: #667eea;
     color: white;
     transform: translateY(-2px);
@@ -685,16 +694,13 @@ body {
   display: inline-block;
 }
 
-.profile-icon {
-  width: 40px;
-  height: 40px;
+/* Profile icon image - fills the wrapper completely */
+.profile-icon-wrapper .profile-icon {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.profile-icon:hover {
-  transform: scale(1.05);
+  object-fit: cover;
+  display: block;
 }
 
 .profile-dropdown {

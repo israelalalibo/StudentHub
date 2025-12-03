@@ -6,8 +6,21 @@ import { fileURLToPath } from 'url'
 import cors from "cors";
 import multer from "multer";
 import fs from "fs";
+//import Stripe from 'stripe';
 
 dotenv.config()
+
+// ============================================
+// STRIPE CONFIGURATION
+// ============================================
+// IMPORTANT: Replace with your actual Stripe keys
+// Use environment variables in production!
+// const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_YOUR_TEST_KEY_HERE';
+// const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_YOUR_WEBHOOK_SECRET';
+// const PLATFORM_FEE_PERCENT = 5; // Platform takes 5% of each sale
+
+// // Initialize Stripe
+// const stripe = new Stripe(STRIPE_SECRET_KEY);
 
 // Supabase configuration
 const supabaseUrl = 'https://bfpaawywaljnfudynnke.supabase.co';
@@ -1954,6 +1967,474 @@ app.delete("/api/profile/picture", async (req, res) => {
   } catch (err) {
     console.error("Delete profile picture error:", err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ============================================
+// STRIPE PAYMENT ENDPOINTS
+// ============================================
+
+// Get user's balance and earnings
+app.get("/api/balance", async (req, res) => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("student")
+      .select("balance, total_earnings")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    res.json({
+      balance: data?.balance || 0,
+      total_earnings: data?.total_earnings || 0
+    });
+
+  } catch (err) {
+    console.error("Balance fetch error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create Stripe Checkout Session
+app.post("/api/checkout/create-session", async (req, res) => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return res.status(401).json({ error: "Please log in to checkout" });
+    }
+
+    const { cartItems } = req.body;
+    
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(400).json({ error: "Cart is empty" });
+    }
+
+    // Get user email
+    const { data: studentData } = await supabaseAdmin
+      .from("student")
+      .select("first_name, last_name")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    // Calculate totals
+    let subtotal = 0;
+    const lineItems = [];
+    const orderItems = [];
+
+    for (const item of cartItems) {
+      // Verify product exists and get current price
+      const { data: product, error: productError } = await supabaseAdmin
+        .from("ProductTable")
+        .select("*, student:seller_id(first_name, last_name)")
+        .eq("product_id", item.product_id)
+        .maybeSingle();
+
+      if (productError || !product) {
+        return res.status(400).json({ error: `Product not found: ${item.title}` });
+      }
+
+      // Can't buy your own product
+      if (product.seller_id === user.id) {
+        return res.status(400).json({ error: `You cannot buy your own product: ${product.title}` });
+      }
+
+      const price = parseFloat(product.price);
+      const quantity = item.quantity || 1;
+      const itemTotal = price * quantity;
+      subtotal += itemTotal;
+
+      // Calculate seller amount (price minus platform fee)
+      const platformFee = (price * PLATFORM_FEE_PERCENT) / 100;
+      const sellerAmount = price - platformFee;
+
+      // Add to line items for Stripe
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: product.title,
+            description: `${product.condition || 'Good'} - Sold by ${product.student?.first_name || 'Student'}`,
+            images: product.image_url ? [product.image_url] : [],
+          },
+          unit_amount: Math.round(price * 100), // Stripe uses cents
+        },
+        quantity: quantity,
+      });
+
+      // Store order item info
+      orderItems.push({
+        product_id: product.product_id,
+        seller_id: product.seller_id,
+        title: product.title,
+        price: price,
+        quantity: quantity,
+        seller_amount: sellerAmount,
+      });
+    }
+
+    // Calculate platform fee and total
+    const totalPlatformFee = (subtotal * PLATFORM_FEE_PERCENT) / 100;
+    const totalAmount = subtotal;
+
+    // Create order in database (pending status)
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from("orders")
+      .insert({
+        buyer_id: user.id,
+        subtotal: subtotal,
+        platform_fee: totalPlatformFee,
+        total_amount: totalAmount,
+        status: 'pending',
+        payment_status: 'unpaid',
+        buyer_email: user.email,
+        buyer_name: studentData ? `${studentData.first_name} ${studentData.last_name}` : user.email,
+      })
+      .select()
+      .single();
+
+    if (orderError) {
+      console.error("Order creation error:", orderError);
+      throw orderError;
+    }
+
+    // Create order items
+    for (const item of orderItems) {
+      await supabaseAdmin
+        .from("order_items")
+        .insert({
+          order_id: order.order_id,
+          product_id: item.product_id,
+          seller_id: item.seller_id,
+          title: item.title,
+          price: item.price,
+          quantity: item.quantity,
+          seller_amount: item.seller_amount,
+        });
+    }
+
+    // Create Stripe Checkout Session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
+      success_url: `${req.headers.origin || 'http://localhost:3000'}/views/order-success.html?session_id={CHECKOUT_SESSION_ID}&order_id=${order.order_id}`,
+      cancel_url: `${req.headers.origin || 'http://localhost:3000'}/views/cart.html?cancelled=true`,
+      customer_email: user.email,
+      metadata: {
+        order_id: order.order_id,
+        buyer_id: user.id,
+      },
+    });
+
+    // Update order with Stripe session ID
+    await supabaseAdmin
+      .from("orders")
+      .update({ stripe_checkout_session_id: session.id })
+      .eq("order_id", order.order_id);
+
+    console.log("Checkout session created:", session.id);
+    res.json({ 
+      sessionId: session.id, 
+      url: session.url,
+      orderId: order.order_id 
+    });
+
+  } catch (err) {
+    console.error("Checkout session error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Verify payment and complete order
+app.post("/api/checkout/verify-payment", async (req, res) => {
+  try {
+    const { sessionId, orderId } = req.body;
+
+    if (!sessionId || !orderId) {
+      return res.status(400).json({ error: "Session ID and Order ID required" });
+    }
+
+    // Retrieve session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status !== 'paid') {
+      return res.status(400).json({ 
+        error: "Payment not completed",
+        status: session.payment_status 
+      });
+    }
+
+    // Update order status
+    const { error: orderError } = await supabaseAdmin
+      .from("orders")
+      .update({
+        status: 'paid',
+        payment_status: 'paid',
+        stripe_payment_intent_id: session.payment_intent,
+        paid_at: new Date().toISOString(),
+      })
+      .eq("order_id", orderId);
+
+    if (orderError) throw orderError;
+
+    // Get order items and credit sellers
+    const { data: orderItems, error: itemsError } = await supabaseAdmin
+      .from("order_items")
+      .select("*")
+      .eq("order_id", orderId);
+
+    if (itemsError) throw itemsError;
+
+    // Credit each seller's balance
+    for (const item of orderItems) {
+      // Update seller balance
+      const { error: balanceError } = await supabaseAdmin
+        .rpc('increment_balance', { 
+          user_id: item.seller_id, 
+          amount: item.seller_amount 
+        });
+
+      // If RPC doesn't exist, do it manually
+      if (balanceError) {
+        const { data: seller } = await supabaseAdmin
+          .from("student")
+          .select("balance, total_earnings")
+          .eq("id", item.seller_id)
+          .single();
+
+        await supabaseAdmin
+          .from("student")
+          .update({
+            balance: (seller?.balance || 0) + item.seller_amount,
+            total_earnings: (seller?.total_earnings || 0) + item.seller_amount,
+          })
+          .eq("id", item.seller_id);
+      }
+
+      // Mark item as paid to seller
+      await supabaseAdmin
+        .from("order_items")
+        .update({ 
+          seller_paid: true, 
+          seller_paid_at: new Date().toISOString() 
+        })
+        .eq("order_item_id", item.order_item_id);
+
+      // Create transaction record
+      await supabaseAdmin
+        .from("transactions")
+        .insert({
+          user_id: item.seller_id,
+          type: 'payment',
+          amount: item.seller_amount,
+          order_id: orderId,
+          order_item_id: item.order_item_id,
+          stripe_reference: session.payment_intent,
+          description: `Sale: ${item.title}`,
+          status: 'completed',
+        });
+    }
+
+    // Clear buyer's cart
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabaseAdmin
+        .from("cart")
+        .delete()
+        .eq("user_id", user.id);
+    }
+
+    // Create purchase records for buyer
+    for (const item of orderItems) {
+      await supabaseAdmin
+        .from("purchases")
+        .insert({
+          user_id: session.metadata.buyer_id,
+          product_id: item.product_id,
+          product_title: item.title,
+          price: item.price,
+          quantity: item.quantity,
+          order_id: orderId,
+        });
+    }
+
+    console.log("Payment verified and sellers credited for order:", orderId);
+    res.json({ 
+      success: true, 
+      message: "Payment verified and order completed",
+      orderId: orderId
+    });
+
+  } catch (err) {
+    console.error("Payment verification error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get order details
+app.get("/api/orders/:orderId", async (req, res) => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+
+    const { orderId } = req.params;
+
+    // Get order
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from("orders")
+      .select("*")
+      .eq("order_id", orderId)
+      .eq("buyer_id", user.id)
+      .single();
+
+    if (orderError) throw orderError;
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    // Get order items
+    const { data: items, error: itemsError } = await supabaseAdmin
+      .from("order_items")
+      .select(`
+        *,
+        product:product_id (image_url, category)
+      `)
+      .eq("order_id", orderId);
+
+    if (itemsError) throw itemsError;
+
+    res.json({
+      ...order,
+      items: items || []
+    });
+
+  } catch (err) {
+    console.error("Order fetch error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all orders for user
+app.get("/api/orders", async (req, res) => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+
+    const { data: orders, error } = await supabaseAdmin
+      .from("orders")
+      .select(`
+        *,
+        order_items (*)
+      `)
+      .eq("buyer_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json(orders || []);
+
+  } catch (err) {
+    console.error("Orders fetch error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get seller's sales (orders where user is seller)
+app.get("/api/sales", async (req, res) => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+
+    const { data: sales, error } = await supabaseAdmin
+      .from("order_items")
+      .select(`
+        *,
+        order:order_id (
+          status,
+          payment_status,
+          created_at,
+          paid_at,
+          buyer_id
+        )
+      `)
+      .eq("seller_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json(sales || []);
+
+  } catch (err) {
+    console.error("Sales fetch error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get user's transaction history
+app.get("/api/transactions", async (req, res) => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+
+    const { data: transactions, error } = await supabaseAdmin
+      .from("transactions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json(transactions || []);
+
+  } catch (err) {
+    console.error("Transactions fetch error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Stripe Webhook (for handling async payment events)
+// Note: This needs raw body, so it should be before express.json() middleware
+// For now, we're using the verify-payment endpoint instead
+app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+
+  try {
+    const event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
+
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object;
+        console.log('Payment successful for session:', session.id);
+        // Payment verification is handled by verify-payment endpoint
+        break;
+
+      case 'payment_intent.payment_failed':
+        const failedIntent = event.data.object;
+        console.log('Payment failed:', failedIntent.id);
+        break;
+
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    res.json({ received: true });
+  } catch (err) {
+    console.error('Webhook error:', err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
   }
 });
 

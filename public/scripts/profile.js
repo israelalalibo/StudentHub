@@ -6,6 +6,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   await loadProfileData();
   await loadUserReviews();
+  await loadBalance();
 });
 
 // Load user profile data and stats
@@ -62,6 +63,33 @@ async function loadProfileData() {
   } catch (err) {
     console.error('Error loading profile:', err);
     showError('Failed to load profile data. Please try again.');
+  }
+}
+
+// Load user's balance
+async function loadBalance() {
+  try {
+    const response = await fetch('/api/balance');
+    
+    if (!response.ok) {
+      console.log('Balance not available');
+      return;
+    }
+
+    const data = await response.json();
+    
+    const balanceAmount = document.getElementById('balanceAmount');
+    const totalEarnings = document.getElementById('totalEarnings');
+    
+    if (balanceAmount) {
+      balanceAmount.textContent = `$${parseFloat(data.balance || 0).toFixed(2)}`;
+    }
+    if (totalEarnings) {
+      totalEarnings.textContent = `$${parseFloat(data.total_earnings || 0).toFixed(2)}`;
+    }
+
+  } catch (err) {
+    console.error('Error loading balance:', err);
   }
 }
 

@@ -110,6 +110,32 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .balance-header {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .balance-total {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
         .stat-number {
             font-size: 2rem;
             font-weight: 700;
@@ -332,6 +358,19 @@
                                         <div class="stat-card">
                                             <div class="stat-number" id="reviewsWrittenStat">0</div>
                                             <div class="stat-label">Reviews</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Seller Balance Card -->
+                                <div class="mt-4">
+                                    <div class="balance-card">
+                                        <div class="balance-header">
+                                            <span>💰 Seller Balance</span>
+                                        </div>
+                                        <div class="balance-amount" id="balanceAmount">$0.00</div>
+                                        <div class="balance-total">
+                                            Total Earnings: <span id="totalEarnings">$0.00</span>
                                         </div>
                                     </div>
                                 </div>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Successful | StudentHub</title>
+  <link rel="stylesheet" href="../style2landing.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../loadHeader.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .success-page {
+      margin-top: 100px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 40px 20px 60px;
+    }
+
+    .success-card {
+      background: white;
+      border-radius: 24px;
+      padding: 48px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .success-icon {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 48px;
+      animation: successPop 0.5s ease;
+    }
+
+    @keyframes successPop {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .success-card h1 {
+      color: #111827;
+      font-size: 2rem;
+      margin: 0 0 12px 0;
+    }
+
+    .success-card > p {
+      color: #6b7280;
+      font-size: 1.1rem;
+      margin: 0 0 32px 0;
+    }
+
+    .order-details {
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 32px;
+      text-align: left;
+    }
+
+    .order-details h3 {
+      margin: 0 0 16px 0;
+      color: #374151;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .order-info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .order-info-row:last-child {
+      border-bottom: none;
+    }
+
+    .order-info-label {
+      color: #6b7280;
+    }
+
+    .order-info-value {
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .order-items {
+      margin-top: 20px;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .order-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .order-item-info {
+      flex: 1;
+      text-align: left;
+    }
+
+    .order-item-title {
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .order-item-price {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .success-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      padding: 16px 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      padding: 16px 32px;
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #667eea10;
+    }
+
+    .loading-state {
+      padding: 60px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-state {
+      padding: 48px;
+      text-align: center;
+    }
+
+    .error-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .success-page {
+        margin-top: 80px;
+        padding: 20px 15px 40px;
+      }
+
+      .success-card {
+        padding: 32px 20px;
+      }
+
+      .success-card h1 {
+        font-size: 1.5rem;
+      }
+
+      .success-actions {
+        flex-direction: column;
+      }
+
+      .btn-primary, .btn-secondary {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .order-item {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .order-item-info {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <div class="success-page">
+    <div class="success-card" id="successCard">
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+        <p>Verifying your payment...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      const orderId = urlParams.get('order_id');
+
+      const successCard = document.getElementById('successCard');
+
+      if (!sessionId || !orderId) {
+        showError('Invalid order information');
+        return;
+      }
+
+      try {
+        // Verify payment with server
+        const response = await fetch('/api/checkout/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, orderId })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Payment verification failed');
+        }
+
+        // Fetch order details
+        const orderResponse = await fetch(`/api/orders/${orderId}`);
+        const order = await orderResponse.json();
+
+        if (!orderResponse.ok) {
+          throw new Error(order.error || 'Failed to fetch order details');
+        }
+
+        // Show success
+        showSuccess(order);
+
+      } catch (err) {
+        console.error('Error:', err);
+        showError(err.message);
+      }
+    });
+
+    function showSuccess(order) {
+      const successCard = document.getElementById('successCard');
+      const orderIdShort = order.order_id.substring(0, 8).toUpperCase();
+      const formattedDate = new Date(order.paid_at || order.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      let itemsHtml = '';
+      if (order.items && order.items.length > 0) {
+        itemsHtml = `
+          <div class="order-items">
+            <h4 style="margin: 0 0 12px 0; color: #374151;">Items Purchased</h4>
+            ${order.items.map(item => `
+              <div class="order-item">
+                <img src="${sanitizeImageUrl(item.product?.image_url)}" alt="${escapeHtml(item.title)}" onerror="this.src='../images/default-placeholder.png'">
+                <div class="order-item-info">
+                  <div class="order-item-title">${escapeHtml(item.title)}</div>
+                  <div class="order-item-price">$${parseFloat(item.price).toFixed(2)} × ${item.quantity || 1}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      successCard.innerHTML = `
+        <div class="success-icon">✓</div>
+        <h1>Payment Successful!</h1>
+        <p>Thank you for your purchase. The sellers have been notified.</p>
+        
+        <div class="order-details">
+          <h3>📦 Order Details</h3>
+          <div class="order-info-row">
+            <span class="order-info-label">Order ID</span>
+            <span class="order-info-value">#${orderIdShort}</span>
+          </div>
+          <div class="order-info-row">
+            <span class="order-info-label">Date</span>
+            <span class="order-info-value">${formattedDate}</span>
+          </div>
+          <div class="order-info-row">
+            <span class="order-info-label">Total Paid</span>
+            <span class="order-info-value" style="color: #10b981;">$${parseFloat(order.total_amount).toFixed(2)}</span>
+          </div>
+          <div class="order-info-row">
+            <span class="order-info-label">Payment Status</span>
+            <span class="order-info-value" style="color: #10b981;">✓ Paid</span>
+          </div>
+          ${itemsHtml}
+        </div>
+
+        <div class="success-actions">
+          <a href="purchase_history.html" class="btn-primary">
+            📋 View Order History
+          </a>
+          <a href="landingpage.html" class="btn-secondary">
+            🛒 Continue Shopping
+          </a>
+        </div>
+      `;
+    }
+
+    function showError(message) {
+      const successCard = document.getElementById('successCard');
+      successCard.innerHTML = `
+        <div class="error-state">
+          <div class="error-icon">⚠️</div>
+          <h2>Something went wrong</h2>
+          <p style="color: #6b7280; margin-bottom: 24px;">${escapeHtml(message)}</p>
+          <a href="cart.html" class="btn-primary">
+            Return to Cart
+          </a>
+        </div>
+      `;
+    }
+
+    function sanitizeImageUrl(url) {
+      if (!url) return '../images/default-placeholder.png';
+      if (url.startsWith('http')) return url;
+      return `https://bfpaawywaljnfudynnke.supabase.co/storage/v1/object/public/${url}`;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[m]));
+    }
+  </script>
+</body>
+</html>
+

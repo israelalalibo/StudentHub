@@ -595,11 +595,6 @@
           <span id="subtotalAmount">$0.00</span>
         </div>
         
-        <!-- <div class="summary-row">
-          <span>Estimated Tax (8%)</span>
-          <span id="taxAmount">$0.00</span>
-        </div> -->
-        
         <div class="summary-row total">
           <span>Total</span>
           <span id="totalAmount">$0.00</span>
@@ -614,7 +609,7 @@
         </div>
 
         <button class="checkout-btn" id="checkoutBtn" onclick="proceedToCheckout()">
-          🔒 Proceed to Checkout
+          💳 Pay with Stripe
         </button>
         
         <button class="continue-shopping-btn" onclick="window.location.href='landingpage.html'">
@@ -622,7 +617,8 @@
         </button>
 
         <div class="secure-badge">
-          🔐 Secure checkout • Campus verified
+          <img src="https://cdn.brandfolder.io/KGT2DTA4/at/8vbr8k4vcvvvtrb24vm4/Powered_by_Stripe_-_black.svg" alt="Powered by Stripe" style="height: 24px; margin-right: 8px;">
+          Secure Payments
         </div>
       </div>
     </div>
@@ -758,7 +754,7 @@
       }
     }
 
-    // Proceed to checkout (async)
+    // Proceed to checkout with Stripe
     async function proceedToCheckout() {
       const items = await Cart.getItems();
       if (items.length === 0) {
@@ -768,12 +764,14 @@
 
       const checkoutBtn = document.getElementById('checkoutBtn');
       checkoutBtn.disabled = true;
-      checkoutBtn.innerHTML = '⏳ Processing...';
+      checkoutBtn.innerHTML = '⏳ Creating checkout session...';
 
       try {
-        const response = await fetch('/api/purchases', {
+        // Create Stripe checkout session
+        const response = await fetch('/api/checkout/create-session', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cartItems: items })
         });
 
         const result = await response.json();
@@ -782,8 +780,13 @@
           throw new Error(result.error || 'Checkout failed');
         }
 
-        // Show success message
-        showCheckoutSuccess(result.purchase);
+        // Redirect to Stripe checkout
+        if (result.url) {
+          checkoutBtn.innerHTML = '🔄 Redirecting to payment...';
+          window.location.href = result.url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
 
       } catch (err) {
         console.error('Checkout error:', err);
