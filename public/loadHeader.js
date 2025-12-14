@@ -219,7 +219,7 @@ function showSessionExpiredModal() {
         <p style="color: #6b7280; margin: 0 0 24px 0;">
           Your session has expired due to inactivity. Please log in again to continue.
         </p>
-        <button onclick="window.location.href='../index.html'" style="
+        <button onclick="window.location.href='../index'" style="
           padding: 14px 32px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;

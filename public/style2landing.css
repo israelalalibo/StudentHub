@@ -661,10 +661,7 @@ body {
 }
 
 /* Animations */
-.fade-in {
-    opacity: 0;
-    transform: translateY(30px);
-}
+/* Fade-in disabled - items load instantly */
 
 .cart-dropdown {
     position: absolute;

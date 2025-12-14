@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - StudentHub</title>
+    <script src="../loadHeader.js"></script>
+    <link rel="stylesheet" href="../style2landing.css">
+    <style>
+        .page-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .page-header h1 {
+            font-size: 2.8rem;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+        .page-header .subtitle {
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+        .content-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .content-section h2 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .content-section p {
+            color: #475569;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin: 30px 0;
+        }
+        .highlight-box h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .tech-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .contact-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="page-container">
+        <a href="./landingpage.html" class="back-link">← Back to Home</a>
+        
+        <div class="page-header">
+            <h1>About StudentHub</h1>
+            <p class="subtitle">A University of Salford Final Year Project</p>
+        </div>
+
+        <div class="content-section">
+            <h2>📚 What is StudentHub?</h2>
+            <p>
+                StudentHub is a peer-to-peer marketplace designed specifically for university students. 
+                It provides a safe and convenient platform for students to buy and sell textbooks, electronics, 
+                furniture, and other items they need throughout their academic journey.
+            </p>
+            <p>
+                Whether you're looking to save money on textbooks, find affordable electronics, or sell items 
+                you no longer need, StudentHub connects you with fellow students in your university community.
+            </p>
+        </div>
+
+        <div class="highlight-box">
+            <h3>🎓 Academic Project</h3>
+            <p>
+                This platform was developed as a Final Year Project for the BSc Computer Science programme 
+                at the University of Salford. It demonstrates full-stack web development skills including 
+                frontend design, backend API development, database management, and user authentication.
+            </p>
+        </div>
+
+        <div class="content-section">
+            <h2>🛠️ Technology Stack</h2>
+            <p>StudentHub is built using modern web technologies:</p>
+            <div class="tech-stack">
+                <span class="tech-badge">HTML5 & CSS3</span>
+                <span class="tech-badge">JavaScript (ES6+)</span>
+                <span class="tech-badge">Node.js</span>
+                <span class="tech-badge">Express.js</span>
+                <span class="tech-badge">Supabase</span>
+                <span class="tech-badge">PostgreSQL</span>
+                <span class="tech-badge">REST APIs</span>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>✨ Key Features</h2>
+            <p>
+                <strong>User Authentication:</strong> Secure sign-up and login system with session management.
+            </p>
+            <p>
+                <strong>Product Listings:</strong> Easy-to-use interface for listing items with images, descriptions, and pricing.
+            </p>
+            <p>
+                <strong>Search & Filters:</strong> Advanced search functionality with category and price filters.
+            </p>
+            <p>
+                <strong>Messaging System:</strong> Built-in chat to communicate with buyers and sellers.
+            </p>
+            <p>
+                <strong>Reviews & Ratings:</strong> Build trust through community feedback.
+            </p>
+            <p>
+                <strong>Shopping Cart:</strong> Convenient cart system for purchasing multiple items.
+            </p>
+        </div>
+
+        <div class="content-section">
+            <h2>👨‍💻 Developer</h2>
+            <p>
+                <strong>Israel Karibo Alalibo</strong><br>
+                BSc Software Engineering Student<br>
+                University of Salford, Manchester
+            </p>
+            <p>
+                For questions, feedback, or inquiries about this project, please contact:<br>
+                <a href="mailto:i.t.kariboalalibo@edu.salford.ac.uk" class="contact-link">
+                    i.t.kariboalalibo@edu.salford.ac.uk
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <script src="../cart.js"></script>
+</body>
+</html>
+

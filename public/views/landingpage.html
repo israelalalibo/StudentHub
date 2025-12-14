@@ -160,46 +160,46 @@
                 <div class="footer-section">
                     <h3>StudentHub</h3>
                     <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">How It Works</a></li>
-                        <li><a href="#">Safety Tips</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="./about.html">About Us</a></li>
+                        <li><a href="#how-it-works" onclick="scrollToHowItWorks()">How It Works</a></li>
+                        <li><a href="./safety-tips.html">Safety Tips</a></li>
+                        <li><a href="mailto:i.t.kariboalalibo@edu.salford.ac.uk">Contact</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-section">
                     <h3>Categories</h3>
                     <ul>
-                        <li><a href="#">Textbooks</a></li>
-                        <li><a href="#">Electronics</a></li>
-                        <li><a href="#">Supplies</a></li>
-                        <li><a href="#">Furniture</a></li>
+                        <li><a href="#" onclick="searchCategory('textbooks'); return false;">📚 Textbooks</a></li>
+                        <li><a href="#" onclick="searchCategory('electronics'); return false;">💻 Electronics</a></li>
+                        <li><a href="#" onclick="searchCategory('supplies'); return false;">✏️ Supplies</a></li>
+                        <li><a href="#" onclick="searchCategory('furniture'); return false;">🪑 Furniture</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-section">
                     <h3>Account</h3>
                     <ul>
-                        <li><a href="#">Sign Up</a></li>
-                        <li><a href="#">Log In</a></li>
-                        <li><a href="#">My Account</a></li>
-                        <li><a href="#">Sell Item</a></li>
+                        <li><a href="../index.html">Sign Up</a></li>
+                        <li><a href="../index.html">Log In</a></li>
+                        <li><a href="./profile.html">My Profile</a></li>
+                        <li><a href="./sellItem.html">Sell Item</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-section">
                     <h3>Support</h3>
                     <ul>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Report Issue</a></li>
+                        <li><a href="mailto:i.t.kariboalalibo@edu.salford.ac.uk">Help & Support</a></li>
+                        <li><a href="./privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="./terms.html">Terms of Service</a></li>
+                        <li><a href="mailto:i.t.kariboalalibo@edu.salford.ac.uk?subject=StudentHub Issue Report">Report Issue</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2025 StudentHub. All rights reserved. Made for students, by students.</p>
+                <p>&copy; 2025 StudentHub. University of Salford Final Year Project by Israel Kariboalalibo.</p>
             </div>
         </footer>
         <script src="../cart.js"></script>
@@ -399,6 +399,11 @@
             }
             
 
+            // Load featured products if showing featured section (must happen before early returns)
+            if (featuredSection.style.display !== 'none') {
+                loadFeaturedProducts();
+            }
+
             if (!products.length && (isCategory || savedQuery || savedResults || selectedItem)) {
                 searchResultsGrid.innerHTML = `
                 <div class="no-results-anim">
@@ -436,11 +441,6 @@
             searchResultsGrid.classList.add("single-item");
             } else {
             searchResultsGrid.classList.remove("single-item");
-            }
-            
-            // Load featured products if showing featured section
-            if (featuredSection.style.display !== 'none') {
-                loadFeaturedProducts();
             }
             });
 
@@ -531,7 +531,7 @@
                 featuredGrid.innerHTML = pageProducts.map((item, index) => {
                     const globalIndex = startIndex + index;
                     return `
-                        <div class="product-card featured-card fade-in" data-featured-index="${globalIndex}">
+                        <div class="product-card featured-card" data-featured-index="${globalIndex}">
                             <div class="product-image-container">
                                 <img src="${sanitizeImageUrl(item.image_url)}"
                                     alt="${escapeHtml(item.title)}"
@@ -556,17 +556,6 @@
                 
                 // Attach click handlers
                 attachFeaturedClickHandlers();
-                
-                // Animate cards
-                if (window.gsap) {
-                    gsap.from(".featured-card", {
-                        opacity: 0, 
-                        y: 30, 
-                        duration: 0.5, 
-                        stagger: 0.1, 
-                        ease: "power2.out"
-                    });
-                }
             }
             
             function changeFeaturedPage(direction) {
@@ -599,7 +588,7 @@
                 searchResultsGrid.innerHTML = pageProducts.map((item, index) => {
                     const globalIndex = startIndex + index;
                     return `
-                        <div class="product-card fade-in" style="opacity: 1" data-product-index="${globalIndex}">
+                        <div class="product-card" data-product-index="${globalIndex}">
                             <img src="${sanitizeImageUrl(item.image_url)}"
                                 alt="${escapeHtml(item.title || item.name)}"
                                 onerror="this.src='../images/default-placeholder.png';"
@@ -620,17 +609,6 @@
                 
                 // Attach click handlers
                 attachSearchClickHandlers();
-                
-                // Animate cards
-                if (window.gsap) {
-                    gsap.from("#searchResultsGrid .fade-in", {
-                        opacity: 0, 
-                        y: 30, 
-                        duration: 0.5, 
-                        stagger: 0.1, 
-                        ease: "power2.out"
-                    });
-                }
             }
             
             function attachSearchClickHandlers() {
@@ -732,6 +710,28 @@
                         }
                     });
                 });
+            }
+
+            // Footer helper functions
+            function scrollToHowItWorks() {
+                const section = document.querySelector('.how-it-works');
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            async function searchCategory(category) {
+                try {
+                    const response = await fetch(`/api/category/${category}`);
+                    if (response.ok) {
+                        const products = await response.json();
+                        localStorage.setItem('categoryResults', JSON.stringify(products));
+                        localStorage.setItem('selectedCategory', category);
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    console.error('Category search error:', err);
+                }
             }
 
         </script>

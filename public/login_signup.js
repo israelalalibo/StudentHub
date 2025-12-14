@@ -363,7 +363,7 @@ signupForm.addEventListener('submit', async function(e) {
 });
 
 // Google Sign In simulation
-function handleGoogleSignIn() {
+window.handleGoogleSignIn = function() {
     showSuccessMessage('Google Sign In initiated! (This is a demo - integrate with Google OAuth in production)');
     console.log('Google Sign In clicked');
 }

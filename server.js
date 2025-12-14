@@ -167,7 +167,6 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-
 app.post('/logout', async (req, res) =>{
   try {
     // Use 'local' scope to only clear the current session without affecting the service_role client
