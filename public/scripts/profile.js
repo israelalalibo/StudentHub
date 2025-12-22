@@ -7,42 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadProfileData();
   await loadUserReviews();
   await loadBalance();
-  
-  // Check if profile needs refresh on load
-  if (localStorage.getItem('profileNeedsRefresh')) {
-    await refreshProfileData();
-    localStorage.removeItem('profileNeedsRefresh');
-  }
-  
-  // Refresh when page becomes visible (user returns to tab)
-  document.addEventListener('visibilitychange', async () => {
-    if (!document.hidden) {
-      // Page became visible - refresh data
-      await refreshProfileData();
-    }
-  });
-  
-  // Also refresh when window gains focus
-  window.addEventListener('focus', async () => {
-    await refreshProfileData();
-  });
-  
-  // Listen for storage events (when other tabs/pages update data)
-  window.addEventListener('storage', async (e) => {
-    if (e.key === 'profileNeedsRefresh') {
-      await refreshProfileData();
-      localStorage.removeItem('profileNeedsRefresh');
-    }
-  });
-  
-  // Also listen for custom events (for same-tab updates)
-  window.addEventListener('profileNeedsRefresh', async () => {
-    await refreshProfileData();
-  });
 });
-
-// Make refresh function globally available
-window.refreshProfileData = refreshProfileData;
 
 // Load user profile data and stats
 async function loadProfileData() {
@@ -88,42 +53,17 @@ async function loadProfileData() {
     document.getElementById('emailField').textContent = profile.email || 'Not available';
     document.getElementById('createdAtField').textContent = formatDate(profile.created_at);
 
-    // Update activity stats - both badges and stat cards
+    // Update activity stats
     const itemsListedBadge = document.querySelector('#albumsCreatedField .badge');
     const reviewsBadge = document.querySelector('#reviewsField .badge');
-    const itemsListedStat = document.getElementById('itemsListedStat');
-    const reviewsWrittenStat = document.getElementById('reviewsWrittenStat');
     
-    const itemsCount = profile.items_listed || 0;
-    const reviewsCount = profile.reviews_written || 0;
-    
-    // Update badges (hidden section)
-    if (itemsListedBadge) {
-      itemsListedBadge.textContent = itemsCount;
-    }
-    if (reviewsBadge) {
-      reviewsBadge.textContent = reviewsCount;
-    }
-    
-    // Update stat cards (visible section)
-    if (itemsListedStat) {
-      itemsListedStat.textContent = itemsCount;
-    }
-    if (reviewsWrittenStat) {
-      reviewsWrittenStat.textContent = reviewsCount;
-    }
+    itemsListedBadge.textContent = profile.items_listed || 0;
+    reviewsBadge.textContent = profile.reviews_written || 0;
 
   } catch (err) {
     console.error('Error loading profile:', err);
     showError('Failed to load profile data. Please try again.');
   }
-}
-
-// Refresh profile data - can be called from other pages or when page becomes visible
-async function refreshProfileData() {
-  await loadProfileData();
-  await loadUserReviews();
-  await loadBalance();
 }
 
 // Load user's balance

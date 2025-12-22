@@ -331,14 +331,6 @@ async function saveListingChanges() {
     // Reload listings and stats
     await loadListings();
     await loadStats();
-    
-    // Trigger profile refresh if profile page is open
-    localStorage.setItem('profileNeedsRefresh', Date.now().toString());
-    // Dispatch custom event for same-tab updates
-    window.dispatchEvent(new Event('profileNeedsRefresh'));
-    if (window.refreshProfileData) {
-      window.refreshProfileData();
-    }
 
   } catch (err) {
     console.error('Error updating listing:', err);
@@ -391,14 +383,6 @@ async function confirmDelete() {
     // Reload listings and stats
     await loadListings();
     await loadStats();
-    
-    // Trigger profile refresh if profile page is open
-    localStorage.setItem('profileNeedsRefresh', Date.now().toString());
-    // Dispatch custom event for same-tab updates
-    window.dispatchEvent(new Event('profileNeedsRefresh'));
-    if (window.refreshProfileData) {
-      window.refreshProfileData();
-    }
 
   } catch (err) {
     console.error('Error deleting listing:', err);

@@ -470,5 +470,31 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/scripts/profile.js"></script>
+    <script>
+        // Override the stat display after profile loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hook into profile loading to update stat cards
+            const originalLoadProfile = window.loadProfileData;
+            if (typeof originalLoadProfile === 'function') {
+                window.loadProfileData = async function() {
+                    await originalLoadProfile();
+                    updateStatCards();
+                };
+            }
+        });
+
+        function updateStatCards() {
+            // Get values from hidden badges and update visible stat cards
+            const itemsBadge = document.querySelector('#albumsCreatedField .badge');
+            const reviewsBadge = document.querySelector('#reviewsField .badge');
+            
+            if (itemsBadge) {
+                document.getElementById('itemsListedStat').textContent = itemsBadge.textContent;
+            }
+            if (reviewsBadge) {
+                document.getElementById('reviewsWrittenStat').textContent = reviewsBadge.textContent;
+            }
+        }
+    </script>
 </body>
 </html>
