@@ -1,0 +1,165 @@
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const response = await fetch("./header.html");
+    const headerHTML = await response.text();
+    document.getElementById("header").innerHTML = headerHTML;
+
+    //initialise header related features
+    initHeaderFeatures();
+  } catch (err) {
+    console.error("Error loading header:", err);
+  }
+});
+
+function initHeaderFeatures() {
+  // Get search input safely
+  const searchInput = document.getElementById("liveSearchInput");
+  const resultDropdown = document.getElementById("searchResultsDropdown");
+
+  if (!searchInput) {
+    console.warn("Live search input not found in header.");
+    return;
+  }
+
+  //Attach input listener programmatically instead of using inline oninput
+  searchInput.addEventListener("input", debounce(async (e) => {
+    const query = e.target.value.trim();
+    await fetchSearchResults(query, resultDropdown);
+  }, 300));
+}
+
+// document.querySelector('.categories-btn').addEventListener('click', function() {
+//     document.querySelector('.categories-menu').classList.toggle('show');
+// });
+// window.addEventListener('click', function(e) {
+//     if (!e.target.matches('.categories-btn')) {
+//         document.querySelector('.categories-menu').classList.remove('show');
+//     }
+// });
+function showCategories(){
+  document.querySelector('.categories-menu').classList.toggle('show');
+}
+
+function showProfile() {
+    //alert('Profile menu would open here. In a real app, this would show:\n- Account settings\n- My listings\n- Purchase history\n- Messages\n- Logout');
+    const dropdown = document.getElementById("profileDropdown");
+  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+}
+
+function toggleCart() {
+    const dropdown = document.getElementById('cartDropdown');
+    dropdown.classList.toggle('show');
+}
+
+/* Live search implementation */
+// let searchInput = document.getElementById("liveSearchInput");
+// const resultDropdown = document.getElementById("searchResultsDropdown");
+// console.log(searchInput.innerHTML);
+
+
+//Debounce function to reduce frequent backend calls
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+async function fetchSearchResults(query, resultDropdown) {
+    if (!query.trim()) {
+        resultDropdown.innerHTML = "";
+        resultDropdown.style.display = "none";
+        return;
+    }
+
+    try {
+        const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+        const results = await response.json();
+
+        if (!results || results.length === 0) {
+            resultDropdown.innerHTML = "<div class='no-results'>No results found</div>";
+            resultDropdown.style.display = "block";
+            return;
+        }
+
+        console.log(results);
+        resultDropdown.innerHTML = results
+            .map(item => `
+                <div class="product-card fade-in">
+                    <div class="product-image" style="background:none; padding:0;">
+                        <img src="${sanitizeImageUrl(item.image_url)}" 
+                            alt="${item.title}" 
+                            onerror="this.src='../images/default-placeholder.png';"
+                            style="width:100%; height:200px; object-fit:cover; border-top-left-radius:20px; border-top-right-radius:20px;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${item.title}</h3>
+                        <div class="product-price">$${item.price || "N/A"}</div>
+                        <span class="product-condition">${item.condition || "Good"}</span>
+                        <div class="product-seller">Sold by ${item.seller || "Student"}</div>
+                        <div class="product-actions">
+                        <button class="btn btn-primary btn-sm">Add to Cart</button>
+                        <button class="btn btn-outline btn-sm">Contact</button>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+                 // Animate results on load
+                gsap.from(".fade-in", {
+                    opacity: 0,
+                    y: 30,
+                    duration: 0.5,
+                    stagger: 0.15,
+                    ease: "power2.out"
+                });
+        resultDropdown.style.display = "block";
+    } catch (error) {
+        console.error("Error loading search results:", err);
+      searchResultsGrid.innerHTML = `<p style="text-align:center; color:#ef4444;">Error loading results.</p>`;
+      gsap.from(searchResultsGrid, { opacity: 0, y: 20, duration: 0.4 });
+    }
+}
+
+// Ensure safe image loading
+function sanitizeImageUrl(url) {
+if (!url) return "../images/default-placeholder.png";
+if (url.startsWith("http") || url.startsWith("https")) return url;
+// If Supabase bucket public URL not provided, prefix manually if needed
+return `https://bfpaawywaljnfudynnke.supabase.co/storage/v1/object/public/${url}`;
+}
+
+function handleSearch(){
+    //fetchSearchResults(searchInput);
+    console.log(searchInput.innerText);
+}
+
+// const handleSearch = debounce((e) => {
+//     const query = e.target.value;
+//     fetchSearchResults(query);
+// }, 300);
+
+//searchInput.addEventListener("input", handleSearch);
+
+// Function to send selected item data to landing page
+function displaySearchResultsOnLanding(item) {
+    localStorage.setItem("searchResults", JSON.stringify(item));
+    window.location.href = "landingpage.html";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

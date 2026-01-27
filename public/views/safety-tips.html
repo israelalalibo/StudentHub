@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Tips - StudentHub</title>
+    <script src="../loadHeader.js"></script>
+    <link rel="stylesheet" href="../style2landing.css">
+    <style>
+        .page-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .page-header h1 {
+            font-size: 2.8rem;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+        .page-header .subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+        .safety-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+        .safety-icon {
+            font-size: 2.5rem;
+            flex-shrink: 0;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        .safety-content h3 {
+            color: #1e293b;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+        .safety-content p {
+            color: #475569;
+            line-height: 1.7;
+        }
+        .tip-list {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+        .tip-list li {
+            color: #475569;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .emergency-box {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .emergency-box h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+        .emergency-box p {
+            margin-bottom: 10px;
+        }
+        .contact-link {
+            color: white;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            .safety-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .tip-list {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="page-container">
+        <a href="./landingpage.html" class="back-link">← Back to Home</a>
+        
+        <div class="page-header">
+            <h1>Safety Tips</h1>
+            <p class="subtitle">Stay safe while buying and selling on StudentHub</p>
+        </div>
+
+        <div class="safety-card">
+            <div class="safety-icon">📍</div>
+            <div class="safety-content">
+                <h3>Meet in Public Places</h3>
+                <p>
+                    Always arrange to meet buyers or sellers in well-lit, public locations on campus. 
+                    Great spots include:
+                </p>
+                <ul class="tip-list">
+                    <li>University library entrance</li>
+                    <li>Student union building</li>
+                    <li>Campus cafeteria or coffee shop</li>
+                    <li>Main reception areas</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="safety-card">
+            <div class="safety-icon">👥</div>
+            <div class="safety-content">
+                <h3>Bring a Friend</h3>
+                <p>
+                    Whenever possible, bring a friend or let someone know where you're going and 
+                    who you're meeting. Share the details of the transaction with a trusted person.
+                </p>
+            </div>
+        </div>
+
+        <div class="safety-card">
+            <div class="safety-icon">🕐</div>
+            <div class="safety-content">
+                <h3>Meet During Daylight Hours</h3>
+                <p>
+                    Schedule meetups during daytime hours when there are more people around. 
+                    Avoid late-night transactions, even on campus.
+                </p>
+            </div>
+        </div>
+
+        <div class="safety-card">
+            <div class="safety-icon">🔍</div>
+            <div class="safety-content">
+                <h3>Inspect Before Buying</h3>
+                <p>
+                    Always examine items thoroughly before completing a purchase:
+                </p>
+                <ul class="tip-list">
+                    <li>Check electronics are working properly</li>
+                    <li>Verify textbook editions and conditions</li>
+                    <li>Test any functionality that's important to you</li>
+                    <li>Compare the item to the listing photos</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="safety-card">
+            <div class="safety-icon">💬</div>
+            <div class="safety-content">
+                <h3>Use Platform Messaging</h3>
+                <p>
+                    Keep all communication within StudentHub's messaging system. This creates a 
+                    record of your conversations and protects your personal contact information 
+                    until you're comfortable sharing it.
+                </p>
+            </div>
+        </div>
+
+        <div class="safety-card">
+            <div class="safety-icon">💰</div>
+            <div class="safety-content">
+                <h3>Cash Transactions</h3>
+                <p>
+                    If exchanging cash:
+                </p>
+                <ul class="tip-list">
+                    <li>Count money carefully before handing over items</li>
+                    <li>Consider using bank transfers for larger amounts</li>
+                    <li>Be wary of overpayment scams</li>
+                    <li>Never send items before receiving payment</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="safety-card">
+            <div class="safety-icon">⭐</div>
+            <div class="safety-content">
+                <h3>Check Reviews</h3>
+                <p>
+                    Before transacting, check the other user's profile and reviews. Users with 
+                    positive feedback from previous transactions are generally more trustworthy. 
+                    Don't forget to leave your own reviews to help the community!
+                </p>
+            </div>
+        </div>
+
+        <div class="safety-card">
+            <div class="safety-icon">🚫</div>
+            <div class="safety-content">
+                <h3>Trust Your Instincts</h3>
+                <p>
+                    If something feels wrong, it probably is. Don't proceed with a transaction 
+                    if you feel uncomfortable. It's okay to:
+                </p>
+                <ul class="tip-list">
+                    <li>Cancel or postpone a meetup</li>
+                    <li>Ask for more information or photos</li>
+                    <li>Walk away from a deal that doesn't feel right</li>
+                    <li>Report suspicious behaviour</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="emergency-box">
+            <h3>🚨 Need Help?</h3>
+            <p>If you encounter any suspicious activity or feel unsafe, please:</p>
+            <p><strong>Contact University Security</strong> or <strong>call 999</strong> in emergencies</p>
+            <p>
+                Report platform issues to: 
+                <a href="mailto:i.t.kariboalalibo@edu.salford.ac.uk" class="contact-link">
+                    i.t.kariboalalibo@edu.salford.ac.uk
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <script src="../cart.js"></script>
+</body>
+</html>
+

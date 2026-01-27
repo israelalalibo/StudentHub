@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details | StudentHub</title>
+  <link rel="stylesheet" href="../style2landing.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../cart.js"></script>
+  <script src="../loadHeader.js" defer></script>
+  <style>
+    body {
+      background: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .details-container {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      flex-wrap: wrap;
+      padding: 40px 60px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .details-image {
+      flex: 1;
+      max-width: 500px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .details-image img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+    }
+
+    .details-info {
+      flex: 1;
+      max-width: 500px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding: 32px;
+    }
+
+    .details-category {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .details-info h1 {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .details-price {
+      font-size: 2rem;
+      color: #667eea;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .details-condition {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #065f46;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    .details-description {
+      font-size: 1rem;
+      color: #4b5563;
+      margin-bottom: 28px;
+      line-height: 1.7;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .btn-buy {
+      flex: 1;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-buy:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-cart {
+      flex: 1;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cart:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .seller-box {
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .seller-box h3 {
+      margin-bottom: 12px;
+      color: #111827;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .seller-name {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .seller-since {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    .btn-contact {
+      width: 100%;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      margin-top: 12px;
+    }
+
+    .btn-contact:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-contact:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 20px 0 0 60px;
+      color: #667eea;
+      font-weight: 500;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: #764ba2;
+    }
+
+    /* Reviews Section */
+    .reviews-section {
+      max-width: 1200px;
+      margin: 40px auto 80px;
+      padding: 0 60px;
+    }
+
+    .reviews-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding: 32px;
+    }
+
+    .reviews-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f3f4f6;
+    }
+
+    .reviews-header h2 {
+      font-size: 1.4rem;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .review-count {
+      background: #f3f4f6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    /* Review Form */
+    .review-form {
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .review-form h3 {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      color: #111827;
+    }
+
+    .star-rating {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .star-rating label {
+      cursor: pointer;
+      font-size: 1.8rem;
+      color: #d1d5db;
+      transition: color 0.2s ease;
+    }
+
+    .star-rating input {
+      display: none;
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label {
+      color: #fbbf24;
+    }
+
+    .star-rating label.active {
+      color: #fbbf24;
+    }
+
+    .review-textarea {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 100px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s ease;
+    }
+
+    .review-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .submit-review-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .submit-review-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .submit-review-btn:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Review Cards */
+    .review-card {
+      background: #f9fafb;
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .review-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .review-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .reviewer-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .reviewer-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .reviewer-name {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .review-date {
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+
+    .review-stars {
+      color: #fbbf24;
+      font-size: 1.1rem;
+    }
+
+    .review-text {
+      color: #4b5563;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .no-reviews {
+      text-align: center;
+      padding: 40px;
+      color: #6b7280;
+    }
+
+    .no-reviews-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    /* Tablet Responsive */
+    @media (max-width: 1024px) {
+      .details-container {
+        padding: 30px 40px;
+        gap: 30px;
+      }
+      .details-image img {
+        height: 350px;
+      }
+      .reviews-section {
+        padding: 0 40px;
+      }
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .details-container {
+        padding: 20px 15px;
+        margin-top: 15px;
+        flex-direction: column;
+        gap: 20px;
+      }
+      
+      .details-image {
+        max-width: 100%;
+        width: 100%;
+      }
+      
+      .details-image img {
+        height: 280px;
+      }
+      
+      .details-info {
+        max-width: 100%;
+        width: 100%;
+        padding: 24px 20px;
+      }
+      
+      .details-info h1 {
+        font-size: 1.4rem;
+      }
+      
+      .details-price {
+        font-size: 1.6rem;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .btn-buy, .btn-cart {
+        padding: 16px 20px;
+        font-size: 1rem;
+      }
+      
+      .reviews-section {
+        padding: 0 15px;
+        margin: 30px auto 60px;
+      }
+      
+      .reviews-container {
+        padding: 20px 15px;
+      }
+      
+      .reviews-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .reviews-header h2 {
+        font-size: 1.2rem;
+      }
+      
+      .back-link {
+        margin: 15px 0 0 15px;
+        font-size: 0.9rem;
+      }
+      
+      .review-form {
+        padding: 16px;
+      }
+      
+      .review-form h3 {
+        font-size: 1rem;
+      }
+      
+      .star-rating label {
+        font-size: 1.8rem;
+      }
+      
+      .review-textarea {
+        font-size: 14px;
+      }
+      
+      .review-card {
+        padding: 16px;
+      }
+      
+      .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      
+      .seller-box {
+        padding: 16px;
+      }
+    }
+    
+    /* Small Mobile */
+    @media (max-width: 480px) {
+      .details-container {
+        margin-top: 15px;
+        padding: 15px 10px;
+      }
+      
+      .details-image img {
+        height: 220px;
+      }
+      
+      .details-info {
+        padding: 18px 15px;
+      }
+      
+      .details-info h1 {
+        font-size: 1.2rem;
+      }
+      
+      .details-price {
+        font-size: 1.4rem;
+      }
+      
+      .details-category,
+      .details-condition {
+        font-size: 0.75rem;
+        padding: 5px 10px;
+      }
+      
+      .details-description {
+        font-size: 0.9rem;
+      }
+      
+      .back-link {
+        margin-top: 15px;
+      }
+      
+      .btn-contact {
+        padding: 14px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <a href="landingpage.html" class="back-link">← Back to Marketplace</a>
+
+  <div class="details-container" id="detailsContainer">
+    <!-- dynamically filled -->
+  </div>
+
+  <!-- Reviews Section -->
+  <section class="reviews-section">
+    <div class="reviews-container">
+      <div class="reviews-header">
+        <h2>⭐ Customer Reviews <span class="review-count" id="reviewCount">0 reviews</span></h2>
+      </div>
+
+      <!-- Review Form -->
+      <div class="review-form" id="reviewForm">
+        <h3>✍️ Write a Review</h3>
+        <div class="star-rating" id="starRating">
+          <label data-rating="5">★</label>
+          <label data-rating="4">★</label>
+          <label data-rating="3">★</label>
+          <label data-rating="2">★</label>
+          <label data-rating="1">★</label>
+        </div>
+        <textarea class="review-textarea" id="reviewText" placeholder="Share your experience with this product..."></textarea>
+        <button class="submit-review-btn" id="submitReviewBtn" onclick="submitReview()">Submit Review</button>
+      </div>
+
+      <!-- Reviews List -->
+      <div id="reviewsList">
+        <!-- Dynamic reviews -->
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let currentProduct = null;
+    let selectedRating = 0;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById("detailsContainer");
+      const savedItem = localStorage.getItem("selectedItem");
+
+      if (!savedItem) {
+        container.innerHTML = `
+          <div style="text-align:center; width:100%; padding:80px;">
+            <p style="font-size:1.2rem; color:#6b7280;">
+              Item not found. <a href='landingpage.html' style='color:#667eea;'>Return to Marketplace</a>.
+            </p>
+          </div>`;
+        return;
+      }
+
+      currentProduct = JSON.parse(savedItem);
+
+      container.innerHTML = `
+        <div class="details-image">
+          <img src="${sanitizeImageUrl(currentProduct.image_url)}" 
+               alt="${escapeHtml(currentProduct.title || currentProduct.name)}"
+               onerror="this.src='../images/default-placeholder.png';" />
+        </div>
+
+        <div class="details-info">
+          <span class="details-category">${escapeHtml(currentProduct.category || "General")}</span>
+          <h1>${escapeHtml(currentProduct.title || currentProduct.name)}</h1>
+          <div class="details-price">£${currentProduct.price || "N/A"}</div>
+          <span class="details-condition">📦 ${escapeHtml(currentProduct.condition || "Good")}</span>
+
+          <div class="details-description">
+            ${escapeHtml(currentProduct.description || "No description provided for this item. Contact the seller for more details.")}
+          </div>
+
+          <div class="btn-group">
+            <button class="btn-buy" onclick="buyNow()">Buy Now</button>
+            <button class="btn-cart" onclick="addToCartFromDetails()">🛒 Add to Cart</button>
+          </div>
+
+          <div class="seller-box">
+            <h3>👤 Seller Information</h3>
+            <p class="seller-name">${escapeHtml(currentProduct.first_name || currentProduct.seller || "Student User")}</p>
+            <p class="seller-since">Member since ${formatDate(currentProduct.created_at) || "2025"}</p>
+            <button class="btn-contact" onclick="contactSeller()">
+              💬 Contact Seller
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Setup star rating
+      setupStarRating();
+
+      // Load reviews for this product
+      loadReviews();
+    });
+
+    // Star rating setup
+    function setupStarRating() {
+      const stars = document.querySelectorAll('#starRating label');
+      stars.forEach(star => {
+        star.addEventListener('click', () => {
+          selectedRating = parseInt(star.dataset.rating);
+          updateStarDisplay();
+        });
+        star.addEventListener('mouseenter', () => {
+          const rating = parseInt(star.dataset.rating);
+          highlightStars(rating);
+        });
+      });
+
+      document.getElementById('starRating').addEventListener('mouseleave', () => {
+        updateStarDisplay();
+      });
+    }
+
+    function highlightStars(rating) {
+      const stars = document.querySelectorAll('#starRating label');
+      stars.forEach(star => {
+        const starRating = parseInt(star.dataset.rating);
+        star.style.color = starRating <= rating ? '#fbbf24' : '#d1d5db';
+      });
+    }
+
+    function updateStarDisplay() {
+      highlightStars(selectedRating);
+    }
+
+    // Load reviews
+    async function loadReviews() {
+      if (!currentProduct || !currentProduct.seller_id) {
+        // Use title as fallback identifier
+        return;
+      }
+
+      try {
+        const productId = currentProduct.seller_id + '_' + (currentProduct.title || '').replace(/\s+/g, '_');
+        const response = await fetch(`/reviews/product/${encodeURIComponent(productId)}`);
+        const reviews = await response.json();
+
+        renderReviews(reviews);
+      } catch (err) {
+        console.error('Error loading reviews:', err);
+        renderReviews([]);
+      }
+    }
+
+    function renderReviews(reviews) {
+      const reviewsList = document.getElementById('reviewsList');
+      const reviewCount = document.getElementById('reviewCount');
+
+      reviewCount.textContent = `${reviews.length} review${reviews.length !== 1 ? 's' : ''}`;
+
+      if (reviews.length === 0) {
+        reviewsList.innerHTML = `
+          <div class="no-reviews">
+            <div class="no-reviews-icon">💬</div>
+            <p>No reviews yet. Be the first to share your experience!</p>
+          </div>
+        `;
+        return;
+      }
+
+      reviewsList.innerHTML = reviews.map(review => `
+        <div class="review-card">
+          <div class="review-top">
+            <div class="reviewer-info">
+              <div class="reviewer-avatar">${getInitials(review.reviewer_name)}</div>
+              <div>
+                <div class="reviewer-name">${escapeHtml(review.reviewer_name)}</div>
+                <div class="review-date">${formatDate(review.created_at)}</div>
+              </div>
+            </div>
+            <div class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+          </div>
+          <div class="review-text">${escapeHtml(review.review_text)}</div>
+        </div>
+      `).join('');
+    }
+
+    // Submit review
+    async function submitReview() {
+      const reviewText = document.getElementById('reviewText').value.trim();
+      const submitBtn = document.getElementById('submitReviewBtn');
+
+      if (selectedRating === 0) {
+        alert('Please select a star rating');
+        return;
+      }
+
+      if (!reviewText) {
+        alert('Please write a review');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        const productId = currentProduct.seller_id + '_' + (currentProduct.title || '').replace(/\s+/g, '_');
+
+        const response = await fetch('/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            product_id: productId,
+            product_title: currentProduct.title || currentProduct.name,
+            rating: selectedRating,
+            review_text: reviewText
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to submit review');
+        }
+
+        // Clear form
+        document.getElementById('reviewText').value = '';
+        selectedRating = 0;
+        updateStarDisplay();
+
+        // Show success notification
+        showNotification('Review submitted successfully!', 'success');
+
+        // Reload reviews
+        loadReviews();
+
+      } catch (err) {
+        console.error('Error submitting review:', err);
+        showNotification(err.message || 'Failed to submit review', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+      }
+    }
+
+    // Add to cart from details page
+    function addToCartFromDetails() {
+      if (currentProduct && window.Cart) {
+        Cart.addItem(currentProduct);
+      }
+    }
+
+    // Buy now
+    function buyNow() {
+      if (currentProduct && window.Cart) {
+        Cart.addItem(currentProduct);
+        window.location.href = 'cart.html';
+      }
+    }
+
+    // Contact seller - open messaging interface
+    async function contactSeller() {
+      if (!currentProduct || !currentProduct.seller_id) {
+        showNotification('Unable to contact seller - missing seller info', 'error');
+        return;
+      }
+
+      const contactBtn = document.querySelector('.btn-contact');
+      if (contactBtn) {
+        contactBtn.disabled = true;
+        contactBtn.innerHTML = '⏳ Opening chat...';
+      }
+
+      try {
+        const response = await fetch('/api/conversations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            seller_id: currentProduct.seller_id,
+            product_id: currentProduct.seller_id + '_' + (currentProduct.title || '').replace(/\s+/g, '_'),
+            product_title: currentProduct.title || currentProduct.name
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to start conversation');
+        }
+
+        // Redirect to messages page with conversation ID
+        window.location.href = `messages.html?conversation=${result.conversation.id}`;
+
+      } catch (err) {
+        console.error('Error contacting seller:', err);
+        showNotification(err.message || 'Failed to contact seller. Please log in first.', 'error');
+        
+        if (contactBtn) {
+          contactBtn.disabled = false;
+          contactBtn.innerHTML = '💬 Contact Seller';
+        }
+      }
+    }
+
+    // Helper functions
+    function sanitizeImageUrl(url) {
+      if (!url) return "../images/default-placeholder.png";
+      if (url.startsWith("http")) return url;
+      return `https://bfpaawywaljnfudynnke.supabase.co/storage/v1/object/public/${url}`;
+    }
+
+    function escapeHtml(str) {
+      return str ? String(str).replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m])) : "";
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function getInitials(name) {
+      if (!name) return '?';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    function showNotification(message, type = 'success') {
+      const existing = document.querySelector('.notification-toast');
+      if (existing) existing.remove();
+
+      const notification = document.createElement('div');
+      notification.className = 'notification-toast';
+      notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+      `;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      setTimeout(() => notification.remove(), 3000);
+    }
+  </script>
+</body>
+</html>

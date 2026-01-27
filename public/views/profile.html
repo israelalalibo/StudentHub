@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | StudentHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="../loadHeader.js"></script>
+    <link rel="stylesheet" href="../style2landing.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .profile-page {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 auto;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            border-radius: 20px 20px 0 0 !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border: none;
+            padding: 20px 24px;
+        }
+
+        .card-header h4 {
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .btn-outline-secondary {
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            font-size: 1rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .badge.bg-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+
+        .badge.bg-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        }
+
+        .stat-card {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .balance-header {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .balance-total {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .review-item {
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .review-item:hover {
+            border-left-color: #764ba2;
+            background: white !important;
+        }
+
+        .text-warning {
+            color: #fbbf24 !important;
+        }
+
+        hr {
+            border-color: #e5e7eb;
+        }
+
+        #usernameTitle {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 20px;
+        }
+
+        .info-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #111827;
+        }
+
+        .card.shadow.mt-4 .card-header {
+            background: #f9fafb !important;
+            color: #111827;
+        }
+
+        /* Tablet Responsive */
+        @media (max-width: 1024px) {
+            .profile-page {
+                padding-top: 110px;
+            }
+            
+            .stat-card {
+                padding: 18px 20px;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .profile-page {
+                padding-top: 90px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .profile-avatar-large {
+                width: 100px;
+                height: 100px;
+                font-size: 2rem;
+            }
+            
+            #usernameTitle {
+                font-size: 1.3rem;
+            }
+            
+            .card-body {
+                padding: 20px 16px;
+            }
+            
+            .card-header {
+                padding: 16px 18px;
+            }
+            
+            .stat-card {
+                padding: 14px 16px;
+                margin-bottom: 10px;
+            }
+            
+            .stat-icon {
+                font-size: 1.8rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .stat-label {
+                font-size: 0.85rem;
+            }
+            
+            .row > div[class*="col-"] {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+            
+            .d-flex.gap-2.flex-wrap .btn {
+                flex: 1 1 calc(50% - 8px);
+                min-width: 140px;
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+            
+            .badge {
+                font-size: 0.9rem;
+                padding: 6px 12px;
+            }
+            
+            .review-card {
+                padding: 16px;
+            }
+            
+            .review-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .review-card h6 {
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .profile-page {
+                padding-top: 140px;
+            }
+            
+            .profile-avatar-large {
+                width: 80px;
+                height: 80px;
+                font-size: 1.6rem;
+            }
+            
+            #usernameTitle {
+                font-size: 1.1rem;
+            }
+            
+            .card-body {
+                padding: 16px 12px;
+            }
+            
+            .d-flex.gap-2.flex-wrap .btn {
+                flex: 1 1 100%;
+            }
+            
+            .stat-card {
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 12px;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header"></div>
+
+    <div class="container profile-page">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+
+                <!-- Profile Card -->
+                <div class="card shadow">
+                    <div class="card-header text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-person-circle"></i> My Profile
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+
+                            <!-- Profile Picture & Actions -->
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <div id="profileImageContainer">
+                                    <div class="profile-avatar-large">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                </div>
+
+                                <h4 id="usernameTitle" class="mt-3">Loading...</h4>
+
+                                <div class="d-grid gap-2 mt-3">
+                                    <a href="./edit_profile.html" class="btn btn-primary">
+                                        <i class="bi bi-pencil"></i> Edit Profile
+                                    </a>
+                                    <a href="./account_settings.html" class="btn btn-outline-secondary">
+                                        <i class="bi bi-gear"></i> Settings
+                                    </a>
+                                </div>
+
+                                <!-- Stats Cards -->
+                                <div class="row mt-4 g-3">
+                                    <div class="col-6">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="itemsListedStat">0</div>
+                                            <div class="stat-label">Items Listed</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="reviewsWrittenStat">0</div>
+                                            <div class="stat-label">Reviews</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Seller Balance Card -->
+                                <div class="mt-4">
+                                    <div class="balance-card">
+                                        <div class="balance-header">
+                                            <span>💰 Seller Balance</span>
+                                        </div>
+                                        <div class="balance-amount" id="balanceAmount">£0.00</div>
+                                        <div class="balance-total">
+                                            Total Earnings: <span id="totalEarnings">£0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Info -->
+                            <div class="col-md-8">
+                                <div class="mb-4">
+                                    <h5 class="text-muted mb-3">
+                                        <i class="bi bi-info-circle"></i> Account Information
+                                    </h5>
+                                    <hr>
+
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4 info-label">
+                                            <i class="bi bi-envelope"></i> Email:
+                                        </div>
+                                        <div id="emailField" class="col-sm-8 info-value">Loading...</div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4 info-label">
+                                            <i class="bi bi-calendar3"></i> Member Since:
+                                        </div>
+                                        <div id="createdAtField" class="col-sm-8 info-value">Loading...</div>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Stats (Hidden - shown in sidebar now) -->
+                                <div class="mb-4 d-none">
+                                    <h5 class="text-muted">Activity Statistics</h5>
+                                    <hr>
+
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4 fw-bold">Items Listed:</div>
+                                        <div id="albumsCreatedField" class="col-sm-8">
+                                            <span class="badge bg-primary">0</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4 fw-bold">Reviews Written:</div>
+                                        <div id="reviewsField" class="col-sm-8">
+                                            <span class="badge bg-success">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Actions -->
+                                <div class="mb-4">
+                                    <h5 class="text-muted mb-3">
+                                        <i class="bi bi-lightning"></i> Quick Actions
+                                    </h5>
+                                    <hr>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <a href="./sellItem.html" class="btn btn-outline-primary">
+                                            <i class="bi bi-plus-circle"></i> List New Item
+                                        </a>
+                                        <a href="./my_listings.html" class="btn btn-outline-secondary">
+                                            <i class="bi bi-box-seam"></i> My Listings
+                                        </a>
+                                        <a href="./purchase_history.html" class="btn btn-outline-secondary">
+                                            <i class="bi bi-receipt"></i> Purchase History
+                                        </a>
+                                        <a href="./messages.html" class="btn btn-outline-secondary">
+                                            <i class="bi bi-chat-dots"></i> Messages
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Reviews -->
+                <div class="card shadow mt-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="bi bi-star"></i> My Reviews
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="reviewsList">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/scripts/profile.js"></script>
+    <script>
+        // Override the stat display after profile loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hook into profile loading to update stat cards
+            const originalLoadProfile = window.loadProfileData;
+            if (typeof originalLoadProfile === 'function') {
+                window.loadProfileData = async function() {
+                    await originalLoadProfile();
+                    updateStatCards();
+                };
+            }
+        });
+
+        function updateStatCards() {
+            // Get values from hidden badges and update visible stat cards
+            const itemsBadge = document.querySelector('#albumsCreatedField .badge');
+            const reviewsBadge = document.querySelector('#reviewsField .badge');
+            
+            if (itemsBadge) {
+                document.getElementById('itemsListedStat').textContent = itemsBadge.textContent;
+            }
+            if (reviewsBadge) {
+                document.getElementById('reviewsWrittenStat').textContent = reviewsBadge.textContent;
+            }
+        }
+    </script>
+</body>
+</html>
