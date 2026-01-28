@@ -8,23 +8,33 @@ import multer from "multer";
 import fs from "fs";
 import Stripe from 'stripe';
 
-dotenv.config()
+// Load environment variables (for local development)
+dotenv.config({ path: './ini.env' });
 
 // ============================================
 // STRIPE CONFIGURATION
 // ============================================
-// IMPORTANT: Replace with your actual Stripe keys
-// Use environment variables in production!
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 const PLATFORM_FEE_PERCENT = 5; // Platform takes 5% of each sale
 
-// Initialize Stripe
-const stripe = new Stripe(STRIPE_SECRET_KEY);
+// Initialize Stripe (only if key is available)
+let stripe = null;
+if (STRIPE_SECRET_KEY) {
+  stripe = new Stripe(STRIPE_SECRET_KEY);
+  console.log('✅ Stripe initialized successfully');
+} else {
+  console.warn('⚠️  STRIPE_SECRET_KEY not found - payments will be disabled');
+}
 
-// Supabase configuration
-const supabaseUrl = 'https://bfpaawywaljnfudynnke.supabase.co';
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmcGFhd3l3YWxqbmZ1ZHlubmtlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODU1NTAxOCwiZXhwIjoyMDc0MTMxMDE4fQ.B5ubNYjTV4j5N4aXsIpepYBOBPbEAx0n1vRmFPkroMo';
+// Supabase configuration (from environment variables)
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not found!');
+  console.error('   Please set these environment variables');
+}
 
 // TWO SEPARATE CLIENTS:
 // 1. supabaseAuth - ONLY for authentication (signIn, signOut, getUser)
@@ -401,7 +411,9 @@ app.post('/bookValuator', async (req, res) => {
   console.log(req.body);
 });
 
-const upload = multer({dest: "/uploads"});
+// Use /tmp for serverless environments (Vercel), local uploads folder otherwise
+const uploadDir = process.env.VERCEL ? '/tmp/uploads' : './uploads';
+const upload = multer({ dest: uploadDir });
 
 // Multer config for profile pictures (memory storage for Supabase upload)
 const profilePictureUpload = multer({
@@ -2035,6 +2047,11 @@ app.get("/api/balance", async (req, res) => {
 // Create Stripe Checkout Session
 app.post("/api/checkout/create-session", async (req, res) => {
   try {
+    // Check if Stripe is configured
+    if (!stripe) {
+      return res.status(500).json({ error: "Payment system not configured. Please contact support." });
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return res.status(401).json({ error: "Please log in to checkout" });
@@ -2216,6 +2233,11 @@ app.post("/api/checkout/create-session", async (req, res) => {
 // Verify payment and complete order
 app.post("/api/checkout/verify-payment", async (req, res) => {
   try {
+    // Check if Stripe is configured
+    if (!stripe) {
+      return res.status(500).json({ error: "Payment system not configured. Please contact support." });
+    }
+
     const { sessionId, orderId } = req.body;
 
     if (!sessionId || !orderId) {
@@ -2564,4 +2586,13 @@ app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async
   }
 });
 
-app.listen(3000, () => console.log('\nServer running on http://localhost:3000'));
+// For local development, start the server
+// For Vercel, just export the app (Vercel handles the server)
+const PORT = process.env.PORT || 3000;
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => console.log(`\nServer running on port ${PORT}`));
+}
+
+// Export for Vercel serverless
+export default app;
