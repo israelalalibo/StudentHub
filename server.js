@@ -28,12 +28,14 @@ if (STRIPE_SECRET_KEY) {
 }
 
 // Supabase configuration (from environment variables)
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// For production, set these in your hosting platform's environment variables
+const supabaseUrl = process.env.SUPABASE_URL || 'https://bfpaawywaljnfudynnke.supabase.co';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('❌ SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not found!');
-  console.error('   Please set these environment variables');
+if (!supabaseServiceKey) {
+  console.error('❌ SUPABASE_SERVICE_ROLE_KEY not found!');
+  console.error('   Please set this environment variable in your hosting platform');
+  console.error('   The server will start but database operations will fail');
 }
 
 // TWO SEPARATE CLIENTS:
@@ -41,22 +43,31 @@ if (!supabaseUrl || !supabaseServiceKey) {
 // 2. supabaseAdmin - ONLY for data queries (select, insert, update, delete)
 // This prevents auth operations from polluting the data client's state
 
-const supabaseAuth = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true
-  }
-});
+let supabaseAuth = null;
+let supabaseAdmin = null;
+let supabase = null;
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
+if (supabaseUrl && supabaseServiceKey) {
+  supabaseAuth = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true
+    }
+  });
 
-// Legacy alias for backward compatibility (maps to auth client)
-const supabase = supabaseAuth;
+  supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+
+  // Legacy alias for backward compatibility (maps to auth client)
+  supabase = supabaseAuth;
+  console.log('✅ Supabase initialized successfully');
+} else {
+  console.error('❌ Supabase not initialized - missing credentials');
+}
 const app = express();
 
 app.use(cors()); //Allow frontend to communicate with backend securely during local or deployed testing
@@ -68,6 +79,11 @@ const __dirname = path.resolve();
 // Serve everything inside "public" folder
 app.use(express.static(path.join(__dirname, "public")));
 
+
+// Serve index.html at root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.get('/index', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -83,6 +99,15 @@ app.get('/landingpage', (req, res) => {
 
 //handle signin request
 app.post("/signin", async (req, res) => {
+  // Check if Supabase is initialized
+  if (!supabase) {
+    console.error('Signin failed: Supabase not initialized');
+    return res.status(500).json({ 
+      error: "Server configuration error. Please contact support.",
+      details: "Database connection not configured"
+    });
+  }
+
   const {email, password} = req.body;
   console.log("Login attempt for:", email);
 
@@ -136,6 +161,15 @@ app.post("/signin", async (req, res) => {
 
 // Handle signup request
 app.post("/signup", async (req, res) => {
+  // Check if Supabase is initialized
+  if (!supabase) {
+    console.error('Signup failed: Supabase not initialized');
+    return res.status(500).json({ 
+      error: "Server configuration error. Please contact support.",
+      details: "Database connection not configured"
+    });
+  }
+
   const { firstName, lastName, email, password, phone, createdAt } = req.body;
   console.log(req.body);
 
