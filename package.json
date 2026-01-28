@@ -1,4 +1,16 @@
 {
+  "name": "unimarket-ecommerce",
+  "version": "1.0.0",
+  "description": "UniMarket - Student Marketplace E-commerce Platform",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.75.0",
     "cors": "^2.8.5",
@@ -6,11 +18,7 @@
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
-<<<<<<< HEAD
+    "nodemailer": "^7.0.12",
     "stripe": "^14.25.0"
-=======
-    "stripe": "^14.14.0"
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
-  },
-  "type": "module"
+  }
 }
