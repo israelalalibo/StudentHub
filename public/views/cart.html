@@ -592,20 +592,12 @@
         
         <div class="summary-row">
           <span>Subtotal (<span id="summaryItemCount">0</span> items)</span>
-<<<<<<< HEAD
-          <span id="subtotalAmount">£0.00</span>
-=======
-          <span id="subtotalAmount">$0.00</span>
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
+<span id="subtotalAmount">£0.00</span>
         </div>
         
         <div class="summary-row total">
           <span>Total</span>
-<<<<<<< HEAD
-          <span id="totalAmount">£0.00</span>
-=======
-          <span id="totalAmount">$0.00</span>
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
+<span id="totalAmount">£0.00</span>
         </div>
 
         <div class="promo-box">
@@ -722,11 +714,7 @@
               <span class="cart-item-condition">${escapeHtml(item.condition || 'Good')}</span>
             </div>
             <div class="cart-item-bottom">
-<<<<<<< HEAD
-              <div class="cart-item-price">£{(parseFloat(item.price) || 0).toFixed(2)}</div>
-=======
-              <div class="cart-item-price">$${(parseFloat(item.price) || 0).toFixed(2)}</div>
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
+<div class="cart-item-price">£${(parseFloat(item.price) || 0).toFixed(2)}</div>
               <div class="quantity-controls">
                 <button class="qty-btn" onclick="updateQty('${item.id}', ${(item.quantity || 1) - 1})">−</button>
                 <span class="qty-value">${item.quantity || 1}</span>
@@ -822,11 +810,7 @@
           <p>Thank you for your purchase</p>
           <div class="order-info">
             <p><strong>Order ID:</strong> #${orderId}</p>
-<<<<<<< HEAD
-            <p><strong>Total:</strong> £${purchase.total.toFixed(2)}</p>
-=======
-            <p><strong>Total:</strong> $${purchase.total.toFixed(2)}</p>
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
+<p><strong>Total:</strong> £${purchase.total.toFixed(2)}</p>
           </div>
           <div class="success-actions">
             <button class="btn-view-order" onclick="window.location.href='purchase_history.html'">

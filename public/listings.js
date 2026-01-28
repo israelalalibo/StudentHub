@@ -24,11 +24,7 @@ async function loadStats() {
       if (response.status === 401) {
         document.getElementById('totalListings').textContent = '0';
         document.getElementById('activeListings').textContent = '0';
-<<<<<<< HEAD
-        document.getElementById('totalValue').textContent = '£0.00';
-=======
-        document.getElementById('totalValue').textContent = '$0.00';
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
+document.getElementById('totalValue').textContent = '£0.00';
         return;
       }
       throw new Error('Failed to load stats');
@@ -417,11 +413,7 @@ document.addEventListener('keydown', (e) => {
 
 // Helper functions
 function formatCurrency(amount) {
-<<<<<<< HEAD
   return '£' + (parseFloat(amount) || 0).toFixed(2);
-=======
-  return '$' + (parseFloat(amount) || 0).toFixed(2);
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
 }
 
 function formatDate(dateStr) {

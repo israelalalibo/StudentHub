@@ -328,11 +328,7 @@
                 <img src="${sanitizeImageUrl(item.product?.image_url)}" alt="${escapeHtml(item.title)}" onerror="this.src='../images/default-placeholder.png'">
                 <div class="order-item-info">
                   <div class="order-item-title">${escapeHtml(item.title)}</div>
-<<<<<<< HEAD
-                  <div class="order-item-price">£${parseFloat(item.price).toFixed(2)} × ${item.quantity || 1}</div>
-=======
-                  <div class="order-item-price">$${parseFloat(item.price).toFixed(2)} × ${item.quantity || 1}</div>
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
+<div class="order-item-price">£${parseFloat(item.price).toFixed(2)} × ${item.quantity || 1}</div>
                 </div>
               </div>
             `).join('')}
@@ -357,11 +353,7 @@
           </div>
           <div class="order-info-row">
             <span class="order-info-label">Total Paid</span>
-<<<<<<< HEAD
-            <span class="order-info-value" style="color: #10b981;">£${parseFloat(order.total_amount).toFixed(2)}</span>
-=======
-            <span class="order-info-value" style="color: #10b981;">$${parseFloat(order.total_amount).toFixed(2)}</span>
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
+<span class="order-info-value" style="color: #10b981;">£${parseFloat(order.total_amount).toFixed(2)}</span>
           </div>
           <div class="order-info-row">
             <span class="order-info-label">Payment Status</span>

@@ -16,11 +16,7 @@ async function loadStats() {
       if (response.status === 401) {
         // Not logged in - show zeros
         document.getElementById('totalOrders').textContent = '0';
-<<<<<<< HEAD
-        document.getElementById('totalSpent').textContent = '£0.00';
-=======
-        document.getElementById('totalSpent').textContent = '$0.00';
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
+document.getElementById('totalSpent').textContent = '£0.00';
         document.getElementById('totalItems').textContent = '0';
         return;
       }
@@ -262,11 +258,7 @@ async function reorderItems(orderId) {
 
 // Helper functions
 function formatCurrency(amount) {
-<<<<<<< HEAD
   return '£' + (parseFloat(amount) || 0).toFixed(2);
-=======
-  return '$' + (parseFloat(amount) || 0).toFixed(2);
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
 }
 
 function formatDate(dateStr) {

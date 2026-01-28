@@ -571,11 +571,7 @@ async function fetchSearchResults(query, dropEl) {
             <img class="result-thumb" src="${safeImage}" alt="${escapeHtml(item.title || "")}" onerror="this.src='../images/default-placeholder.png'"/>
             <div class="result-meta">
               <div class="result-title">${escapeHtml(item.title || "Untitled")}</div>
-<<<<<<< HEAD
-              <div class="result-price">£${item.price || "N/A"}</div>
-=======
-              <div class="result-price">$${item.price || "N/A"}</div>
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
+<div class="result-price">£${item.price || "N/A"}</div>
             </div>
           </div>`;
       })

@@ -53,8 +53,7 @@ async function loadProfileData() {
     document.getElementById('emailField').textContent = profile.email || 'Not available';
     document.getElementById('createdAtField').textContent = formatDate(profile.created_at);
 
-<<<<<<< HEAD
-    // Update activity stats - both badges and stat cards
+// Update activity stats - both badges and stat cards
     const itemsListedBadge = document.querySelector('#albumsCreatedField .badge');
     const reviewsBadge = document.querySelector('#reviewsField .badge');
     const itemsListedStat = document.getElementById('itemsListedStat');
@@ -78,14 +77,6 @@ async function loadProfileData() {
     if (reviewsWrittenStat) {
       reviewsWrittenStat.textContent = reviewsCount;
     }
-=======
-    // Update activity stats
-    const itemsListedBadge = document.querySelector('#albumsCreatedField .badge');
-    const reviewsBadge = document.querySelector('#reviewsField .badge');
-    
-    itemsListedBadge.textContent = profile.items_listed || 0;
-    reviewsBadge.textContent = profile.reviews_written || 0;
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
 
   } catch (err) {
     console.error('Error loading profile:', err);
@@ -109,17 +100,10 @@ async function loadBalance() {
     const totalEarnings = document.getElementById('totalEarnings');
     
     if (balanceAmount) {
-<<<<<<< HEAD
-      balanceAmount.textContent = `£${parseFloat(data.balance || 0).toFixed(2)}`;
+balanceAmount.textContent = `£${parseFloat(data.balance || 0).toFixed(2)}`;
     }
     if (totalEarnings) {
       totalEarnings.textContent = `£${parseFloat(data.total_earnings || 0).toFixed(2)}`;
-=======
-      balanceAmount.textContent = `$${parseFloat(data.balance || 0).toFixed(2)}`;
-    }
-    if (totalEarnings) {
-      totalEarnings.textContent = `$${parseFloat(data.total_earnings || 0).toFixed(2)}`;
->>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
     }
 
   } catch (err) {
