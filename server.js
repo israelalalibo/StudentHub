@@ -325,7 +325,13 @@ app.post('/api/restore-session', async (req, res) => {
 });
 
 /* Book Valuator Logic */
-const GOOGLE_API_KEY = "AIzaSyCIFuQZQQ27r1mlPo6ynPCoeTbnppqyDlQ";
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+
+if (!GOOGLE_API_KEY) {
+  console.warn('⚠️  GOOGLE_API_KEY not found - Book Valuator will be disabled');
+} else {
+  console.log('✅ Google API key loaded for Book Valuator');
+}
 
 async function getBookInfoFromISBN(isbn) {
   try {
@@ -348,7 +354,20 @@ async function getBookInfoFromISBN(isbn) {
 
 app.post('/bookValuator', async (req, res) => {
   try{
+    // Check if API key is configured
+    if (!GOOGLE_API_KEY) {
+      console.error('Book Valuator called but GOOGLE_API_KEY is not configured');
+      return res.status(500).json({ 
+        error: "Book Valuator is not configured. Please set GOOGLE_API_KEY environment variable.",
+        success: false
+      });
+    }
+
     const bookData = req.body;
+
+    if (!bookData || !bookData.isbn) {
+      return res.status(400).json({ error: "Invalid book data provided." });
+    }
 
     //Fetch Book title and Author using ISBN
     const bookInfo = await getBookInfoFromISBN(bookData.isbn)
@@ -356,11 +375,6 @@ app.post('/bookValuator', async (req, res) => {
     const titlePart = bookInfo
     ? `The book is "${bookInfo.title}" by ${bookInfo.authors.join(", ")}.`
     : "The book title could not be found via ISBN lookup.";
-
-
-    if (!bookData || !bookData.isbn) {
-      return res.status(400).json({ error: "Invalid book data provided." });
-    }
 
     const SYSTEM_PROMPT = `
     You are an expert used book appraiser. Your task is to predict the market value of a used book based on its attributes.
@@ -413,8 +427,26 @@ app.post('/bookValuator', async (req, res) => {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("Google API error:", errText);
-      return res.status(500).json({ error: "Failed to fetch from Google API" });
+      console.error("Google API error:", response.status, errText);
+      
+      // Parse error for more helpful message
+      let errorMessage = "Failed to fetch from Google API";
+      try {
+        const errorData = JSON.parse(errText);
+        if (errorData.error?.message) {
+          errorMessage = errorData.error.message;
+        }
+        if (errorData.error?.status === "INVALID_API_KEY" || response.status === 400) {
+          errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
+        }
+        if (response.status === 429) {
+          errorMessage = "API rate limit exceeded. Please try again later.";
+        }
+      } catch (e) {
+        // Keep default error message
+      }
+      
+      return res.status(500).json({ error: errorMessage, success: false });
     }
 
     //Parse model output
