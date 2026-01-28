@@ -6,7 +6,11 @@
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
+<<<<<<< HEAD
     "stripe": "^14.25.0"
+=======
+    "stripe": "^14.14.0"
+>>>>>>> 0bea6f1c853238cd32a472e003ad74886c9866e0
   },
   "type": "module"
 }
