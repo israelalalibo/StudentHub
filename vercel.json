@@ -4,11 +4,37 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "handle": "filesystem"
+      "src": "/(.*\\.css)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/(.*\\.js)",
+      "headers": { "Content-Type": "application/javascript" },
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/images/(.*)",
+      "dest": "/public/images/$1"
+    },
+    {
+      "src": "/scripts/(.*)",
+      "dest": "/public/scripts/$1"
+    },
+    {
+      "src": "/config/(.*)",
+      "dest": "/public/config/$1"
+    },
+    {
+      "src": "/views/(.*)",
+      "dest": "/public/views/$1"
     },
     {
       "src": "/(.*)",
