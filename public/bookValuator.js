@@ -5,8 +5,22 @@ const resultContent = document.getElementById('result-content');
 const predictedValueEl = document.getElementById('predicted-value');
 const reasoningEl = document.getElementById('reasoning');
 
+// Rate limiting - prevent too many requests
+let lastRequestTime = 0;
+const COOLDOWN_MS = 10000; // 10 seconds between requests
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // Check cooldown
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastRequestTime;
+    if (timeSinceLastRequest < COOLDOWN_MS) {
+        const waitTime = Math.ceil((COOLDOWN_MS - timeSinceLastRequest) / 1000);
+        alert(`Please wait ${waitTime} seconds before trying again.`);
+        return;
+    }
+    lastRequestTime = now;
     
     // Show loader and hide previous results
     resultContainer.classList.remove('hidden');
@@ -40,7 +54,11 @@ form.addEventListener('submit', async (e) => {
         if (data.success) {
             predictedValueEl.textContent = `£${data.predicted_value}`;
             reasoningEl.textContent = data.reasoning;
+        } else if (data.error && data.error.includes('rate limit')) {
+            predictedValueEl.textContent = '⏳';
+            reasoningEl.textContent = "Too many requests. Please wait a minute and try again.";
         } else {
+            predictedValueEl.textContent = '—';
             reasoningEl.textContent = "Error: " + (data.error || "Something went wrong.");
         }
 
