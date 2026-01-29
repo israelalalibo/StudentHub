@@ -326,6 +326,7 @@ app.post('/api/restore-session', async (req, res) => {
 
 /* Book Valuator Logic */
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+console.log(GOOGLE_API_KEY);
 
 if (!GOOGLE_API_KEY) {
   console.warn('⚠️  GOOGLE_API_KEY not found - Book Valuator will be disabled');
