@@ -1,9 +1,9 @@
-<!-- Mobile-responsive header - Amazon-style layout -->
+<!-- Mobile-responsive header - Unified search bar -->
 <header class="header">
     <nav class="nav-container">
-        <!-- Top Row: Menu, Logo, Profile, Cart -->
+        <!-- Top Row: Menu, Logo, Actions -->
         <div class="nav-top-row">
-            <!-- Hamburger Menu Button (Mobile) -->
+            <!-- Hamburger Menu Button (Mobile only) -->
             <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu(event)">
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
@@ -12,24 +12,14 @@
             
             <a href="landingpage.html" class="logo">StudentHub</a>
             
-            <!-- Mobile Quick Actions (always visible on mobile) -->
-            <div class="mobile-quick-actions">
-                <a href="./profile.html" class="profile-icon-mobile" title="View Profile">
-                    <img src="../images/profile-icon.png" alt="Profile" id="mobileProfilePicture"/>
-                </a>
-                <div class="cart-icon-mobile" onclick="goToCart()" title="View Cart">
-                    🛒
-                    <span class="cart-badge" id="cartBadgeMobile" style="display: none;">0</span>
-                </div>
-            </div>
-            
-            <!-- Desktop Search Bar -->
-            <div class="search-bar desktop-search">
+            <!-- Unified Search Bar (works for both desktop & mobile) -->
+            <div class="search-bar" id="unifiedSearchBar">
                 <div class="search-icon">🔍</div>
                 <input type="text" 
                     class="search-input" 
                     id="liveSearchInput"
-                    placeholder="Search products...">
+                    placeholder="Search products..."
+                    autocomplete="off">
                 
                 <!-- Filter Controls Container -->
                 <div class="search-filters">
@@ -55,7 +45,19 @@
                     </select>
                 </div>
                 
+                <!-- Search Results Dropdown -->
                 <div id="searchResultsDropdown" class="search-results-dropdown"></div>
+            </div>
+
+            <!-- Mobile Quick Actions (Profile & Cart - visible on mobile) -->
+            <div class="mobile-quick-actions">
+                <a href="./profile.html" class="profile-icon-mobile" title="View Profile">
+                    <img src="../images/profile-icon.png" alt="Profile" id="mobileProfilePicture"/>
+                </a>
+                <div class="cart-icon-mobile" onclick="goToCart()" title="View Cart">
+                    🛒
+                    <span class="cart-badge" id="cartBadgeMobile" style="display: none;">0</span>
+                </div>
             </div>
 
             <!-- Desktop Nav Actions -->
@@ -89,31 +91,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Mobile Search Bar Row (always visible on mobile) -->
-        <div class="mobile-search-row">
-            <div class="mobile-search-bar">
-                <select id="mobileCategorySelect" class="mobile-category-select" onchange="applyCategoryFilter()">
-                    <option value="">Category</option>
-                        <option value="textbooks">Textbooks</option>
-                        <option value="electronics">Electronics</option>
-                        <option value="supplies">Supplies</option>
-                        <option value="furniture">Furniture</option>
-                        <option value="clothing">Clothing</option>
-                        <option value="other">Other</option>
-                </select>
-                <input type="text" 
-                    class="mobile-search-input" 
-                    id="mobileSearchInputVisible"
-                    placeholder="Search StudentHub"
-                    autocomplete="off">
-                <button class="mobile-search-button" onclick="performVisibleMobileSearch()">
-                    🔍
-                </button>
-            </div>
-            <!-- Mobile Live Search Dropdown -->
-            <div id="mobileSearchResultsDropdown" class="mobile-search-results-dropdown"></div>
         </div>
 
         <!-- Mobile Menu Overlay -->
