@@ -94,14 +94,14 @@
         <!-- Mobile Search Bar Row (always visible on mobile) -->
         <div class="mobile-search-row">
             <div class="mobile-search-bar">
-                <select id="mobileCategorySelect" class="mobile-category-select" onchange="handleMobileCategoryChange()">
-                    <option value="">All</option>
-                    <option value="textbooks">📚</option>
-                    <option value="electronics">💻</option>
-                    <option value="supplies">✏️</option>
-                    <option value="furniture">🪑</option>
-                    <option value="clothing">👕</option>
-                    <option value="other">🎒</option>
+                <select id="mobileCategorySelect" class="mobile-category-select" onchange="applyCategoryFilter()">
+                    <option value="">Category</option>
+                        <option value="textbooks">Textbooks</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="supplies">Supplies</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="other">Other</option>
                 </select>
                 <input type="text" 
                     class="mobile-search-input" 
