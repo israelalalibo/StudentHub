@@ -57,37 +57,42 @@ function performMobileSearch() {
   
   closeMobileMenu();
   
-  // If category is selected, do category search
+  // Build search URL with parameters
+  let searchUrl = 'landingpage.html?';
+  const params = [];
+  
   if (category) {
+    params.push(`category=${encodeURIComponent(category)}`);
+  }
+  if (query) {
+    params.push(`search=${encodeURIComponent(query)}`);
+  }
+  if (priceRange) {
+    params.push(`price=${encodeURIComponent(priceRange)}`);
     localStorage.setItem('priceFilter', priceRange);
-    viewCategory(category, null);
-    return;
   }
   
-  // Otherwise do text search
-  if (query) {
-    // Set price filter if selected
-    if (priceRange) {
-      localStorage.setItem('priceFilter', priceRange);
-    }
-    
-    // Trigger search on landing page
-    const searchInput = document.getElementById('liveSearchInput');
-    const priceFilter = document.getElementById('priceFilter');
-    
-    if (searchInput) {
-      searchInput.value = query;
-      if (priceFilter && priceRange) {
-        priceFilter.value = priceRange;
-      }
-      // Trigger input event to run search
-      searchInput.dispatchEvent(new Event('input'));
-    } else {
-      // Navigate to landing page with search params
-      window.location.href = `landingpage.html?search=${encodeURIComponent(query)}`;
-    }
+  // If we have any search parameters, navigate
+  if (params.length > 0) {
+    window.location.href = searchUrl + params.join('&');
+  } else if (category) {
+    // Category-only search
+    viewCategory(category, null);
   }
 }
+
+// Add Enter key support for mobile search
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileSearchInput = document.getElementById('mobileSearchInput');
+  if (mobileSearchInput) {
+    mobileSearchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performMobileSearch();
+      }
+    });
+  }
+});
 
 // Export mobile functions immediately so onclick handlers work
 window.toggleMobileMenu = toggleMobileMenu;
