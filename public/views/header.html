@@ -1,87 +1,65 @@
-<!-- Mobile-responsive header -->
+<!-- Mobile-responsive header - Amazon-style layout -->
 <header class="header">
     <nav class="nav-container">
-        <a href="landingpage.html" class="logo">StudentHub</a>
-        
-        <!-- Hamburger Menu Button (Mobile) -->
-        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu(event)">
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-        </button>
-        
-        <!-- Search Bar with Filters -->
-        <div class="search-bar">
-            <div class="search-icon">🔍</div>
-            <input type="text" 
-                class="search-input" 
-                id="liveSearchInput"
-                placeholder="Search products...">
+        <!-- Top Row: Menu, Logo, Profile, Cart -->
+        <div class="nav-top-row">
+            <!-- Hamburger Menu Button (Mobile) -->
+            <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu(event)">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
             
-            <!-- Filter Controls Container -->
-            <div class="search-filters">
-                <!-- Category Filter -->
-                <select id="categoryFilter" class="category-filter" onchange="applyCategoryFilter()">
-                    <option value="">Category</option>
-                    <option value="textbooks">Textbooks</option>
-                    <option value="electronics">Electronics</option>
-                    <option value="supplies">Supplies</option>
-                    <option value="furniture">Furniture</option>
-                    <option value="clothing">Clothing</option>
-                    <option value="other">Other</option>
-                </select>
-                
-                <!-- Price Filter -->
-                <select id="priceFilter" class="price-filter" onchange="applyPriceFilter()">
-                    <option value="">Price</option>
-                    <option value="0-25">&lt;£25</option>
-                    <option value="25-50">£25-50</option>
-                    <option value="50-100">£50-100</option>
-                    <option value="100-200">£100-200</option>
-                    <option value="200+">£200+</option>
-                </select>
+            <a href="landingpage.html" class="logo">StudentHub</a>
+            
+            <!-- Mobile Quick Actions (always visible on mobile) -->
+            <div class="mobile-quick-actions">
+                <div class="profile-icon-mobile" onclick="showProfile()">
+                    <img src="../images/profile-icon.png" alt="Profile" class="profile-icon" id="profileIconMobile"/>
+                </div>
+                <div class="cart-icon-mobile" onclick="goToCart()" title="View Cart">
+                    🛒
+                    <span class="cart-badge" id="cartBadgeMobile" style="display: none;">0</span>
+                </div>
             </div>
             
-            <div id="searchResultsDropdown" class="search-results-dropdown"></div>
-        </div>
-
-        <!-- Mobile Menu Overlay -->
-        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
-
-        <!-- Navigation Content (Desktop & Mobile) -->
-        <div class="nav-content" id="navContent">
-            <!-- Close button for mobile -->
-            <button class="mobile-close-btn" onclick="closeMobileMenu()">✕</button>
-            
-            <!-- Mobile Search (shown only in mobile menu) -->
-            <div class="mobile-search">
+            <!-- Desktop Search Bar -->
+            <div class="search-bar desktop-search">
+                <div class="search-icon">🔍</div>
                 <input type="text" 
-                    class="mobile-search-input" 
-                    id="mobileSearchInput"
+                    class="search-input" 
+                    id="liveSearchInput"
                     placeholder="Search products...">
-                <div class="mobile-filters-row">
-                    <select class="mobile-category-filter" id="mobileCategoryFilter">
-                        <option value="">All Categories</option>
-                        <option value="textbooks">📚 Textbooks</option>
-                        <option value="electronics">💻 Electronics</option>
-                        <option value="supplies">✏️ Supplies</option>
-                        <option value="furniture">🪑 Furniture</option>
-                        <option value="clothing">👕 Clothing</option>
-                        <option value="other">🎒 Other</option>
+                
+                <!-- Filter Controls Container -->
+                <div class="search-filters">
+                    <!-- Category Filter -->
+                    <select id="categoryFilter" class="category-filter" onchange="applyCategoryFilter()">
+                        <option value="">Category</option>
+                        <option value="textbooks">Textbooks</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="supplies">Supplies</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="other">Other</option>
                     </select>
-                    <select class="mobile-price-filter" id="mobilePriceFilter">
-                        <option value="">Any Price</option>
-                        <option value="0-25">Under £25</option>
-                        <option value="25-50">£25 - £50</option>
-                        <option value="50-100">£50 - £100</option>
-                        <option value="100-200">£100 - £200</option>
+                    
+                    <!-- Price Filter -->
+                    <select id="priceFilter" class="price-filter" onchange="applyPriceFilter()">
+                        <option value="">Price</option>
+                        <option value="0-25">&lt;£25</option>
+                        <option value="25-50">£25-50</option>
+                        <option value="50-100">£50-100</option>
+                        <option value="100-200">£100-200</option>
                         <option value="200+">£200+</option>
                     </select>
                 </div>
-                <button class="mobile-search-btn" onclick="performMobileSearch()">Search</button>
+                
+                <div id="searchResultsDropdown" class="search-results-dropdown"></div>
             </div>
 
-            <div class="nav-actions">
+            <!-- Desktop Nav Actions -->
+            <div class="nav-actions desktop-nav">
                 <!-- AI Book Valuator Button -->
                 <a href="./BookValuator.html" class="ai-valuator-btn">
                     <span class="ai-icon">✨</span>
@@ -111,15 +89,89 @@
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- Mobile Search Bar Row (always visible on mobile) -->
+        <div class="mobile-search-row">
+            <div class="mobile-search-bar">
+                <input type="text" 
+                    class="mobile-search-input" 
+                    id="mobileSearchInputVisible"
+                    placeholder="Search StudentHub">
+                <button class="mobile-search-button" onclick="performVisibleMobileSearch()">
+                    🔍
+                </button>
+            </div>
+        </div>
 
-            <!-- Mobile-only quick links -->
-            <div class="mobile-quick-links">
-                <a href="./account_settings.html">⚙️ Settings</a>
-                <a href="./profile.html">👤 Profile</a>
-                <a href="./my_listings.html">📦 My Listings</a>
-                <a href="./purchase_history.html">🛍️ Purchases</a>
-                <a href="./messages.html">💬 Messages</a>
-                <a href="#" onclick="logout(); return false;">🚪 Logout</a>
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+
+        <!-- Slide-out Navigation Menu (Mobile) -->
+        <div class="nav-content" id="navContent">
+            <!-- Close button for mobile -->
+            <button class="mobile-close-btn" onclick="closeMobileMenu()">✕</button>
+            
+            <!-- User greeting -->
+            <div class="mobile-user-greeting">
+                <span class="greeting-icon">👋</span>
+                <span class="greeting-text">Hello, Student!</span>
+            </div>
+
+            <!-- Mobile Menu Links -->
+            <div class="mobile-menu-section">
+                <h3 class="mobile-menu-title">Quick Actions</h3>
+                <a href="./sellItem.html" class="mobile-menu-link">
+                    <span class="menu-icon">📝</span> Sell an Item
+                </a>
+                <a href="./BookValuator.html" class="mobile-menu-link">
+                    <span class="menu-icon">✨</span> AI Book Valuator
+                </a>
+            </div>
+
+            <div class="mobile-menu-section">
+                <h3 class="mobile-menu-title">My Account</h3>
+                <a href="./profile.html" class="mobile-menu-link">
+                    <span class="menu-icon">👤</span> My Profile
+                </a>
+                <a href="./my_listings.html" class="mobile-menu-link">
+                    <span class="menu-icon">📦</span> My Listings
+                </a>
+                <a href="./purchase_history.html" class="mobile-menu-link">
+                    <span class="menu-icon">🛍️</span> Purchase History
+                </a>
+                <a href="./messages.html" class="mobile-menu-link">
+                    <span class="menu-icon">💬</span> Messages
+                </a>
+                <a href="./account_settings.html" class="mobile-menu-link">
+                    <span class="menu-icon">⚙️</span> Settings
+                </a>
+            </div>
+
+            <div class="mobile-menu-section">
+                <h3 class="mobile-menu-title">Categories</h3>
+                <a href="landingpage.html?category=textbooks" class="mobile-menu-link">
+                    <span class="menu-icon">📚</span> Textbooks
+                </a>
+                <a href="landingpage.html?category=electronics" class="mobile-menu-link">
+                    <span class="menu-icon">💻</span> Electronics
+                </a>
+                <a href="landingpage.html?category=supplies" class="mobile-menu-link">
+                    <span class="menu-icon">✏️</span> Supplies
+                </a>
+                <a href="landingpage.html?category=furniture" class="mobile-menu-link">
+                    <span class="menu-icon">🪑</span> Furniture
+                </a>
+                <a href="landingpage.html?category=clothing" class="mobile-menu-link">
+                    <span class="menu-icon">👕</span> Clothing
+                </a>
+            </div>
+
+            <!-- Logout at bottom -->
+            <div class="mobile-menu-footer">
+                <a href="#" onclick="logout(); return false;" class="mobile-logout-btn">
+                    🚪 Sign Out
+                </a>
             </div>
         </div>
     </nav>

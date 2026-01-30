@@ -81,8 +81,22 @@ function performMobileSearch() {
   }
 }
 
-// Add Enter key support for mobile search
+// Visible mobile search bar function (Amazon-style)
+function performVisibleMobileSearch() {
+  const searchInput = document.getElementById('mobileSearchInputVisible');
+  const query = searchInput ? searchInput.value.trim() : '';
+  
+  if (query) {
+    window.location.href = `landingpage.html?search=${encodeURIComponent(query)}`;
+  }
+}
+
+// Make it globally accessible
+window.performVisibleMobileSearch = performVisibleMobileSearch;
+
+// Add Enter key support for mobile search inputs
 document.addEventListener('DOMContentLoaded', function() {
+  // Old mobile search in menu
   const mobileSearchInput = document.getElementById('mobileSearchInput');
   if (mobileSearchInput) {
     mobileSearchInput.addEventListener('keypress', function(e) {
@@ -92,7 +106,43 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+  
+  // New visible mobile search bar
+  const visibleMobileSearch = document.getElementById('mobileSearchInputVisible');
+  if (visibleMobileSearch) {
+    visibleMobileSearch.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performVisibleMobileSearch();
+      }
+    });
+  }
+  
+  // Sync cart badges between desktop and mobile
+  syncCartBadges();
 });
+
+// Sync cart badge between mobile and desktop
+function syncCartBadges() {
+  const desktopBadge = document.getElementById('cartBadge');
+  const mobileBadge = document.getElementById('cartBadgeMobile');
+  
+  if (desktopBadge && mobileBadge) {
+    const observer = new MutationObserver(function() {
+      mobileBadge.textContent = desktopBadge.textContent;
+      mobileBadge.style.display = desktopBadge.style.display;
+    });
+    
+    observer.observe(desktopBadge, { 
+      attributes: true, 
+      childList: true, 
+      characterData: true,
+      attributeFilter: ['style']
+    });
+  }
+}
+
+window.syncCartBadges = syncCartBadges;
 
 // Export mobile functions immediately so onclick handlers work
 window.toggleMobileMenu = toggleMobileMenu;

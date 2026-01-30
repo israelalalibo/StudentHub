@@ -76,7 +76,19 @@ function toggleCart() {
 function addToCart(productId) {
     cart.push(productId);
     cartCount++;
-    document.getElementById('cartBadge').textContent = cartCount;
+    
+    // Update both desktop and mobile cart badges
+    const desktopBadge = document.getElementById('cartBadge');
+    const mobileBadge = document.getElementById('cartBadgeMobile');
+    
+    if (desktopBadge) {
+        desktopBadge.textContent = cartCount;
+        desktopBadge.style.display = cartCount > 0 ? 'flex' : 'none';
+    }
+    if (mobileBadge) {
+        mobileBadge.textContent = cartCount;
+        mobileBadge.style.display = cartCount > 0 ? 'flex' : 'none';
+    }
     
     // Show success message
     showNotification('Item added to cart!');

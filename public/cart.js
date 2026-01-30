@@ -186,13 +186,19 @@ const Cart = {
     return subtotal + this.getTax(subtotal);
   },
 
-  // Update cart badge in header
+  // Update cart badge in header (both desktop and mobile)
   async updateBadge() {
     const badge = document.getElementById('cartBadge');
+    const mobileBadge = document.getElementById('cartBadgeMobile');
+    const count = await this.getCount();
+    
     if (badge) {
-      const count = await this.getCount();
       badge.textContent = count;
       badge.style.display = count > 0 ? 'flex' : 'none';
+    }
+    if (mobileBadge) {
+      mobileBadge.textContent = count;
+      mobileBadge.style.display = count > 0 ? 'flex' : 'none';
     }
   },
 

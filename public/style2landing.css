@@ -29,9 +29,16 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.nav-top-row {
+    display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 16px 0;
+    width: 100%;
 }
 
 .logo {
@@ -39,6 +46,96 @@ body {
     font-weight: 700;
     color: #667eea;
     text-decoration: none;
+}
+
+/* Mobile Quick Actions (Profile & Cart - visible on mobile) */
+.mobile-quick-actions {
+    display: none;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-icon-mobile {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
+.profile-icon-mobile img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.cart-icon-mobile {
+    position: relative;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.cart-icon-mobile .cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* Mobile Search Row */
+.mobile-search-row {
+    display: none;
+    width: 100%;
+    padding: 0 0 12px 0;
+}
+
+.mobile-search-bar {
+    display: flex;
+    width: 100%;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.mobile-search-bar .mobile-search-input {
+    flex: 1;
+    border: none;
+    padding: 12px 16px;
+    font-size: 16px;
+    outline: none;
+    background: transparent;
+}
+
+.mobile-search-bar .mobile-search-input::placeholder {
+    color: #9ca3af;
+}
+
+.mobile-search-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 12px 18px;
+    font-size: 18px;
+    cursor: pointer;
+    color: white;
+    transition: opacity 0.2s;
+}
+
+.mobile-search-button:active {
+    opacity: 0.8;
+}
+
+/* Desktop-only elements */
+.desktop-search,
+.desktop-nav {
+    display: flex;
 }
 
 .search-bar {
@@ -1161,16 +1258,94 @@ body {
   cursor: pointer;
 }
 
-/* Mobile Search (in sidebar menu) */
-.mobile-search {
-  display: none;
-  flex-direction: column;
-  gap: 12px;
+/* Mobile User Greeting */
+.mobile-user-greeting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-  border-radius: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin: -60px -20px 20px -20px;
+  padding-top: 70px;
+}
+
+.greeting-icon {
+  font-size: 24px;
+}
+
+.greeting-text {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Mobile Menu Sections */
+.mobile-menu-section {
   margin-bottom: 20px;
-  border: 1px solid #e0e7ff;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mobile-menu-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding: 0 5px;
+}
+
+.mobile-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 10px;
+  color: #1f2937;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link:active {
+  background: #f3f4f6;
+}
+
+.menu-icon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+/* Mobile Menu Footer */
+.mobile-menu-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.mobile-logout-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  text-align: center;
+  color: #ef4444;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.mobile-logout-btn:hover {
+  background: #fef2f2;
+}
+
+/* Hide old mobile search in menu - now using visible search bar */
+.mobile-search {
+  display: none !important;
 }
 
 .mobile-search-input {
@@ -1312,31 +1487,58 @@ body {
    ============================================ */
 @media (max-width: 768px) {
   body {
-    padding-top: 70px;
+    padding-top: 120px;
   }
 
   /* Header Mobile */
   .header {
     padding: 0 15px;
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
   }
 
   .nav-container {
+    padding: 0;
+  }
+
+  .nav-top-row {
     padding: 12px 0;
-    flex-wrap: wrap;
   }
 
   .logo {
-    font-size: 20px;
-    order: 1;
+    font-size: 22px;
+    color: white;
+    order: 2;
+    flex: 1;
+    text-align: center;
   }
 
   .hamburger-btn {
     display: flex;
+    order: 1;
+  }
+
+  .hamburger-line {
+    background: white;
+  }
+
+  /* Show mobile quick actions */
+  .mobile-quick-actions {
+    display: flex;
     order: 3;
   }
 
-  /* Desktop search bar hidden on mobile - use mobile menu search instead */
-  .search-bar {
+  .cart-icon-mobile {
+    color: white;
+  }
+
+  /* Show mobile search row */
+  .mobile-search-row {
+    display: block;
+  }
+
+  /* Hide desktop elements */
+  .desktop-search,
+  .desktop-nav {
     display: none !important;
   }
 
@@ -1512,16 +1714,21 @@ body {
    ============================================ */
 @media (max-width: 480px) {
   body {
-    padding-top: 70px;
+    padding-top: 115px;
   }
 
   .logo {
     font-size: 18px;
   }
 
-  /* Search bar hidden on small mobile */
-  .search-bar {
-    display: none !important;
+  .mobile-search-bar .mobile-search-input {
+    padding: 10px 12px;
+    font-size: 15px;
+  }
+
+  .mobile-search-button {
+    padding: 10px 14px;
+    font-size: 16px;
   }
 
   /* Hero adjustments */
