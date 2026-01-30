@@ -84,22 +84,54 @@ function performMobileSearch() {
 // Visible mobile search bar function (Amazon-style)
 function performVisibleMobileSearch() {
   const searchInput = document.getElementById('mobileSearchInputVisible');
+  const categorySelect = document.getElementById('mobileCategorySelect');
   const query = searchInput ? searchInput.value.trim() : '';
+  const category = categorySelect ? categorySelect.value : '';
   
   // Hide dropdown when searching
   const dropdown = document.getElementById('mobileSearchResultsDropdown');
   if (dropdown) dropdown.classList.remove('active');
   
+  // Build URL with parameters
+  const params = [];
+  if (category) {
+    params.push(`category=${encodeURIComponent(category)}`);
+  }
   if (query) {
-    window.location.href = `landingpage.html?search=${encodeURIComponent(query)}`;
+    params.push(`search=${encodeURIComponent(query)}`);
+  }
+  
+  if (params.length > 0) {
+    window.location.href = `landingpage.html?${params.join('&')}`;
+  } else if (category) {
+    window.location.href = `landingpage.html?category=${encodeURIComponent(category)}`;
   }
 }
+
+// Handle mobile category dropdown change - auto-search when category selected
+function handleMobileCategoryChange() {
+  const categorySelect = document.getElementById('mobileCategorySelect');
+  const searchInput = document.getElementById('mobileSearchInputVisible');
+  const category = categorySelect ? categorySelect.value : '';
+  const query = searchInput ? searchInput.value.trim() : '';
+  
+  // If a category is selected and there's no search query, navigate to that category
+  if (category && !query) {
+    window.location.href = `landingpage.html?category=${encodeURIComponent(category)}`;
+  }
+}
+
+// Make functions globally accessible
+window.handleMobileCategoryChange = handleMobileCategoryChange;
 
 // Mobile live search functionality
 let mobileSearchTimeout = null;
 
 async function handleMobileLiveSearch(query) {
   const dropdown = document.getElementById('mobileSearchResultsDropdown');
+  const categorySelect = document.getElementById('mobileCategorySelect');
+  const category = categorySelect ? categorySelect.value : '';
+  
   if (!dropdown) return;
   
   if (!query || query.length < 2) {
@@ -108,7 +140,12 @@ async function handleMobileLiveSearch(query) {
   }
   
   try {
-    const response = await fetch(`/api/products/search?q=${encodeURIComponent(query)}&limit=5`);
+    let url = `/api/products/search?q=${encodeURIComponent(query)}&limit=5`;
+    if (category) {
+      url += `&category=${encodeURIComponent(category)}`;
+    }
+    
+    const response = await fetch(url);
     if (!response.ok) throw new Error('Search failed');
     
     const products = await response.json();

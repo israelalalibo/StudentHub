@@ -94,6 +94,15 @@
         <!-- Mobile Search Bar Row (always visible on mobile) -->
         <div class="mobile-search-row">
             <div class="mobile-search-bar">
+                <select id="mobileCategorySelect" class="mobile-category-select" onchange="handleMobileCategoryChange()">
+                    <option value="">All</option>
+                    <option value="textbooks">📚</option>
+                    <option value="electronics">💻</option>
+                    <option value="supplies">✏️</option>
+                    <option value="furniture">🪑</option>
+                    <option value="clothing">👕</option>
+                    <option value="other">🎒</option>
+                </select>
                 <input type="text" 
                     class="mobile-search-input" 
                     id="mobileSearchInputVisible"

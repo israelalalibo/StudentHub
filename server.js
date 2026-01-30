@@ -564,7 +564,7 @@ app.post("/uploadProduct", upload.single("image"), async (req, res) => {
 // Search products by query (for live search)
 app.get("/api/products/search", async (req, res) => {
   try {
-    const { q, limit = 5 } = req.query;
+    const { q, limit = 5, category } = req.query;
     
     if (!q || q.trim().length < 2) {
       return res.json([]);
@@ -576,12 +576,18 @@ app.get("/api/products/search", async (req, res) => {
     
     const searchQuery = q.trim().toLowerCase();
     
-    // Search products by title (case-insensitive)
-    const { data: products, error } = await supabaseAdmin
+    // Build query
+    let query = supabaseAdmin
       .from("ProductTable")
-      .select("id, title, price, image_url")
-      .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`)
-      .limit(parseInt(limit));
+      .select("id, title, price, image_url, category")
+      .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+    
+    // Add category filter if provided
+    if (category && category.trim()) {
+      query = query.ilike('category', `%${category.trim()}%`);
+    }
+    
+    const { data: products, error } = await query.limit(parseInt(limit));
     
     if (error) {
       console.error("Product search error:", error);
