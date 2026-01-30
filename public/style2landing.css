@@ -56,13 +56,24 @@ body {
 }
 
 .profile-icon-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 36px;
     height: 36px;
     cursor: pointer;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.6);
     background: #f3f4f6;
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.profile-icon-mobile:hover,
+.profile-icon-mobile:active {
+    border-color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.05);
 }
 
 .profile-icon-mobile img {
@@ -1276,14 +1287,20 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 30px;
-  justify-items: center;
-  align-items: start;
   padding: 20px 0;
+  width: 100%;
+}
+
+/* Ensure product cards fill their grid cell properly */
+#searchResultsGrid .product-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* Ensure a single product doesn't stretch full width */
 #searchResultsGrid.single-item {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 320px));
   justify-content: center;
 }
 
@@ -1944,9 +1961,15 @@ body {
     font-size: 13px;
   }
 
-  /* Search Results */
+  /* Search Results - 2 columns on small mobile */
   #searchResultsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 10px 8px;
+  }
+
+  #searchResultsGrid .product-card img {
+    height: 120px;
   }
 
   .search-result-row {
