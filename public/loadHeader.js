@@ -81,8 +81,95 @@ function performMobileSearch() {
   }
 }
 
-// Note: Mobile now uses the same unified search bar as desktop
-// The existing live search functionality in initHeaderFeatures() handles both
+// Visible mobile search bar function (Amazon-style)
+function performVisibleMobileSearch() {
+  const searchInput = document.getElementById('mobileSearchInputVisible');
+  const categorySelect = document.getElementById('mobileCategorySelect');
+  const query = searchInput ? searchInput.value.trim() : '';
+  const category = categorySelect ? categorySelect.value : '';
+  
+  // Hide dropdown when searching
+  const dropdown = document.getElementById('mobileSearchResultsDropdown');
+  if (dropdown) dropdown.classList.remove('active');
+  
+  // Build URL with parameters
+  const params = [];
+  if (category) {
+    params.push(`category=${encodeURIComponent(category)}`);
+  }
+  if (query) {
+    params.push(`search=${encodeURIComponent(query)}`);
+  }
+  
+  if (params.length > 0) {
+    window.location.href = `landingpage.html?${params.join('&')}`;
+  } else if (category) {
+    window.location.href = `landingpage.html?category=${encodeURIComponent(category)}`;
+  }
+}
+
+// Handle mobile category dropdown change - auto-search when category selected
+function handleMobileCategoryChange() {
+  const categorySelect = document.getElementById('mobileCategorySelect');
+  const searchInput = document.getElementById('mobileSearchInputVisible');
+  const category = categorySelect ? categorySelect.value : '';
+  const query = searchInput ? searchInput.value.trim() : '';
+  
+  // If a category is selected and there's no search query, navigate to that category
+  if (category && !query) {
+    window.location.href = `landingpage.html?category=${encodeURIComponent(category)}`;
+  }
+}
+
+// Make functions globally accessible
+window.handleMobileCategoryChange = handleMobileCategoryChange;
+
+// Mobile live search functionality
+let mobileSearchTimeout = null;
+
+async function handleMobileLiveSearch(query) {
+  const dropdown = document.getElementById('mobileSearchResultsDropdown');
+  const categorySelect = document.getElementById('mobileCategorySelect');
+  const category = categorySelect ? categorySelect.value : '';
+  
+  if (!dropdown) return;
+  
+  if (!query || query.length < 2) {
+    dropdown.classList.remove('active');
+    return;
+  }
+  
+  try {
+    let url = `/api/products/search?q=${encodeURIComponent(query)}&limit=5`;
+    if (category) {
+      url += `&category=${encodeURIComponent(category)}`;
+    }
+    
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Search failed');
+    
+    const products = await response.json();
+    
+    if (products.length === 0) {
+      dropdown.innerHTML = '<div class="no-results">No products found</div>';
+    } else {
+      dropdown.innerHTML = products.map(product => `
+        <div class="search-result-item" onclick="window.location.href='product_detail.html?id=${product.id}'">
+          <img src="${product.image_url || '/images/placeholder.jpg'}" alt="${product.title}" onerror="this.src='/images/placeholder.jpg'">
+          <div class="search-result-info">
+            <div class="search-result-title">${product.title}</div>
+            <div class="search-result-price">£${parseFloat(product.price).toFixed(2)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    dropdown.classList.add('active');
+  } catch (error) {
+    console.error('Mobile search error:', error);
+    dropdown.classList.remove('active');
+  }
+}
 
 // Update mobile user greeting with actual user name
 async function updateMobileGreeting() {
@@ -143,8 +230,53 @@ async function loadMobileProfilePicture() {
 // Make it globally accessible
 window.performVisibleMobileSearch = performVisibleMobileSearch;
 
-// Initialize mobile-specific features on DOMContentLoaded
+// Add Enter key support for mobile search inputs
 document.addEventListener('DOMContentLoaded', function() {
+  // Old mobile search in menu
+  const mobileSearchInput = document.getElementById('mobileSearchInput');
+  if (mobileSearchInput) {
+    mobileSearchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performMobileSearch();
+      }
+    });
+  }
+  
+  // New visible mobile search bar with live search
+  const visibleMobileSearch = document.getElementById('mobileSearchInputVisible');
+  if (visibleMobileSearch) {
+    visibleMobileSearch.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performVisibleMobileSearch();
+      }
+    });
+    
+    // Add live search on input
+    visibleMobileSearch.addEventListener('input', function(e) {
+      const query = e.target.value.trim();
+      
+      // Debounce the search
+      if (mobileSearchTimeout) {
+        clearTimeout(mobileSearchTimeout);
+      }
+      
+      mobileSearchTimeout = setTimeout(() => {
+        handleMobileLiveSearch(query);
+      }, 300);
+    });
+    
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('mobileSearchResultsDropdown');
+      const searchBar = document.querySelector('.mobile-search-bar');
+      if (dropdown && searchBar && !searchBar.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
+  }
+  
   // Sync cart badges between desktop and mobile
   syncCartBadges();
   
