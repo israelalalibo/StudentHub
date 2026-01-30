@@ -86,8 +86,107 @@ function performVisibleMobileSearch() {
   const searchInput = document.getElementById('mobileSearchInputVisible');
   const query = searchInput ? searchInput.value.trim() : '';
   
+  // Hide dropdown when searching
+  const dropdown = document.getElementById('mobileSearchResultsDropdown');
+  if (dropdown) dropdown.classList.remove('active');
+  
   if (query) {
     window.location.href = `landingpage.html?search=${encodeURIComponent(query)}`;
+  }
+}
+
+// Mobile live search functionality
+let mobileSearchTimeout = null;
+
+async function handleMobileLiveSearch(query) {
+  const dropdown = document.getElementById('mobileSearchResultsDropdown');
+  if (!dropdown) return;
+  
+  if (!query || query.length < 2) {
+    dropdown.classList.remove('active');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/products/search?q=${encodeURIComponent(query)}&limit=5`);
+    if (!response.ok) throw new Error('Search failed');
+    
+    const products = await response.json();
+    
+    if (products.length === 0) {
+      dropdown.innerHTML = '<div class="no-results">No products found</div>';
+    } else {
+      dropdown.innerHTML = products.map(product => `
+        <div class="search-result-item" onclick="window.location.href='product_detail.html?id=${product.id}'">
+          <img src="${product.image_url || '/images/placeholder.jpg'}" alt="${product.title}" onerror="this.src='/images/placeholder.jpg'">
+          <div class="search-result-info">
+            <div class="search-result-title">${product.title}</div>
+            <div class="search-result-price">£${parseFloat(product.price).toFixed(2)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    dropdown.classList.add('active');
+  } catch (error) {
+    console.error('Mobile search error:', error);
+    dropdown.classList.remove('active');
+  }
+}
+
+// Update mobile user greeting with actual user name
+async function updateMobileGreeting() {
+  const greetingText = document.querySelector('.greeting-text');
+  if (!greetingText) return;
+  
+  try {
+    const session = localStorage.getItem('supabase_session');
+    if (session) {
+      const sessionData = JSON.parse(session);
+      const userId = sessionData.user?.id;
+      
+      if (userId) {
+        const response = await fetch(`/api/users/${userId}/profile`);
+        if (response.ok) {
+          const profile = await response.json();
+          const name = profile.full_name || profile.username || sessionData.user?.email?.split('@')[0] || 'Student';
+          greetingText.textContent = `Hello, ${name}!`;
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error updating greeting:', error);
+  }
+}
+
+// Load profile picture for mobile header
+async function loadMobileProfilePicture() {
+  const mobileProfileImg = document.getElementById('mobileProfilePicture');
+  if (!mobileProfileImg) return;
+  
+  try {
+    const session = localStorage.getItem('supabase_session');
+    if (session) {
+      const sessionData = JSON.parse(session);
+      const userId = sessionData.user?.id;
+      
+      if (userId) {
+        const response = await fetch(`/api/users/${userId}/profile`);
+        if (response.ok) {
+          const profile = await response.json();
+          if (profile.profile_picture_url) {
+            mobileProfileImg.src = profile.profile_picture_url;
+            // Also update desktop profile icon if it exists
+            const desktopProfileImg = document.getElementById('profileIcon');
+            if (desktopProfileImg) {
+              desktopProfileImg.src = profile.profile_picture_url;
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error loading mobile profile picture:', error);
   }
 }
 
@@ -107,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // New visible mobile search bar
+  // New visible mobile search bar with live search
   const visibleMobileSearch = document.getElementById('mobileSearchInputVisible');
   if (visibleMobileSearch) {
     visibleMobileSearch.addEventListener('keypress', function(e) {
@@ -116,10 +215,37 @@ document.addEventListener('DOMContentLoaded', function() {
         performVisibleMobileSearch();
       }
     });
+    
+    // Add live search on input
+    visibleMobileSearch.addEventListener('input', function(e) {
+      const query = e.target.value.trim();
+      
+      // Debounce the search
+      if (mobileSearchTimeout) {
+        clearTimeout(mobileSearchTimeout);
+      }
+      
+      mobileSearchTimeout = setTimeout(() => {
+        handleMobileLiveSearch(query);
+      }, 300);
+    });
+    
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('mobileSearchResultsDropdown');
+      const searchBar = document.querySelector('.mobile-search-bar');
+      if (dropdown && searchBar && !searchBar.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
   }
   
   // Sync cart badges between desktop and mobile
   syncCartBadges();
+  
+  // Update mobile greeting and profile picture
+  updateMobileGreeting();
+  loadMobileProfilePicture();
 });
 
 // Sync cart badge between mobile and desktop

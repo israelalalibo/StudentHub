@@ -15,7 +15,7 @@
             <!-- Mobile Quick Actions (always visible on mobile) -->
             <div class="mobile-quick-actions">
                 <div class="profile-icon-mobile" onclick="showProfile()">
-                    <img src="../images/profile-icon.png" alt="Profile" class="profile-icon" id="profileIconMobile"/>
+                    <img src="../images/profile-icon.png" alt="Profile" id="mobileProfilePicture"/>
                 </div>
                 <div class="cart-icon-mobile" onclick="goToCart()" title="View Cart">
                     🛒
@@ -97,11 +97,14 @@
                 <input type="text" 
                     class="mobile-search-input" 
                     id="mobileSearchInputVisible"
-                    placeholder="Search StudentHub">
+                    placeholder="Search StudentHub"
+                    autocomplete="off">
                 <button class="mobile-search-button" onclick="performVisibleMobileSearch()">
                     🔍
                 </button>
             </div>
+            <!-- Mobile Live Search Dropdown -->
+            <div id="mobileSearchResultsDropdown" class="mobile-search-results-dropdown"></div>
         </div>
 
         <!-- Mobile Menu Overlay -->

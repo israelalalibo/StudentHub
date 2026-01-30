@@ -560,6 +560,41 @@ app.post("/uploadProduct", upload.single("image"), async (req, res) => {
   }
 });
 
+// ============ PRODUCT SEARCH API ============
+// Search products by query (for live search)
+app.get("/api/products/search", async (req, res) => {
+  try {
+    const { q, limit = 5 } = req.query;
+    
+    if (!q || q.trim().length < 2) {
+      return res.json([]);
+    }
+    
+    if (!supabaseAdmin) {
+      return res.status(503).json({ error: "Database not available" });
+    }
+    
+    const searchQuery = q.trim().toLowerCase();
+    
+    // Search products by title (case-insensitive)
+    const { data: products, error } = await supabaseAdmin
+      .from("ProductTable")
+      .select("id, title, price, image_url")
+      .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`)
+      .limit(parseInt(limit));
+    
+    if (error) {
+      console.error("Product search error:", error);
+      return res.status(500).json({ error: "Search failed" });
+    }
+    
+    res.json(products || []);
+  } catch (err) {
+    console.error("Error in /api/products/search:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // ============ FEATURED PRODUCTS API ============
 // Get featured products prioritized by review count
 app.get("/api/featured-products", async (req, res) => {
@@ -904,6 +939,44 @@ app.get("/reviews/user", async (req, res) => {
 });
 
 // ============ PROFILE API ============
+
+// Get basic profile info by user ID (for mobile header, etc.)
+app.get("/api/users/:userId/profile", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!supabaseAdmin) {
+      return res.status(503).json({ error: "Database not available" });
+    }
+    
+    const { data: student, error } = await supabaseAdmin
+      .from("student")
+      .select("first_name, last_name, profile_picture, username")
+      .eq("id", userId)
+      .maybeSingle();
+    
+    if (error) {
+      console.error("Error fetching user profile:", error);
+      return res.status(500).json({ error: "Failed to fetch profile" });
+    }
+    
+    if (!student) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Return only non-sensitive info
+    res.json({
+      full_name: student.first_name && student.last_name 
+        ? `${student.first_name} ${student.last_name}` 
+        : student.first_name || student.last_name || null,
+      username: student.username,
+      profile_picture_url: student.profile_picture || null
+    });
+  } catch (err) {
+    console.error("Error in /api/users/:userId/profile:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // Get current user's profile data with stats
 app.get("/api/profile", async (req, res) => {
