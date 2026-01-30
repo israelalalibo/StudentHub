@@ -1784,12 +1784,22 @@ body {
     font-size: 1rem;
   }
 
-  /* Product Grid Mobile - 2 columns */
+  /* Product Grid Mobile - 2 columns for all grids */
   .product-grid,
   #searchResultsGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     padding: 0 10px;
+  }
+
+  /* Exception: single search result - 1 column, centered card */
+  #searchResultsGrid.single-item {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  #searchResultsGrid.single-item .product-card {
+    max-width: 280px;
   }
 
   .product-card {
@@ -1889,11 +1899,22 @@ body {
     font-size: 14px;
   }
 
-  /* Product Grid - still 2 columns but tighter */
-  .product-grid {
+  /* Product Grid - 2 columns on small mobile */
+  .product-grid,
+  #searchResultsGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     padding: 0 8px;
+  }
+
+  /* Single search result - 1 column, centered */
+  #searchResultsGrid.single-item {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  #searchResultsGrid.single-item .product-card {
+    max-width: 260px;
   }
 
   .product-card {
@@ -1992,11 +2013,16 @@ body {
     font-size: 13px;
   }
 
-  /* Search Results - 2 columns on small mobile */
+  /* Search Results - 2 columns on small mobile; single item = 1 column */
   #searchResultsGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     padding: 10px 8px;
+  }
+
+  #searchResultsGrid.single-item {
+    grid-template-columns: 1fr;
+    justify-items: center;
   }
 
   #searchResultsGrid .product-card img {
