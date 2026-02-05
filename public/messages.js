@@ -30,7 +30,7 @@ async function loadConversations() {
         conversationsList.innerHTML = `
           <div class="no-conversations">
             <div class="no-conversations-icon">🔒</div>
-            <p>Please <a href="../index.html">log in</a> to view your messages</p>
+            <p>Please <a href="../index">log in</a> to view your messages</p>
           </div>
         `;
         return;
