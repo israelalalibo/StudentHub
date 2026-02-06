@@ -334,11 +334,11 @@ app.post('/api/restore-session', async (req, res) => {
 
 // console.log("Key length:", GOOGLE_API_KEY ? GOOGLE_API_KEY.length : "Undefined");
 // console.log(GOOGLE_API_KEY);
-if (!GOOGLE_API_KEY) {
-  console.warn('⚠️  GOOGLE_API_KEY not found - Book Valuator will be disabled');
-} else {
-  console.log('✅ Google API key loaded for Book Valuator');
-}
+// if (!GOOGLE_API_KEY) {
+//   console.warn('⚠️  GOOGLE_API_KEY not found - Book Valuator will be disabled');
+// } else {
+//   console.log('✅ Google API key loaded for Book Valuator');
+// }
 
 async function getBookInfoFromISBN(isbn) {
   try {
