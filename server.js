@@ -332,8 +332,8 @@ function getGoogleApiKey() {
 //Get API key at request time (Key for Vercel Severless environments)
 const GOOGLE_API_KEY = getGoogleApiKey();
 
-console.log("Key length:", process.env.GOOGLE_API_KEY ? process.env.GOOGLE_API_KEY.length : "Undefined");
-
+console.log("Key length:", GOOGLE_API_KEY ? GOOGLE_API_KEY.length : "Undefined");
+console.log(GOOGLE_API_KEY);
 if (!GOOGLE_API_KEY) {
   console.warn('⚠️  GOOGLE_API_KEY not found - Book Valuator will be disabled');
 } else {
