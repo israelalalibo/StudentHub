@@ -357,6 +357,15 @@ async function getBookInfoFromISBN(isbn) {
   }
 }
 
+// TEMPORARY: debug helper to see if Vercel loads env vars – remove when done
+function bookValuatorDebugEnv() {
+  return {
+    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY != null ? '(set)' : '(undefined)',
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY != null ? '(set)' : '(undefined)',
+    resolvedKey: GOOGLE_API_KEY != null ? '(set)' : '(undefined)'
+  };
+}
+
 app.post('/bookValuator', async (req, res) => {
   try{
     // Check if API key is configured
@@ -364,13 +373,14 @@ app.post('/bookValuator', async (req, res) => {
       console.error('Book Valuator called but GOOGLE_API_KEY is not configured');
       return res.status(500).json({ 
         error: "Book Valuator is not configured. Please set GOOGLE_API_KEY environment variable.",
-        success: false
+        success: false,
+        _debugEnv: bookValuatorDebugEnv()
       });
     }
     const bookData = req.body;
 
     if (!bookData || !bookData.isbn) {
-      return res.status(400).json({ error: "Invalid book data provided." });
+      return res.status(400).json({ error: "Invalid book data provided.", _debugEnv: bookValuatorDebugEnv() });
     }
 
     //Fetch Book title and Author using ISBN
@@ -449,7 +459,7 @@ app.post('/bookValuator', async (req, res) => {
         // Keep default error message
       }
       
-      return res.status(500).json({ error: errorMessage, success: false });
+      return res.status(500).json({ error: errorMessage, success: false, _debugEnv: bookValuatorDebugEnv() });
     }
 
     //Parse model output
@@ -471,11 +481,12 @@ app.post('/bookValuator', async (req, res) => {
     res.status(200).json({
       success: true,
       predicted_value: result.predicted_value,
-      reasoning: result.reasoning
+      reasoning: result.reasoning,
+      _debugEnv: bookValuatorDebugEnv()
     });
   } catch (err){
     console.error("Server error:", err);
-    res.status(500).json({ error: "Internal server error", details: err.message });
+    res.status(500).json({ error: "Internal server error", details: err.message, _debugEnv: bookValuatorDebugEnv() });
   }
   console.log(req.body);
 });

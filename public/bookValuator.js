@@ -49,6 +49,13 @@ form.addEventListener('submit', async (e) => {
 
         const data = await response.json();
 
+        // TEMPORARY: check if Vercel loaded env vars – remove when done
+        if (data._debugEnv) {
+            console.log('[Book Valuator] Env vars on server:', data._debugEnv);
+            console.log('  GOOGLE_API_KEY:', data._debugEnv.GOOGLE_API_KEY);
+            console.log('  GEMINI_API_KEY:', data._debugEnv.GEMINI_API_KEY);
+            console.log('  resolvedKey (used for API):', data._debugEnv.resolvedKey);
+        }
         console.log(data);
         
         if (data.success) {
