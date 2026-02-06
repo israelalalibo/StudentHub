@@ -357,15 +357,6 @@ async function getBookInfoFromISBN(isbn) {
   }
 }
 
-// TEMPORARY: debug helper to see if Vercel loads env vars – remove when done
-function bookValuatorDebugEnv() {
-  return {
-    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY != null ? '(set)' : '(undefined)',
-    GEMINI_API_KEY: process.env.GEMINI_API_KEY != null ? '(set)' : '(undefined)',
-    resolvedKey: GOOGLE_API_KEY != null ? '(set)' : '(undefined)'
-  };
-}
-
 app.post('/bookValuator', async (req, res) => {
   try{
     // Check if API key is configured
@@ -373,14 +364,13 @@ app.post('/bookValuator', async (req, res) => {
       console.error('Book Valuator called but GOOGLE_API_KEY is not configured');
       return res.status(500).json({ 
         error: "Book Valuator is not configured. Please set GOOGLE_API_KEY environment variable.",
-        success: false,
-        _debugEnv: bookValuatorDebugEnv()
+        success: false
       });
     }
     const bookData = req.body;
 
     if (!bookData || !bookData.isbn) {
-      return res.status(400).json({ error: "Invalid book data provided.", _debugEnv: bookValuatorDebugEnv() });
+      return res.status(400).json({ error: "Invalid book data provided." });
     }
 
     //Fetch Book title and Author using ISBN
@@ -438,29 +428,28 @@ app.post('/bookValuator', async (req, res) => {
       body: JSON.stringify(payload)
     });
 
-    // if (!response.ok) {
-    //   const errText = await response.text();
-    //   console.error("Googlee API error:", response.status, errText);
-      
-    //   // // Parse error for more helpful message
-    //   // let errorMessage = "Failed to fetch from Google API";
-    //   // try {
-    //   //   const errorData = JSON.parse(errText);
-    //   //   if (errorData.error?.message) {
-    //   //     errorMessage = errorData.error.message;
-    //   //   }
-    //   //   if (errorData.error?.status === "INVALID_API_KEY") {
-    //   //     errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
-    //   //   }
-    //   //   if (response.status === 429) {
-    //   //     errorMessage = "API rate limit exceeded. Please try again later.";
-    //   //   }
-    //   // } catch (e) {
-    //   //   // Keep default error message
-    //   // }
-      
-    //   return res.status(500).json({ error: errorMessage, success: false, _debugEnv: bookValuatorDebugEnv() });
-    // }
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Google API error:", response.status, errText);
+
+      let errorMessage = "Failed to fetch from Google API";
+      try {
+        const errorData = JSON.parse(errText);
+        if (errorData.error?.message) {
+          errorMessage = errorData.error.message;
+        }
+        if (errorData.error?.status === "INVALID_API_KEY") {
+          errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
+        }
+        if (response.status === 429) {
+          errorMessage = "API rate limit exceeded. Please try again later.";
+        }
+      } catch (e) {
+        // Keep default error message
+      }
+
+      return res.status(500).json({ error: errorMessage, success: false });
+    }
 
     //Parse model output
     const data = await response.json();
@@ -481,12 +470,11 @@ app.post('/bookValuator', async (req, res) => {
     res.status(200).json({
       success: true,
       predicted_value: result.predicted_value,
-      reasoning: result.reasoning,
-      _debugEnv: bookValuatorDebugEnv()
+      reasoning: result.reasoning
     });
   } catch (err){
     console.error("Server error:", err);
-    res.status(500).json({ error: "Internal server error", details: err.message, _debugEnv: bookValuatorDebugEnv() });
+    res.status(500).json({ error: "Internal server error", details: err.message });
   }
   console.log(req.body);
 });
