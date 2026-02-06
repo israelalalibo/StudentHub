@@ -326,7 +326,6 @@ app.post('/api/restore-session', async (req, res) => {
 
 /* Book Valuator Logic */
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-console.log(GOOGLE_API_KEY);
 
 if (!GOOGLE_API_KEY) {
   console.warn('⚠️  GOOGLE_API_KEY not found - Book Valuator will be disabled');
@@ -363,7 +362,6 @@ app.post('/bookValuator', async (req, res) => {
         success: false
       });
     }
-    console.log(GOOGLE_API_KEY);
     const bookData = req.body;
 
     if (!bookData || !bookData.isbn) {
@@ -419,7 +417,6 @@ app.post('/bookValuator', async (req, res) => {
 
     //call Google Gemini API
     const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GOOGLE_API_KEY;
-    
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
