@@ -325,7 +325,9 @@ app.post('/api/restore-session', async (req, res) => {
 });
 
 /* Book Valuator Logic */
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+function getGoogleApiKey() {
+  return process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+}
 
 if (!GOOGLE_API_KEY) {
   console.warn('⚠️  GOOGLE_API_KEY not found - Book Valuator will be disabled');
@@ -354,6 +356,9 @@ async function getBookInfoFromISBN(isbn) {
 
 app.post('/bookValuator', async (req, res) => {
   try{
+    //Get API key at request time (Key for Vercel Severless environments)
+    const GOOGLE_API_KEY = getGoogleApiKey();
+
     // Check if API key is configured
     if (!GOOGLE_API_KEY) {
       console.error('Book Valuator called but GOOGLE_API_KEY is not configured');
