@@ -440,24 +440,24 @@ app.post('/bookValuator', async (req, res) => {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("Google API error:", response.status, errText);
+      console.error("Googlee API error:", response.status, errText);
       
-      // Parse error for more helpful message
-      let errorMessage = "Failed to fetch from Google API";
-      try {
-        const errorData = JSON.parse(errText);
-        if (errorData.error?.message) {
-          errorMessage = errorData.error.message;
-        }
-        if (errorData.error?.status === "INVALID_API_KEY") {
-          errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
-        }
-        if (response.status === 429) {
-          errorMessage = "API rate limit exceeded. Please try again later.";
-        }
-      } catch (e) {
-        // Keep default error message
-      }
+      // // Parse error for more helpful message
+      // let errorMessage = "Failed to fetch from Google API";
+      // try {
+      //   const errorData = JSON.parse(errText);
+      //   if (errorData.error?.message) {
+      //     errorMessage = errorData.error.message;
+      //   }
+      //   if (errorData.error?.status === "INVALID_API_KEY") {
+      //     errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
+      //   }
+      //   if (response.status === 429) {
+      //     errorMessage = "API rate limit exceeded. Please try again later.";
+      //   }
+      // } catch (e) {
+      //   // Keep default error message
+      // }
       
       return res.status(500).json({ error: errorMessage, success: false, _debugEnv: bookValuatorDebugEnv() });
     }
