@@ -324,16 +324,16 @@ app.post('/api/restore-session', async (req, res) => {
   }
 });
 
-/* Book Valuator Logic */
-function getGoogleApiKey() {
-  return process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-}
+// /* Book Valuator Logic */
+// function getGoogleApiKey() {
+//   return process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+// }
 
-//Get API key at request time (Key for Vercel Severless environments)
-const GOOGLE_API_KEY = getGoogleApiKey();
+// //Get API key at request time (Key for Vercel Severless environments)
+// const GOOGLE_API_KEY = getGoogleApiKey();
 
-console.log("Key length:", GOOGLE_API_KEY ? GOOGLE_API_KEY.length : "Undefined");
-console.log(GOOGLE_API_KEY);
+// console.log("Key length:", GOOGLE_API_KEY ? GOOGLE_API_KEY.length : "Undefined");
+// console.log(GOOGLE_API_KEY);
 if (!GOOGLE_API_KEY) {
   console.warn('⚠️  GOOGLE_API_KEY not found - Book Valuator will be disabled');
 } else {
@@ -361,6 +361,8 @@ async function getBookInfoFromISBN(isbn) {
 
 app.post('/bookValuator', async (req, res) => {
   try{
+    const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+
     // Check if API key is configured
     if (!GOOGLE_API_KEY) {
       console.error('Book Valuator called but GOOGLE_API_KEY is not configured');
