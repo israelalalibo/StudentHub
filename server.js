@@ -434,7 +434,7 @@ app.post('/bookValuator', async (req, res) => {
         if (errorData.error?.message) {
           errorMessage = errorData.error.message;
         }
-        if (errorData.error?.status === "INVALID_API_KEY" || response.status === 400) {
+        if (errorData.error?.status === "INVALID_API_KEY") {
           errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
         }
         if (response.status === 429) {
