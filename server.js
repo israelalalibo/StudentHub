@@ -487,6 +487,138 @@ app.post('/bookValuator', async (req, res) => {
   console.log(req.body);
 });
 
+// ============================================
+// GENERAL ITEM VALUATOR ENDPOINT
+// ============================================
+
+// Multer config for item valuator images (memory storage for base64 conversion)
+const itemImageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 4 * 1024 * 1024 }, // 4MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPG, PNG, and WebP are allowed.'));
+    }
+  }
+});
+
+app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res) => {
+  try {
+    const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+
+    if (!GOOGLE_API_KEY) {
+      return res.status(500).json({
+        error: "Valuator is not configured. Please set GOOGLE_API_KEY environment variable.",
+        success: false
+      });
+    }
+
+    const { item_name, item_description, item_condition, item_category } = req.body;
+
+    if (!item_name || !item_name.trim()) {
+      return res.status(400).json({ error: "Item name is required.", success: false });
+    }
+
+    const SYSTEM_PROMPT = `
+    You are an expert appraiser of second-hand goods. Your task is to estimate the current market resale value of an item based on its attributes and, if provided, a photograph.
+
+    Respond only in clean JSON format:
+    {
+      "predicted_value": <number>,
+      "reasoning": "<short explanation>"
+    }
+
+    Guidelines:
+    - Consider the item's category, brand, age, rarity, and current market demand.
+    - Condition greatly affects value: "New / Sealed" retains most value; "Poor" the least.
+    - If an image is provided, use visual cues (brand markings, wear, authenticity indicators) to refine your estimate.
+    - All values are in pounds sterling (GBP).
+    - Be realistic -- prefer conservative estimates over inflated ones.
+    - Mention the item name and how its specific attributes affect the valuation.
+    `;
+
+    const userQueryText = `
+    Appraise this item:
+    - Name: ${item_name}
+    - Description: ${item_description || 'Not provided'}
+    - Condition: ${item_condition}
+    - Category: ${item_category}
+    `;
+
+    // Build the parts array (text + optional image)
+    const parts = [{ text: userQueryText }];
+
+    if (req.file) {
+      const base64Image = req.file.buffer.toString('base64');
+      parts.push({
+        inlineData: {
+          mimeType: req.file.mimetype,
+          data: base64Image
+        }
+      });
+    }
+
+    const payload = {
+      contents: [{ parts }],
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      },
+      generationConfig: {
+        responseMimeType: "application/json"
+      }
+    };
+
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GOOGLE_API_KEY;
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Google API error:", response.status, errText);
+      let errorMessage = "Failed to fetch from Google API";
+      try {
+        const errorData = JSON.parse(errText);
+        if (errorData.error?.message) errorMessage = errorData.error.message;
+        if (errorData.error?.status === "RESOURCE_EXHAUSTED" || response.status === 429) {
+          errorMessage = response.status === 429 && !errorMessage.toLowerCase().includes('quota')
+            ? "API rate limit exceeded. Please wait a moment and try again."
+            : "API quota exceeded. Please check your Google AI Studio billing and quota limits.";
+        }
+      } catch (e) { /* keep default */ }
+      return res.status(500).json({ error: errorMessage, success: false });
+    }
+
+    const data = await response.json();
+    let modelResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    let result;
+    try {
+      result = JSON.parse(modelResponse);
+    } catch {
+      result = {
+        predicted_value: null,
+        reasoning: modelResponse || "Model returned an unexpected response."
+      };
+    }
+
+    res.status(200).json({
+      success: true,
+      predicted_value: result.predicted_value,
+      reasoning: result.reasoning
+    });
+
+  } catch (err) {
+    console.error("Item Valuator error:", err);
+    res.status(500).json({ error: "Internal server error", details: err.message, success: false });
+  }
+});
+
 // Use /tmp for serverless environments (Vercel), local uploads folder otherwise
 const uploadDir = process.env.VERCEL ? '/tmp/uploads' : './uploads';
 const upload = multer({ dest: uploadDir });
