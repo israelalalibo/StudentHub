@@ -239,6 +239,78 @@ app.post('/logout', async (req, res) =>{
   }
 });
 
+// Forgot password - sends reset email via Supabase
+app.post('/api/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    // Determine the site URL for the redirect
+    const siteUrl = process.env.SITE_URL
+      || (req.headers.host?.includes('localhost') ? `http://${req.headers.host}` : `https://${req.headers.host}`);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${siteUrl}/views/reset-password.html`
+    });
+
+    if (error) {
+      console.error("Password reset error:", error.message);
+    }
+
+    // Always return success to prevent email enumeration
+    res.json({ success: true, message: "If an account with that email exists, a password reset link has been sent." });
+
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    res.json({ success: true, message: "If an account with that email exists, a password reset link has been sent." });
+  }
+});
+
+// Reset password - sets new password using recovery tokens from email link
+app.post('/api/reset-password', async (req, res) => {
+  try {
+    const { access_token, refresh_token, new_password } = req.body;
+
+    if (!access_token || !refresh_token) {
+      return res.status(400).json({ error: "Invalid or expired reset link" });
+    }
+
+    if (!new_password || new_password.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters" });
+    }
+
+    // Set the session using the recovery tokens
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token,
+      refresh_token
+    });
+
+    if (sessionError) {
+      console.error("Session set error:", sessionError.message);
+      return res.status(400).json({ error: "Invalid or expired reset link. Please request a new one." });
+    }
+
+    // Update the password
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: new_password
+    });
+
+    if (updateError) {
+      console.error("Password update error:", updateError.message);
+      return res.status(400).json({ error: updateError.message });
+    }
+
+    res.json({ success: true, message: "Password has been reset successfully" });
+
+  } catch (err) {
+    console.error("Reset password error:", err);
+    res.status(500).json({ error: "Failed to reset password. Please try again." });
+  }
+});
+
 // Change password endpoint
 app.post('/api/change-password', async (req, res) => {
   try {

@@ -369,12 +369,41 @@ window.handleGoogleSignIn = function() {
 }
 
 // Forgot password handler
-function handleForgotPassword() {
+async function handleForgotPassword() {
     const email = document.getElementById('loginEmail').value.trim();
-    if (email && validateEmail(email)) {
-        showSuccessMessage('Password reset instructions sent to ' + email);
-    } else {
+
+    if (!email) {
         showError('loginEmail', 'Please enter your email address first');
+        return;
+    }
+
+    if (!validateEmail(email)) {
+        showError('loginEmail', 'Please enter a valid email address');
+        return;
+    }
+
+    // Disable the link while processing
+    const forgotLink = document.querySelector('.forgot-password a');
+    const originalText = forgotLink.textContent;
+    forgotLink.textContent = 'Sending...';
+    forgotLink.style.pointerEvents = 'none';
+
+    try {
+        const response = await fetch('/api/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+        showSuccessMessage(data.message || 'If an account with that email exists, a password reset link has been sent.');
+
+    } catch (err) {
+        console.error('Forgot password error:', err);
+        showSuccessMessage('If an account with that email exists, a password reset link has been sent.');
+    } finally {
+        forgotLink.textContent = originalText;
+        forgotLink.style.pointerEvents = '';
     }
 }
 
