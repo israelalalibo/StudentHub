@@ -442,11 +442,15 @@ app.post('/bookValuator', async (req, res) => {
         if (errorData.error?.message) {
           errorMessage = errorData.error.message;
         }
+
+        // Check for specific error types
         if (errorData.error?.status === "INVALID_API_KEY") {
           errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
-        }
-        if (response.status === 429) {
-          errorMessage = "API rate limit exceeded. Please try again later.";
+        } else if (errorData.error?.status === "RESOURCE_EXHAUSTED" ||
+                   (response.status === 429 && errorMessage.toLowerCase().includes('quota'))) {
+          errorMessage = "API quota exceeded. Please check your Google AI Studio billing and quota limits at https://ai.google.dev/gemini-api/docs/quota";
+        } else if (response.status === 429) {
+          errorMessage = "API rate limit exceeded. Please wait a moment and try again.";
         }
       } catch (e) {
         // Keep default error message

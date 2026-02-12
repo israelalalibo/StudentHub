@@ -52,7 +52,10 @@ form.addEventListener('submit', async (e) => {
         if (data.success) {
             predictedValueEl.textContent = `£${data.predicted_value}`;
             reasoningEl.textContent = data.reasoning;
-        } else if (data.error && data.error.includes('rate limit')) {
+        } else if (data.error && (data.error.toLowerCase().includes('quota') || data.error.toLowerCase().includes('resource_exhausted'))) {
+            predictedValueEl.textContent = '❌';
+            reasoningEl.textContent = "API quota exceeded. Please check your Google AI Studio billing and quota limits. Visit https://ai.google.dev/gemini-api/docs/quota for more information.";
+        } else if (data.error && data.error.toLowerCase().includes('rate limit')) {
             predictedValueEl.textContent = '⏳';
             reasoningEl.textContent = "Too many requests. Please wait a minute and try again.";
         } else {
