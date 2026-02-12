@@ -474,22 +474,23 @@
         font-size: 0.7rem;
       }
       
-      .message-input-area {
-        padding: 12px 16px;
-        flex-direction: column;
-        gap: 10px;
+      .chat-input-area {
+        padding: 10px 12px;
+        gap: 8px;
       }
-      
+
       .chat-input {
-        width: 100%;
-        padding: 12px 16px;
+        flex: 1;
+        min-width: 0;
+        padding: 10px 14px;
         font-size: 0.9rem;
       }
-      
+
       .send-btn {
-        width: 100%;
-        justify-content: center;
-        padding: 12px 20px;
+        padding: 10px 16px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        flex-shrink: 0;
       }
       
       .no-chat-icon {
@@ -512,23 +513,38 @@
         margin-top: 130px;
         padding: 8px;
       }
-      
+
       .conversations-sidebar {
         max-height: 200px;
       }
-      
+
       .conversation-avatar {
         width: 32px;
         height: 32px;
       }
-      
+
       .chat-area {
         min-height: 350px;
       }
-      
+
       .message {
         max-width: 90%;
         padding: 8px 12px;
+      }
+
+      .chat-input-area {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+
+      .chat-input {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+
+      .send-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
       }
     }
   </style>

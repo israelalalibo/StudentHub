@@ -230,60 +230,8 @@ async function loadMobileProfilePicture() {
 // Make it globally accessible
 window.performVisibleMobileSearch = performVisibleMobileSearch;
 
-// Add Enter key support for mobile search inputs
-document.addEventListener('DOMContentLoaded', function() {
-  // Old mobile search in menu
-  const mobileSearchInput = document.getElementById('mobileSearchInput');
-  if (mobileSearchInput) {
-    mobileSearchInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        performMobileSearch();
-      }
-    });
-  }
-  
-  // New visible mobile search bar with live search
-  const visibleMobileSearch = document.getElementById('mobileSearchInputVisible');
-  if (visibleMobileSearch) {
-    visibleMobileSearch.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        performVisibleMobileSearch();
-      }
-    });
-    
-    // Add live search on input
-    visibleMobileSearch.addEventListener('input', function(e) {
-      const query = e.target.value.trim();
-      
-      // Debounce the search
-      if (mobileSearchTimeout) {
-        clearTimeout(mobileSearchTimeout);
-      }
-      
-      mobileSearchTimeout = setTimeout(() => {
-        handleMobileLiveSearch(query);
-      }, 300);
-    });
-    
-    // Hide dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-      const dropdown = document.getElementById('mobileSearchResultsDropdown');
-      const searchBar = document.querySelector('.mobile-search-bar');
-      if (dropdown && searchBar && !searchBar.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.remove('active');
-      }
-    });
-  }
-  
-  // Sync cart badges between desktop and mobile
-  syncCartBadges();
-  
-  // Update mobile greeting and profile picture
-  updateMobileGreeting();
-  loadMobileProfilePicture();
-});
+// Mobile search initialization is now handled inside initHeaderFeatures()
+// which runs after the header HTML is injected into the DOM.
 
 // Sync cart badge between mobile and desktop
 function syncCartBadges() {
@@ -676,69 +624,106 @@ function initHeaderFeatures() {
     }
   });
 
-  // Attach search if exists
-  if (!searchInput || !resultDropdown) {
-    console.warn("Live search elements not found in header.");
-    return;
-  }
+  // Attach desktop search if elements exist
+  if (searchInput && resultDropdown) {
+    // Debounced input handler
+    searchInput.addEventListener("input", async (e) => {
+      const q = e.target.value.trim();
+      await fetchSearchResults(q, resultDropdown);
+    });
 
-  // Debounced input handler
-  searchInput.addEventListener("input", async (e) => {
-    const q = e.target.value.trim();
-    await fetchSearchResults(q, resultDropdown);
-  });
+    //When pressing Enter (keep query term)
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const query = e.target.value.trim();
+        localStorage.setItem("searchQuery", query);
 
-  //When pressing Enter (keep query term)
-  searchInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      const query = e.target.value.trim();
-      localStorage.setItem("searchQuery", query);
-      
-      // Also store the current price filter
-      const priceFilter = document.getElementById('priceFilter');
-      if (priceFilter && priceFilter.value) {
-        localStorage.setItem("priceFilter", priceFilter.value);
+        // Also store the current price filter
+        const priceFilter = document.getElementById('priceFilter');
+        if (priceFilter && priceFilter.value) {
+          localStorage.setItem("priceFilter", priceFilter.value);
+        }
+
+        window.location.href = "landingpage.html";
       }
-      
-      window.location.href = "landingpage.html";
+    });
+
+    // Optional: show dropdown on focus if input has text
+    searchInput.addEventListener("focus", (e) => {
+      if (e.target.value.trim()) resultDropdown.style.display = "block";
+    });
+
+    // Restore last search term and filters if available
+    const previousQuery = localStorage.getItem("persistedSearchQuery");
+    const previousCategory = localStorage.getItem("persistedCategory");
+    const previousPrice = localStorage.getItem("persistedPriceFilter");
+
+    if (previousQuery) {
+      searchInput.value = previousQuery;
     }
-  });
 
-    async function clickSlectedProduct(productName){
-      localStorage.setItem("selectedProduct", productName);
-      console.log(productName);
-      // const q = e.target.value.trim();
-      // await fetchSearchResults(q, resultDropdown);
-        //localStorage.setItem("lastSearchTerm", query); //persist visible text
-        //window.location.href = "landingpage.html";
+    const categoryFilter = document.getElementById('categoryFilter');
+    const priceFilter = document.getElementById('priceFilter');
+
+    if (categoryFilter && previousCategory) {
+      categoryFilter.value = previousCategory;
     }
-    
-    
 
-  // Optional: show dropdown on focus if input has text
-  searchInput.addEventListener("focus", (e) => {
-    if (e.target.value.trim()) resultDropdown.style.display = "block";
-  });
+    if (priceFilter && previousPrice) {
+      priceFilter.value = previousPrice;
+    }
+  }
 
-  // Restore last search term and filters if available
-  const previousQuery = localStorage.getItem("persistedSearchQuery");
-  const previousCategory = localStorage.getItem("persistedCategory");
-  const previousPrice = localStorage.getItem("persistedPriceFilter");
-  
-  if (previousQuery) {
-    searchInput.value = previousQuery;
+  // Initialize mobile live search (must be done here, after header is in the DOM)
+  const visibleMobileSearch = document.getElementById('mobileSearchInputVisible');
+  if (visibleMobileSearch) {
+    visibleMobileSearch.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performVisibleMobileSearch();
+      }
+    });
+
+    // Live search on input with debounce
+    visibleMobileSearch.addEventListener('input', function(e) {
+      const query = e.target.value.trim();
+
+      if (mobileSearchTimeout) {
+        clearTimeout(mobileSearchTimeout);
+      }
+
+      mobileSearchTimeout = setTimeout(() => {
+        handleMobileLiveSearch(query);
+      }, 300);
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('mobileSearchResultsDropdown');
+      const searchBar = document.querySelector('.mobile-search-bar');
+      if (dropdown && searchBar && !searchBar.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
   }
-  
-  const categoryFilter = document.getElementById('categoryFilter');
-  const priceFilter = document.getElementById('priceFilter');
-  
-  if (categoryFilter && previousCategory) {
-    categoryFilter.value = previousCategory;
+
+  // Old mobile search in menu
+  const mobileSearchInput = document.getElementById('mobileSearchInput');
+  if (mobileSearchInput) {
+    mobileSearchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performMobileSearch();
+      }
+    });
   }
-  
-  if (priceFilter && previousPrice) {
-    priceFilter.value = previousPrice;
-  }
+
+  // Sync cart badges between desktop and mobile
+  syncCartBadges();
+
+  // Update mobile greeting and profile picture
+  updateMobileGreeting();
+  loadMobileProfilePicture();
 }
 
 /* ---------- Core live-search logic ---------- */
