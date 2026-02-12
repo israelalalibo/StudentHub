@@ -7,6 +7,7 @@ import cors from "cors";
 import multer from "multer";
 import fs from "fs";
 import Stripe from 'stripe';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Load environment variables (for local development)
 dotenv.config({ path: './ini.env' });
@@ -360,29 +361,29 @@ async function getBookInfoFromISBN(isbn) {
 }
 
 app.post('/bookValuator', async (req, res) => {
-  try{
+  try {
     const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 
-    // Check if API key is configured
     if (!GOOGLE_API_KEY) {
       console.error('Book Valuator called but GOOGLE_API_KEY is not configured');
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: "Book Valuator is not configured. Please set GOOGLE_API_KEY environment variable.",
         success: false
       });
     }
+
     const bookData = req.body;
 
     if (!bookData || !bookData.isbn) {
       return res.status(400).json({ error: "Invalid book data provided." });
     }
 
-    //Fetch Book title and Author using ISBN
-    const bookInfo = await getBookInfoFromISBN(bookData.isbn)
+    // Fetch Book title and Author using ISBN
+    const bookInfo = await getBookInfoFromISBN(bookData.isbn);
 
     const titlePart = bookInfo
-    ? `The book is "${bookInfo.title}" by ${bookInfo.authors.join(", ")}.`
-    : "The book title could not be found via ISBN lookup.";
+      ? `The book is "${bookInfo.title}" by ${bookInfo.authors.join(", ")}.`
+      : "The book title could not be found via ISBN lookup.";
 
     const SYSTEM_PROMPT = `
     You are an expert used book appraiser. Your task is to predict the market value of a used book based on its attributes.
@@ -400,70 +401,27 @@ app.post('/bookValuator', async (req, res) => {
     - First editions and signed copies are more valuable.
     - Each damage decreases value.
     - Major defects (like a broken spine) greatly reduce it.
-    -All values are in pounds.
+    - All values are in pounds.
 
     ${titlePart}
-    When explaining, explicitly mention the book’s title (if available) and how its specific attributes affect the valuation.
-        `;
+    When explaining, explicitly mention the book's title (if available) and how its specific attributes affect the valuation.
+    `;
 
-    //Build user query text
     const userQuery = `
     Appraise this book based on the following data:
     ${JSON.stringify(bookData, null, 2)}`;
 
-    //console.log(userQuery);
-
-    //Build the Payload for the Google API
-    const payload = {
-      contents: [{parts: [{text: userQuery}] }],
-      systemInstruction: {
-        parts: [{text: SYSTEM_PROMPT }]
-      },
-      generationConfig: {
-        responseMimeType: "application/json"
-      }
-    };
-
-    //call Google Gemini API
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GOOGLE_API_KEY;
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+    // Use official Google Generative AI SDK
+    const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      systemInstruction: SYSTEM_PROMPT,
+      generationConfig: { responseMimeType: "application/json" }
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Google API error:", response.status, errText);
+    const apiResult = await model.generateContent(userQuery);
+    const modelResponse = apiResult.response.text();
 
-      let errorMessage = "Failed to fetch from Google API";
-      try {
-        const errorData = JSON.parse(errText);
-        if (errorData.error?.message) {
-          errorMessage = errorData.error.message;
-        }
-
-        // Check for specific error types
-        if (errorData.error?.status === "INVALID_API_KEY") {
-          errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
-        } else if (errorData.error?.status === "RESOURCE_EXHAUSTED" ||
-                   (response.status === 429 && errorMessage.toLowerCase().includes('quota'))) {
-          errorMessage = "API quota exceeded. Please check your Google AI Studio billing and quota limits at https://ai.google.dev/gemini-api/docs/quota";
-        } else if (response.status === 429) {
-          errorMessage = "API rate limit exceeded. Please wait a moment and try again.";
-        }
-      } catch (e) {
-        // Keep default error message
-      }
-
-      return res.status(500).json({ error: errorMessage, success: false });
-    }
-
-    //Parse model output
-    const data = await response.json();
-    let modelResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-    //Ensure it’s valid JSON
     let result;
     try {
       result = JSON.parse(modelResponse);
@@ -474,17 +432,25 @@ app.post('/bookValuator', async (req, res) => {
       };
     }
 
-    //Send back clean result
     res.status(200).json({
       success: true,
       predicted_value: result.predicted_value,
       reasoning: result.reasoning
     });
-  } catch (err){
-    console.error("Server error:", err);
-    res.status(500).json({ error: "Internal server error", details: err.message });
+  } catch (err) {
+    console.error("Book Valuator error:", err);
+
+    let errorMessage = err.message || "Internal server error";
+    if (errorMessage.includes('RESOURCE_EXHAUSTED') || errorMessage.includes('quota')) {
+      errorMessage = "API quota exceeded. Please check your Google AI Studio billing and quota limits.";
+    } else if (errorMessage.includes('429') || errorMessage.includes('rate limit')) {
+      errorMessage = "API rate limit exceeded. Please wait a moment and try again.";
+    } else if (errorMessage.includes('API_KEY_INVALID') || errorMessage.includes('API key not valid')) {
+      errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
+    }
+
+    res.status(500).json({ error: errorMessage, success: false });
   }
-  console.log(req.body);
 });
 
 // ============================================
@@ -548,54 +514,28 @@ app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res)
     - Category: ${item_category}
     `;
 
-    // Build the parts array (text + optional image)
-    const parts = [{ text: userQueryText }];
+    // Use official Google Generative AI SDK
+    const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      systemInstruction: SYSTEM_PROMPT,
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    // Build content parts (text + optional image)
+    const contentParts = [userQueryText];
 
     if (req.file) {
-      const base64Image = req.file.buffer.toString('base64');
-      parts.push({
+      contentParts.push({
         inlineData: {
           mimeType: req.file.mimetype,
-          data: base64Image
+          data: req.file.buffer.toString('base64')
         }
       });
     }
 
-    const payload = {
-      contents: [{ parts }],
-      systemInstruction: {
-        parts: [{ text: SYSTEM_PROMPT }]
-      },
-      generationConfig: {
-        responseMimeType: "application/json"
-      }
-    };
-
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GOOGLE_API_KEY;
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Google API error:", response.status, errText);
-      let errorMessage = "Failed to fetch from Google API";
-      try {
-        const errorData = JSON.parse(errText);
-        if (errorData.error?.message) errorMessage = errorData.error.message;
-        if (errorData.error?.status === "RESOURCE_EXHAUSTED" || response.status === 429) {
-          errorMessage = response.status === 429 && !errorMessage.toLowerCase().includes('quota')
-            ? "API rate limit exceeded. Please wait a moment and try again."
-            : "API quota exceeded. Please check your Google AI Studio billing and quota limits.";
-        }
-      } catch (e) { /* keep default */ }
-      return res.status(500).json({ error: errorMessage, success: false });
-    }
-
-    const data = await response.json();
-    let modelResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const apiResult = await model.generateContent(contentParts);
+    const modelResponse = apiResult.response.text();
 
     let result;
     try {
@@ -615,7 +555,17 @@ app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res)
 
   } catch (err) {
     console.error("Item Valuator error:", err);
-    res.status(500).json({ error: "Internal server error", details: err.message, success: false });
+
+    let errorMessage = err.message || "Internal server error";
+    if (errorMessage.includes('RESOURCE_EXHAUSTED') || errorMessage.includes('quota')) {
+      errorMessage = "API quota exceeded. Please check your Google AI Studio billing and quota limits.";
+    } else if (errorMessage.includes('429') || errorMessage.includes('rate limit')) {
+      errorMessage = "API rate limit exceeded. Please wait a moment and try again.";
+    } else if (errorMessage.includes('API_KEY_INVALID') || errorMessage.includes('API key not valid')) {
+      errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
+    }
+
+    res.status(500).json({ error: errorMessage, success: false });
   }
 });
 
