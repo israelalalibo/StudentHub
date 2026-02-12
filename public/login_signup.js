@@ -369,6 +369,7 @@ window.handleGoogleSignIn = function() {
 }
 
 // Forgot password handler
+window.handleForgotPassword = handleForgotPassword;
 async function handleForgotPassword() {
     const email = document.getElementById('loginEmail').value.trim();
 
