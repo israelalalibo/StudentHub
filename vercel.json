@@ -1,44 +1,28 @@
 {
   "version": 2,
   "builds": [
+    { "src": "server.js", "use": "@vercel/node" },
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
+  "headers": [
     {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" }
+      ]
     }
   ],
   "routes": [
-    {
-      "src": "/(.*\\.css)",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/(.*\\.js)",
-      "headers": { "Content-Type": "application/javascript" },
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/images/(.*)",
-      "dest": "/public/images/$1"
-    },
-    {
-      "src": "/scripts/(.*)",
-      "dest": "/public/scripts/$1"
-    },
-    {
-      "src": "/config/(.*)",
-      "dest": "/public/config/$1"
-    },
-    {
-      "src": "/views/(.*)",
-      "dest": "/public/views/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/server.js"
-    }
+    { "src": "/(.*\\.css)", "dest": "/public/$1" },
+    { "src": "/(.*\\.js)", "headers": { "Content-Type": "application/javascript" }, "dest": "/public/$1" },
+    { "src": "/images/(.*)", "dest": "/public/images/$1" },
+    { "src": "/scripts/(.*)", "dest": "/public/scripts/$1" },
+    { "src": "/config/(.*)", "dest": "/public/config/$1" },
+    { "src": "/views/(.*)", "dest": "/public/views/$1" },
+    { "src": "/(.*)", "dest": "/server.js" }
   ]
 }

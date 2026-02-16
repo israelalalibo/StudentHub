@@ -408,6 +408,29 @@ async function handleForgotPassword() {
     }
 }
 
+// Handle Supabase auth redirects landing on the login page
+(function handleAuthRedirect() {
+    const hash = window.location.hash.substring(1);
+    if (!hash) return;
+
+    const params = new URLSearchParams(hash);
+
+    // If recovery tokens landed here instead of reset-password.html, redirect there
+    if (params.get('type') === 'recovery' && params.get('access_token')) {
+        window.location.href = './public/views/reset-password.html' + window.location.hash;
+        return;
+    }
+
+    // Handle error responses from Supabase (e.g. expired link)
+    const error = params.get('error_description');
+    if (error) {
+        const message = decodeURIComponent(error.replace(/\+/g, ' '));
+        showSuccessMessage(message + ' Please try requesting a new reset link.');
+        // Clean the URL
+        history.replaceState(null, '', window.location.pathname);
+    }
+})();
+
 // Initialize
 setupRealtimeValidation();
 
