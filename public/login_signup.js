@@ -88,11 +88,17 @@ function clearErrors() {
 
 function showSuccessMessage(message) {
     successMessage.textContent = message;
+    successMessage.classList.remove('error');
     successMessage.classList.add('show');
 }
 
+function showErrorMessage(message) {
+    successMessage.textContent = message;
+    successMessage.classList.add('show', 'error');
+}
+
 function hideSuccessMessage() {
-    successMessage.classList.remove('show');
+    successMessage.classList.remove('show', 'error');
 }
 
 // Real-time validation
@@ -234,10 +240,8 @@ loginForm.addEventListener('submit', async function(e) {
             window.location.href = result.redirect;
 
         } catch (err) {
-            //TODO: add this to HTML form if triggered
             console.error('❌ Signin error:', err.message);
-            alert('Error: ' + err.message);
-            showSuccessMessage('Invalid Credentials');
+            showErrorMessage(err.message || 'Invalid credentials. Please try again.');
         }
     }
 });
