@@ -69,6 +69,56 @@
     </form>
   </div>
 
+  <script>
+    // Pre-fill form from AI Valuator data if available
+    document.addEventListener('DOMContentLoaded', function() {
+      const stored = localStorage.getItem('valuatorListing');
+      if (!stored) return;
+
+      try {
+        const listing = JSON.parse(stored);
+        localStorage.removeItem('valuatorListing');
+
+        if (listing.title) document.getElementById('title').value = listing.title;
+        if (listing.description) document.getElementById('description').value = listing.description;
+        if (listing.price) document.getElementById('price').value = parseFloat(listing.price).toFixed(2);
+
+        // Map valuator condition to sell page options
+        const conditionMap = {
+          'Like New': 'Like new',
+          'Very Good': 'Very Good',
+          'Good': 'Good',
+          'Acceptable': 'Acceptable',
+          'New / Sealed': 'Like new',
+          'Fair': 'Acceptable',
+          'Poor': 'Acceptable'
+        };
+        const conditionEl = document.getElementById('condition');
+        const mappedCondition = conditionMap[listing.condition] || '';
+        if (mappedCondition) conditionEl.value = mappedCondition;
+
+        // Map valuator category to sell page options
+        const categoryMap = {
+          'TextBook': 'TextBook',
+          'Electronics': 'Electronics',
+          'Furniture': 'Dorm Furniture',
+          'Clothing & Accessories': 'Clothing',
+          'Collectibles & Antiques': 'Other',
+          'Jewellery & Watches': 'Other',
+          'Sports & Outdoors': 'Other',
+          'Toys & Games': 'Other',
+          'Musical Instruments': 'Other',
+          'Art': 'Other',
+          'Other': 'Other'
+        };
+        const categoryEl = document.getElementById('category');
+        const mappedCategory = categoryMap[listing.category] || 'Other';
+        if (mappedCategory) categoryEl.value = mappedCategory;
+      } catch (e) {
+        console.error('Error pre-filling from valuator:', e);
+      }
+    });
+  </script>
   <script src="../add_product.js" type="module"></script>
 </body>
 </html>

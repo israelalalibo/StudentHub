@@ -106,18 +106,59 @@ form.addEventListener('submit', async (e) => {
 
         const data = await response.json();
 
+        const listItemBtn = document.getElementById('listItemBtn');
+
         if (data.success) {
             predictedValueEl.textContent = `£${data.predicted_value}`;
             reasoningEl.textContent = data.reasoning;
+
+            // Build listing data and store in localStorage for sell page pre-fill
+            const listing = { price: data.predicted_value };
+
+            if (currentMode === 'book') {
+                const formData = new FormData(form);
+                const damages = Array.from(formData.getAll('damages'));
+                const conditionVal = formData.get('condition');
+
+                // Extract book title from the reasoning text if available
+                const titleMatch = data.reasoning.match(/"([^"]+)"/);
+                listing.title = titleMatch ? titleMatch[1] : `Book (ISBN: ${formData.get('isbn')})`;
+                listing.condition = conditionVal;
+                listing.category = 'TextBook';
+
+                // Build a description from the book attributes
+                const parts = [`Condition: ${conditionVal}`, `Binding: ${formData.get('binding')}`];
+                if (formData.get('first_edition') === 'on') parts.push('First Edition');
+                if (formData.get('signed') === 'on') parts.push('Signed by Author');
+                if (damages.length > 0) parts.push(`Noted issues: ${damages.join(', ')}`);
+                parts.push(`AI Estimated Value: £${data.predicted_value}`);
+                listing.description = parts.join('. ') + '.';
+            } else {
+                listing.title = document.getElementById('item-name').value;
+                listing.condition = document.getElementById('item-condition').value;
+                listing.category = document.getElementById('item-category').value;
+
+                const desc = document.getElementById('item-description').value;
+                listing.description = desc
+                    ? `${desc}\n\nAI Estimated Value: £${data.predicted_value}`
+                    : `Condition: ${listing.condition}. AI Estimated Value: £${data.predicted_value}`;
+            }
+
+            localStorage.setItem('valuatorListing', JSON.stringify(listing));
+            if (listItemBtn) listItemBtn.style.display = 'block';
+
         } else if (data.error && (data.error.toLowerCase().includes('quota') || data.error.toLowerCase().includes('resource_exhausted'))) {
             predictedValueEl.textContent = '❌';
             reasoningEl.textContent = "API quota exceeded. Please check your Google AI Studio billing and quota limits. Visit https://ai.google.dev/gemini-api/docs/quota for more information.";
+            if (listItemBtn) listItemBtn.style.display = 'none';
         } else if (data.error && data.error.toLowerCase().includes('rate limit')) {
             predictedValueEl.textContent = '⏳';
             reasoningEl.textContent = "Too many requests. Please wait a minute and try again.";
+            if (listItemBtn) listItemBtn.style.display = 'none';
         } else {
             predictedValueEl.textContent = '—';
             reasoningEl.textContent = "Error: " + (data.error || "Something went wrong.");
+            if (listItemBtn) listItemBtn.style.display = 'none';
         }
 
         loader.classList.add('hidden');
