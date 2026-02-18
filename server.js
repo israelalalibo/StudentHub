@@ -354,7 +354,7 @@ app.get('/api/session', async (req, res) => {
       return res.status(401).json({ authenticated: false, error: "No active session" });
     }
 
-    // Refresh the session if it exists
+    // Refresh the session if session exists
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (userError || !user) {
