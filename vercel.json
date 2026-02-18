@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "buildCommand": "",
+  "installCommand": "npm install",
   "builds": [
     { "src": "server.js", "use": "@vercel/node" },
     { "src": "public/**", "use": "@vercel/static" }

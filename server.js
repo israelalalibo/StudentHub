@@ -91,7 +91,7 @@ app.get('/index', (req, res) => {
 });
 
 app.get('/landingpage', (req, res) => {
-  res.sendFile(path.join(__dirname, 'landingPage.html'));
+  res.sendFile(path.join(__dirname, 'public', 'views', 'landingpage.html'));
 });
 
 //Get the Logged in user ID
@@ -1008,11 +1008,11 @@ app.get("/api/debug/products", async (req, res) => {
 })
 
 app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views/profile.html'))
+    res.sendFile(path.join(__dirname, 'public', 'views', 'profile.html'))
 })
 
 app.get('/settings', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views/settings.html'))
+    res.sendFile(path.join(__dirname, 'public', 'views', 'settings.html'))
 })
 
 // ============ REVIEWS API ============
