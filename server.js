@@ -397,22 +397,6 @@ app.post('/api/restore-session', async (req, res) => {
   }
 });
 
-// /* Book Valuator Logic */
-// function getGoogleApiKey() {
-//   return process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-// }
-
-// //Get API key at request time (Key for Vercel Severless environments)
-// const GOOGLE_API_KEY = getGoogleApiKey();
-
-// console.log("Key length:", GOOGLE_API_KEY ? GOOGLE_API_KEY.length : "Undefined");
-// console.log(GOOGLE_API_KEY);
-// if (!GOOGLE_API_KEY) {
-//   console.warn('⚠️  GOOGLE_API_KEY not found - Book Valuator will be disabled');
-// } else {
-//   console.log('✅ Google API key loaded for Book Valuator');
-// }
-
 async function getBookInfoFromISBN(isbn) {
   try {
     const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
