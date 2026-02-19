@@ -1,24 +1,21 @@
 {
   "version": 2,
-  "buildCommand": "",
-  "installCommand": "npm install",
   "builds": [
     { "src": "server.js", "use": "@vercel/node" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" }
-      ]
-    }
-  ],
   "routes": [
+    {
+      "src": "/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-XSS-Protection": "1; mode=block",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+      },
+      "continue": true
+    },
     { "src": "/(.*\\.css)", "dest": "/public/$1" },
     { "src": "/(.*\\.js)", "headers": { "Content-Type": "application/javascript" }, "dest": "/public/$1" },
     { "src": "/images/(.*)", "dest": "/public/images/$1" },
