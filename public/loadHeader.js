@@ -575,19 +575,24 @@ function applyPriceFilter() {
   }
 }
 
-// Apply category filter - navigates to category results
+// Apply category filter - navigates to category results (desktop and mobile)
 function applyCategoryFilter() {
   const categoryFilter = document.getElementById('categoryFilter');
-  
-  if (categoryFilter && categoryFilter.value) {
-    const category = categoryFilter.value;
-    
+  const mobileCategoryFilter = document.getElementById('mobileCategorySelect');
+
+  // Check which filter has a value (desktop or mobile)
+  const activeFilter = (categoryFilter && categoryFilter.value) ? categoryFilter :
+                       (mobileCategoryFilter && mobileCategoryFilter.value) ? mobileCategoryFilter : null;
+
+  if (activeFilter) {
+    const category = activeFilter.value;
+
     // Use the existing viewCategory function
     viewCategory(category, null);
-    
+
     // Reset the filter to default after selection
     setTimeout(() => {
-      categoryFilter.value = '';
+      activeFilter.value = '';
     }, 100);
   }
 }
