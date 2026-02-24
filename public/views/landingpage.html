@@ -155,53 +155,7 @@
         </section>
 
         <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>StudentHub</h3>
-                    <ul>
-                        <li><a href="./about.html">About Us</a></li>
-                        <li><a href="#how-it-works" onclick="scrollToHowItWorks()">How It Works</a></li>
-                        <li><a href="./safety-tips.html">Safety Tips</a></li>
-                        <li><a href="mailto:i.t.kariboalalibo@edu.salford.ac.uk">Contact</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Categories</h3>
-                    <ul>
-                        <li><a href="#" onclick="searchCategory('textbooks'); return false;">📚 Textbooks</a></li>
-                        <li><a href="#" onclick="searchCategory('electronics'); return false;">💻 Electronics</a></li>
-                        <li><a href="#" onclick="searchCategory('supplies'); return false;">✏️ Supplies</a></li>
-                        <li><a href="#" onclick="searchCategory('furniture'); return false;">🪑 Furniture</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Account</h3>
-                    <ul>
-                        <li><a href="../index.html">Sign Up</a></li>
-                        <li><a href="../index.html">Log In</a></li>
-                        <li><a href="./profile.html">My Profile</a></li>
-                        <li><a href="./sellItem.html">Sell Item</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Support</h3>
-                    <ul>
-                        <li><a href="mailto:i.t.kariboalalibo@edu.salford.ac.uk">Help & Support</a></li>
-                        <li><a href="./privacy-policy.html">Privacy Policy</a></li>
-                        <li><a href="./terms.html">Terms of Service</a></li>
-                        <li><a href="mailto:i.t.kariboalalibo@edu.salford.ac.uk?subject=StudentHub Issue Report">Report Issue</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2025 StudentHub. University of Salford Final Year Project by Israel Kariboalalibo.</p>
-            </div>
-        </footer>
+        <div id="footer"></div>
         <script src="../cart.js"></script>
         <script src="../landing_page.js"></script>
         <script>
@@ -219,7 +173,8 @@
             // Check for URL search parameter (from mobile redirect)
             const urlParams = new URLSearchParams(window.location.search);
             const urlSearch = urlParams.get('search');
-            
+            const urlCategory = urlParams.get('category');
+
             const savedResults = localStorage.getItem("searchResults");
             const savedQuery   = localStorage.getItem("searchQuery");
             const selectedItem = localStorage.getItem("selectedProduct");
@@ -246,6 +201,17 @@
                     products = await res.json();
                     console.log("URL search:", urlSearch, products.length, "items");
                     // Clean URL without reloading
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else if (urlCategory) {
+                    // Category from URL parameter (footer/sidebar links)
+                    const res = await fetch(`/search/category?category=${encodeURIComponent(urlCategory)}`);
+                    if (res.ok) {
+                        products = await res.json();
+                        queryTerm = categoryDisplayNames[urlCategory] || urlCategory;
+                        persistCategory = urlCategory;
+                        isCategory = true;
+                        console.log("URL category:", urlCategory, products.length, "items");
+                    }
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else if (categoryResults) {
                 // Case: Category search
@@ -713,27 +679,6 @@
             }
 
             // Footer helper functions
-            function scrollToHowItWorks() {
-                const section = document.querySelector('.how-it-works');
-                if (section) {
-                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }
-
-            async function searchCategory(category) {
-                try {
-                    const response = await fetch(`/api/category/${category}`);
-                    if (response.ok) {
-                        const products = await response.json();
-                        localStorage.setItem('categoryResults', JSON.stringify(products));
-                        localStorage.setItem('selectedCategory', category);
-                        window.location.reload();
-                    }
-                } catch (err) {
-                    console.error('Category search error:', err);
-                }
-            }
-
         </script>
     </body>
 </html>      

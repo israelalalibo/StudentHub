@@ -410,7 +410,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Restore session first, then load header
   const sessionRestored = await restoreSession();
   await loadHeader();
-  
+  loadFooter();
+
   // Start session monitoring if logged in
   if (sessionRestored) {
     startSessionMonitoring();
@@ -513,6 +514,21 @@ async function loadHeader() {
     initHeaderFeatures();
   } catch (err) {
     console.error("Error loading header:", err);
+  }
+}
+
+async function loadFooter() {
+  try {
+    const response = await fetch("./footer.html");
+    if (!response.ok) throw new Error("Failed to fetch footer.html");
+    const footerHTML = await response.text();
+
+    const footerEl = document.getElementById("footer");
+    if (!footerEl) return;
+
+    footerEl.innerHTML = footerHTML;
+  } catch (err) {
+    console.error("Error loading footer:", err);
   }
 }
 
