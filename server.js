@@ -879,11 +879,13 @@ app.get("/search", async (req, res) => {
         }
       }
       
+      const sellerName = `${sellerInfo.first_name || 'Unknown'} ${sellerInfo.last_name || ''}`.trim();
       return {
         ...p,
         first_name: sellerInfo.first_name || 'Unknown Seller',
         last_name: sellerInfo.last_name || null,
-        seller: `${sellerInfo.first_name || 'Unknown'} ${sellerInfo.last_name || ''}`.trim()
+        seller: sellerName,
+        seller_name: sellerName
       };
     }));
 
@@ -949,9 +951,11 @@ app.get("/search/category", async (req, res) => {
         }
       }
       
+      const sellerName = `${sellerInfo.first_name || 'Unknown'} ${sellerInfo.last_name || ''}`.trim();
       return {
         ...p,
-        seller: `${sellerInfo.first_name || 'Unknown'} ${sellerInfo.last_name || ''}`.trim(),
+        seller: sellerName,
+        seller_name: sellerName,
         first_name: sellerInfo.first_name || 'Unknown Seller',
         last_name: sellerInfo.last_name || null
       };

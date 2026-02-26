@@ -637,7 +637,7 @@
 
           <div class="seller-box">
             <h3>👤 Seller Information</h3>
-            <p class="seller-name">${escapeHtml(currentProduct.first_name || currentProduct.seller || "Student User")}</p>
+            <p class="seller-name">${escapeHtml(currentProduct.seller_name || currentProduct.seller || currentProduct.first_name || "Student User")}</p>
             <p class="seller-since">Member since ${formatDate(currentProduct.created_at) || "2025"}</p>
             <button class="btn-contact" onclick="contactSeller()">
               💬 Contact Seller

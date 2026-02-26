@@ -544,7 +544,16 @@ async function loadUserProfilePicture() {
     const profile = await response.json();
     const profileIcon = document.getElementById('profileIcon');
     const profileWrapper = document.getElementById('profileIconWrapper');
-    
+
+    // Update mobile greeting with actual user name
+    const greetingText = document.querySelector('.greeting-text');
+    if (greetingText) {
+      const name = (profile.first_name && profile.last_name)
+        ? `${profile.first_name} ${profile.last_name}`
+        : profile.first_name || profile.last_name || profile.email?.split('@')[0] || 'Student';
+      greetingText.textContent = `Hello, ${name}!`;
+    }
+
     if (profileIcon && profile.profile_picture) {
       // Replace the default icon with user's profile picture
       profileIcon.src = profile.profile_picture;
