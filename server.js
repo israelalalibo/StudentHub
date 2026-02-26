@@ -90,6 +90,10 @@ app.get('/index', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.get('/landingpage', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'views', 'landingpage.html'));
 });
