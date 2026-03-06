@@ -65,14 +65,31 @@ if (supabaseUrl && supabaseServiceKey) {
 
   // Legacy alias for backward compatibility (maps to auth client)
   supabase = supabaseAuth;
-  console.log('✅ Supabase initialized successfully');
+  console.log('Supabase initialized successfully');
 } else {
-  console.error('❌ Supabase not initialized - missing credentials');
+  console.error('Supabase not initialized - missing credentials');
 }
 const app = express();
 
 app.use(cors()); //Allow frontend to communicate with backend securely during local or deployed testing
 app.use(express.json());
+
+/**
+ * Get the authenticated user for this request.
+ * Uses Authorization: Bearer <access_token> if present (per-request auth).
+ * Otherwise falls back to the server's Supabase auth session (set by /api/restore-session).
+ * Returns { user, error } - if error or no user, caller should return 401.
+ */
+async function getAuthUser(req) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (token) {
+    const { data, error } = await supabase.auth.getUser(token);
+    return { user: data && data.user, error };
+  }
+  const { data, error } = await supabase.auth.getUser();
+  return { user: data && data.user, error };
+}
 
 //const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.resolve();
@@ -127,7 +144,7 @@ app.post("/signin", async (req, res) => {
       return res.status(400).json({ error: signinError.message });
     }
 
-    // Ensure session is properly set and wait for it
+    // Ensures session is properly set and wait for it
     if (data.session) {
       const { error: setSessionError } = await supabase.auth.setSession({
         access_token: data.session.access_token,
@@ -143,7 +160,7 @@ app.post("/signin", async (req, res) => {
       if (userError) {
         console.error("Get user after login error:", userError.message);
       } else {
-        console.log("Session verified for user:", userData.user?.id);
+        console.log("Session verified for user:", userData.user && userData.user.id);
       }
     }
 
@@ -154,8 +171,8 @@ app.post("/signin", async (req, res) => {
       redirect: "../views/landingpage.html",
       userID: data.user.id,
       session: {
-        access_token: data.session?.access_token,
-        refresh_token: data.session?.refresh_token
+        access_token: data.session && data.session.access_token,
+        refresh_token: data.session && data.session.refresh_token
       }
     });
   } catch (err) {
@@ -179,11 +196,11 @@ app.post("/signup", async (req, res) => {
   console.log(req.body);
 
   try {
-    // 1. Create user in Supabase Auth
+    // Create user in Supabase Auth
     const { data: userData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: true, // auto-confirm, or set false if you want email verification
+      email_confirm: true, // auto-confirm, or set false for email verification
     });
 
     if (authError) {
@@ -193,7 +210,7 @@ app.post("/signup", async (req, res) => {
 
     const user = userData.user;
 
-    // 2. Insert into Student table (use supabaseAdmin for data operations)
+    // Insert into Student table (use supabaseAdmin for data operations)
     const { error: insertError } = await supabaseAdmin.from("student").insert([
       {
         id: user.id,
@@ -254,7 +271,7 @@ app.post('/api/forgot-password', async (req, res) => {
 
     // Determine the site URL for the redirect
     const siteUrl = process.env.SITE_URL
-      || (req.headers.host?.includes('localhost') ? `http://${req.headers.host}` : `https://${req.headers.host}`);
+      || (req.headers.host && req.headers.host.includes('localhost') ? `http://${req.headers.host}` : `https://${req.headers.host}`);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${siteUrl}/views/reset-password.html`
@@ -394,7 +411,7 @@ app.post('/api/restore-session', async (req, res) => {
       return res.status(401).json({ error: error.message });
     }
 
-    res.json({ success: true, userId: data.user?.id });
+    res.json({ success: true, userId: data.user && data.user.id });
   } catch (err) {
     console.error("Restore session error:", err);
     res.status(500).json({ error: err.message });
@@ -854,7 +871,7 @@ app.get("/search", async (req, res) => {
       throw error;
     }
 
-    console.log("Search results count:", data?.length || 0);
+    console.log("Search results count:", (data && data.length) || 0);
 
     if (!data || data.length === 0) {
       // Try to get all products to see if any exist
@@ -937,7 +954,7 @@ app.get("/search/category", async (req, res) => {
       throw error;
     }
 
-    console.log("Category results count:", data?.length || 0);
+    console.log("Category results count:", (data && data.length) || 0);
 
     // Get seller info separately
     const results = await Promise.all((data || []).map(async (p) => {
@@ -1175,11 +1192,11 @@ app.get("/api/profile", async (req, res) => {
     res.json({
       id: user.id,
       email: user.email,
-      first_name: studentData?.first_name || '',
-      last_name: studentData?.last_name || '',
-      phone: studentData?.phone || '',
-      profile_picture: studentData?.profile_picture || null,
-      created_at: studentData?.created_at || user.created_at,
+      first_name: (studentData && studentData.first_name) || '',
+      last_name: (studentData && studentData.last_name) || '',
+      phone: (studentData && studentData.phone) || '',
+      profile_picture: (studentData && studentData.profile_picture) || null,
+      created_at: (studentData && studentData.created_at) || user.created_at,
       items_listed: itemsCount || 0,
       reviews_written: reviewsCount || 0
     });
@@ -1441,7 +1458,7 @@ app.get("/api/cart/count", async (req, res) => {
 // Get all conversations for the logged-in user
 app.get("/api/conversations", async (req, res) => {
   try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { user, error: userError } = await getAuthUser(req);
     if (userError || !user) {
       return res.status(401).json({ error: "Not logged in" });
     }
@@ -1489,10 +1506,10 @@ app.get("/api/conversations", async (req, res) => {
           ? `${otherUser.first_name || ''} ${otherUser.last_name || ''}`.trim() || 'Unknown User'
           : 'Unknown User',
         other_user_id: otherUserId,
-        other_user_picture: otherUser?.profile_picture || null,
-        last_message: lastMsg?.content || null,
-        last_message_time: lastMsg?.created_at || conv.updated_at,
-        last_message_is_mine: lastMsg?.sender_id === user.id,
+        other_user_picture: (otherUser && otherUser.profile_picture) || null,
+        last_message: (lastMsg && lastMsg.content) || null,
+        last_message_time: (lastMsg && lastMsg.created_at) || conv.updated_at,
+        last_message_is_mine: lastMsg && lastMsg.sender_id === user.id,
         unread_count: unreadCount || 0
       };
     }));
@@ -1507,7 +1524,7 @@ app.get("/api/conversations", async (req, res) => {
 // Get or create a conversation with a seller
 app.post("/api/conversations", async (req, res) => {
   try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { user, error: userError } = await getAuthUser(req);
     if (userError || !user) {
       return res.status(401).json({ error: "Not logged in" });
     }
@@ -1561,7 +1578,7 @@ app.post("/api/conversations", async (req, res) => {
 // Get messages for a specific conversation
 app.get("/api/messages/:conversationId", async (req, res) => {
   try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { user, error: userError } = await getAuthUser(req);
     if (userError || !user) {
       return res.status(401).json({ error: "Not logged in" });
     }
@@ -1617,12 +1634,12 @@ app.get("/api/messages/:conversationId", async (req, res) => {
       current_user_name: currentUserInfo 
         ? `${currentUserInfo.first_name || ''} ${currentUserInfo.last_name || ''}`.trim() || 'You'
         : 'You',
-      current_user_picture: currentUserInfo?.profile_picture || null,
+      current_user_picture: (currentUserInfo && currentUserInfo.profile_picture) || null,
       other_user_id: otherUserId,
       other_user_name: otherUserInfo 
         ? `${otherUserInfo.first_name || ''} ${otherUserInfo.last_name || ''}`.trim() || 'Unknown User'
         : 'Unknown User',
-      other_user_picture: otherUserInfo?.profile_picture || null
+      other_user_picture: (otherUserInfo && otherUserInfo.profile_picture) || null
     });
   } catch (err) {
     console.error("Get messages error:", err);
@@ -1633,14 +1650,14 @@ app.get("/api/messages/:conversationId", async (req, res) => {
 // Send a new message
 app.post("/api/messages", async (req, res) => {
   try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { user, error: userError } = await getAuthUser(req);
     if (userError || !user) {
       return res.status(401).json({ error: "Not logged in" });
     }
 
     const { conversation_id, content } = req.body;
 
-    if (!conversation_id || !content?.trim()) {
+    if (!conversation_id || !(content && content.trim())) {
       return res.status(400).json({ error: "Conversation ID and message content are required" });
     }
 
@@ -1686,7 +1703,7 @@ app.post("/api/messages", async (req, res) => {
 // Get unread message count for badge
 app.get("/api/messages/unread/count", async (req, res) => {
   try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { user, error: userError } = await getAuthUser(req);
     if (userError || !user) {
       return res.json({ count: 0 });
     }
@@ -2183,7 +2200,7 @@ app.post("/api/profile/picture", profilePictureUpload.single("profileImage"), as
       .eq("id", user.id)
       .maybeSingle();
 
-    if (existingStudent?.profile_picture) {
+    if (existingStudent && existingStudent.profile_picture) {
       // Try to delete old file from storage
       await supabase.storage
         .from("profile-pictures")
@@ -2260,7 +2277,7 @@ app.delete("/api/profile/picture", async (req, res) => {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (student?.profile_picture) {
+    if (student && student.profile_picture) {
       // Extract filename from URL
       const urlParts = student.profile_picture.split('/');
       const fileName = urlParts[urlParts.length - 1];
@@ -2439,7 +2456,7 @@ app.post("/api/checkout/create-session", async (req, res) => {
           currency: 'gbp',
           product_data: {
             name: product.title,
-            description: `${product.condition || 'Good'} - Sold by ${product.student?.first_name || 'Student'}`,
+            description: `${product.condition || 'Good'} - Sold by ${(product.student && product.student.first_name) || 'Student'}`,
             images: product.image_url ? [product.image_url] : [],
           },
           unit_amount: Math.round(price * 100), // Stripe uses cents
@@ -2641,9 +2658,9 @@ app.post("/api/checkout/verify-payment", async (req, res) => {
       .insert({
         user_id: session.metadata.buyer_id,
         order_number: orderNumber,
-        subtotal: order?.subtotal || 0,
+        subtotal: (order && order.subtotal) || 0,
         tax: 0, // Tax already included in total_amount if applicable
-        total: order?.total_amount || 0,
+        total: (order && order.total_amount) || 0,
         status: 'completed',
         created_at: new Date().toISOString()
       })

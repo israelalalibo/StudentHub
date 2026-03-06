@@ -3,8 +3,28 @@ let currentConversationId = null;
 let currentUserId = null;
 let messagePollingInterval = null;
 
+// Get auth headers for API calls (so server can identify user per-request)
+function getAuthHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  try {
+    const stored = localStorage.getItem('supabase_session');
+    if (stored) {
+      const session = JSON.parse(stored);
+      if (session && session.access_token) {
+        headers['Authorization'] = 'Bearer ' + session.access_token;
+      }
+    }
+  } catch (e) {}
+  return headers;
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
+  // Wait for session restore so server has auth (loadHeader.js runs this first; we wait for it)
+  if (typeof window.restoreSession === 'function') {
+    await window.restoreSession();
+  }
+
   // Check for conversation ID in URL
   const urlParams = new URLSearchParams(window.location.search);
   const conversationId = urlParams.get('conversation');
@@ -23,8 +43,8 @@ async function loadConversations() {
   const conversationsList = document.getElementById('conversationsList');
   
   try {
-    const response = await fetch('/api/conversations');
-    
+    const response = await fetch('/api/conversations', { headers: getAuthHeaders() });
+
     if (!response.ok) {
       if (response.status === 401) {
         conversationsList.innerHTML = `
@@ -105,8 +125,8 @@ async function openConversation(conversationId) {
   `;
 
   try {
-    const response = await fetch(`/api/messages/${conversationId}`);
-    
+    const response = await fetch(`/api/messages/${conversationId}`, { headers: getAuthHeaders() });
+
     if (!response.ok) {
       throw new Error('Failed to load messages');
     }
@@ -308,7 +328,7 @@ function startMessagePolling(conversationId) {
     }
 
     try {
-      const response = await fetch(`/api/messages/${conversationId}`);
+      const response = await fetch(`/api/messages/${conversationId}`, { headers: getAuthHeaders() });
       if (response.ok) {
         const data = await response.json();
         
