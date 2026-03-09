@@ -2659,6 +2659,16 @@ app.post("/api/checkout/verify-payment", async (req, res) => {
       });
     }
 
+    // Check if order is already paid (idempotency guard)
+    const { data: existingOrder } = await supabaseAdmin
+      .from("orders")
+      .select("status")
+      .eq("order_id", orderId)
+      .single();
+      if (existingOrder?.status === 'paid') {
+      return res.status(200).json({ success: true, message: "Order already processed" });
+    }
+
     // Update order status
     const { error: orderError } = await supabaseAdmin
       .from("orders")
