@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signing you in...</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        .callback-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .callback-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .callback-message {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .error-container {
+            display: none;
+        }
+
+        .error-container.show {
+            display: block;
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .error-title {
+            color: #e74c3c;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-message {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-retry {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .success-container {
+            display: none;
+        }
+
+        .success-container.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-title {
+            color: #27ae60;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <!-- Loading State -->
+        <div id="loadingState">
+            <div class="spinner"></div>
+            <h2 class="callback-title">Signing you in...</h2>
+            <p class="callback-message">Please wait while we complete your Google sign-in.</p>
+        </div>
+
+        <!-- Success State -->
+        <div id="successState" class="success-container">
+            <div class="success-icon">✓</div>
+            <h2 class="success-title">Sign-in Successful!</h2>
+            <p class="callback-message">Redirecting you to the marketplace...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-container">
+            <div class="error-icon">⚠️</div>
+            <h2 class="error-title">Sign-in Failed</h2>
+            <p class="error-message" id="errorMessage">Something went wrong. Please try again.</p>
+            <button class="btn-retry" onclick="window.location.href='/index.html'">
+                Back to Sign In
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Handle OAuth callback
+        (async function handleOAuthCallback() {
+            const loadingState = document.getElementById('loadingState');
+            const successState = document.getElementById('successState');
+            const errorState = document.getElementById('errorState');
+            const errorMessage = document.getElementById('errorMessage');
+
+            function showError(message) {
+                loadingState.style.display = 'none';
+                errorMessage.textContent = message;
+                errorState.classList.add('show');
+            }
+
+            function showSuccess() {
+                loadingState.style.display = 'none';
+                successState.classList.add('show');
+            }
+
+            try {
+                // Get the hash fragment from the URL (Supabase returns tokens in hash)
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                
+                // Also check query params (some OAuth flows use query string)
+                const queryParams = new URLSearchParams(window.location.search);
+
+                // Extract tokens
+                const access_token = hashParams.get('access_token') || queryParams.get('access_token');
+                const refresh_token = hashParams.get('refresh_token') || queryParams.get('refresh_token');
+                const error = hashParams.get('error') || queryParams.get('error');
+                const error_description = hashParams.get('error_description') || queryParams.get('error_description');
+
+                // Check for OAuth errors
+                if (error) {
+                    const errorMsg = error_description 
+                        ? decodeURIComponent(error_description.replace(/\+/g, ' '))
+                        : 'Authentication was cancelled or failed.';
+                    showError(errorMsg);
+                    return;
+                }
+
+                // Verify we have tokens
+                if (!access_token) {
+                    showError('No authentication tokens received. Please try signing in again.');
+                    return;
+                }
+
+                // Send tokens to backend to complete authentication
+                const response = await fetch('/auth/google/callback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        access_token,
+                        refresh_token
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to complete sign-in');
+                }
+
+                // Store session for persistence
+                if (result.session && result.session.access_token) {
+                    localStorage.setItem('supabase_session', JSON.stringify(result.session));
+                    localStorage.setItem('user_id', result.userID);
+                    localStorage.setItem('lastActivityTime', Date.now().toString());
+                    console.log('Google OAuth session stored successfully');
+                }
+
+                // Show success and redirect
+                showSuccess();
+
+                // Clean the URL (remove tokens from hash)
+                history.replaceState(null, '', window.location.pathname);
+
+                // Redirect after a brief delay
+                setTimeout(() => {
+                    window.location.href = result.redirect || '/views/landingpage.html';
+                }, 1000);
+
+            } catch (err) {
+                console.error('OAuth callback error:', err);
+                showError(err.message || 'An unexpected error occurred. Please try again.');
+            }
+        })();
+    </script>
+</body>
+</html>

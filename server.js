@@ -2904,6 +2904,182 @@ app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async
   }
 });
 
+// ============================================
+// GOOGLE OAUTH AUTHENTICATION
+// ============================================
+
+// Initiate Google OAuth sign-in
+app.get('/auth/google', async (req, res) => {
+  try {
+    if (!supabase) {
+      return res.status(500).json({ error: "Authentication service not available" });
+    }
+
+    // Determine the redirect URL based on environment
+    const siteUrl = process.env.SITE_URL 
+      || (req.headers.host && req.headers.host.includes('localhost') 
+        ? `http://${req.headers.host}` 
+        : `https://${req.headers.host}`);
+
+    const redirectTo = `${siteUrl}/auth/callback`;
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
+      }
+    });
+
+    if (error) {
+      console.error('Google OAuth initiation error:', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    // Return the OAuth URL for the frontend to redirect to
+    res.json({ url: data.url });
+
+  } catch (err) {
+    console.error('Google OAuth error:', err);
+    res.status(500).json({ error: "Failed to initiate Google sign-in" });
+  }
+});
+
+// OAuth callback handler - serves the callback page
+app.get('/auth/callback', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'views', 'auth-callback.html'));
+});
+
+// Process OAuth tokens after client-side extraction
+app.post('/auth/google/callback', async (req, res) => {
+  try {
+    const { access_token, refresh_token } = req.body;
+
+    if (!access_token) {
+      return res.status(400).json({ error: "No access token provided" });
+    }
+
+    // Set the session with the tokens from OAuth
+    const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+      access_token,
+      refresh_token
+    });
+
+    if (sessionError) {
+      console.error('Session set error:', sessionError);
+      return res.status(400).json({ error: sessionError.message });
+    }
+
+    const user = sessionData.user;
+
+    if (!user) {
+      return res.status(400).json({ error: "Failed to get user from session" });
+    }
+
+    // Check if user exists in student table
+    const { data: existingStudent } = await supabaseAdmin
+      .from("student")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!existingStudent) {
+      // Create student profile from Google user data
+      const metadata = user.user_metadata || {};
+      const fullName = metadata.full_name || metadata.name || '';
+      const nameParts = fullName.split(' ');
+      const firstName = nameParts[0] || metadata.given_name || '';
+      const lastName = nameParts.slice(1).join(' ') || metadata.family_name || '';
+
+      const { error: insertError } = await supabaseAdmin
+        .from("student")
+        .insert([{
+          id: user.id,
+          first_name: firstName,
+          last_name: lastName,
+          profile_picture: metadata.avatar_url || metadata.picture || null,
+          created_at: new Date().toISOString()
+        }]);
+
+      if (insertError) {
+        console.error('Student profile creation error:', insertError);
+      } else {
+        console.log('Created student profile for Google user:', user.id);
+      }
+    } else {
+      // Optionally update profile picture if it changed
+      const metadata = user.user_metadata || {};
+      const avatarUrl = metadata.avatar_url || metadata.picture;
+      
+      if (avatarUrl) {
+        await supabaseAdmin
+          .from("student")
+          .update({ profile_picture: avatarUrl })
+          .eq("id", user.id);
+      }
+    }
+
+    console.log('Google OAuth user authenticated:', user.id, user.email);
+
+    res.json({
+      success: true,
+      message: "Google sign-in successful",
+      redirect: "/views/landingpage.html",
+      userID: user.id,
+      email: user.email,
+      session: {
+        access_token: sessionData.session?.access_token,
+        refresh_token: sessionData.session?.refresh_token
+      }
+    });
+
+  } catch (err) {
+    console.error('Google OAuth callback error:', err);
+    res.status(500).json({ error: "Failed to complete Google sign-in" });
+  }
+});
+
+// Get Google OAuth URL (alternative endpoint for frontend fetch)
+app.get('/api/auth/google/url', async (req, res) => {
+  try {
+    if (!supabase) {
+      return res.status(500).json({ error: "Authentication service not available" });
+    }
+
+    const siteUrl = process.env.SITE_URL 
+      || (req.headers.host && req.headers.host.includes('localhost') 
+        ? `http://${req.headers.host}` 
+        : `https://${req.headers.host}`);
+
+    const redirectTo = `${siteUrl}/auth/callback`;
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
+      }
+    });
+
+    if (error) {
+      console.error('Google OAuth URL error:', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    res.json({ url: data.url });
+
+  } catch (err) {
+    console.error('Google OAuth URL error:', err);
+    res.status(500).json({ error: "Failed to generate Google sign-in URL" });
+  }
+});
+
 // For local development, start the server
 // For Vercel, just export the app (Vercel handles the server)
 const PORT = process.env.PORT || 3000;

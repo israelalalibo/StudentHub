@@ -366,10 +366,53 @@ signupForm.addEventListener('submit', async function(e) {
     }
 });
 
-// Google Sign In simulation
-window.handleGoogleSignIn = function() {
-    showSuccessMessage('Google Sign In initiated! (This is a demo - integrate with Google OAuth in production)');
-    console.log('Google Sign In clicked');
+// Google Sign In - Real OAuth implementation
+window.handleGoogleSignIn = async function() {
+    const googleBtn = document.querySelector('.google-btn');
+    const originalContent = googleBtn.innerHTML;
+    
+    try {
+        // Show loading state
+        googleBtn.disabled = true;
+        googleBtn.innerHTML = `
+            <svg class="spinner-icon" width="20" height="20" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
+            </svg>
+            Connecting to Google...
+        `;
+        
+        // Add spinner animation if not exists
+        if (!document.getElementById('googleSpinnerStyle')) {
+            const style = document.createElement('style');
+            style.id = 'googleSpinnerStyle';
+            style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+            document.head.appendChild(style);
+        }
+
+        // Request OAuth URL from backend
+        const response = await fetch('/api/auth/google/url');
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to initiate Google sign-in');
+        }
+
+        if (data.url) {
+            // Redirect to Google OAuth consent screen
+            console.log('Redirecting to Google OAuth...');
+            window.location.href = data.url;
+        } else {
+            throw new Error('No OAuth URL received');
+        }
+
+    } catch (err) {
+        console.error('Google Sign In error:', err);
+        showErrorMessage(err.message || 'Failed to connect to Google. Please try again.');
+        
+        // Reset button
+        googleBtn.disabled = false;
+        googleBtn.innerHTML = originalContent;
+    }
 }
 
 // Forgot password handler
@@ -413,7 +456,7 @@ async function handleForgotPassword() {
 }
 
 // Handle Supabase auth redirects landing on the login page
-(function handleAuthRedirect() {
+(async function handleAuthRedirect() {
     const hash = window.location.hash.substring(1);
     if (!hash) return;
 
@@ -425,11 +468,26 @@ async function handleForgotPassword() {
         return;
     }
 
-    // Handle error responses from Supabase (e.g. expired link)
-    const error = params.get('error_description');
-    if (error) {
-        const message = decodeURIComponent(error.replace(/\+/g, ' '));
-        showSuccessMessage(message + ' Please try requesting a new reset link.');
+    // Handle OAuth tokens (Google sign-in callback landing on index)
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
+    
+    if (access_token && !params.get('type')) {
+        // This is an OAuth callback - redirect to proper callback handler
+        console.log('OAuth tokens detected, redirecting to callback handler...');
+        window.location.href = '/auth/callback' + window.location.hash;
+        return;
+    }
+
+    // Handle error responses from Supabase (e.g. expired link or OAuth errors)
+    const error = params.get('error');
+    const error_description = params.get('error_description');
+    
+    if (error || error_description) {
+        const message = error_description 
+            ? decodeURIComponent(error_description.replace(/\+/g, ' '))
+            : 'Authentication failed.';
+        showErrorMessage(message + ' Please try again.');
         // Clean the URL
         history.replaceState(null, '', window.location.pathname);
     }
