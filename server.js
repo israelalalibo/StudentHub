@@ -1829,29 +1829,80 @@ app.get("/api/purchases", async (req, res) => {
       return res.status(401).json({ error: "Not logged in" });
     }
 
-    // Get purchases with their items
-    const { data: purchases, error } = await supabaseAdmin
+    let allPurchases = [];
+
+    // Get purchases from the purchases table (legacy system)
+    const { data: purchases, error: purchasesError } = await supabaseAdmin
       .from("purchases")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    if (!purchasesError && purchases) {
+      // Get items for each purchase
+      const purchasesWithItems = await Promise.all(purchases.map(async (purchase) => {
+        const { data: items } = await supabaseAdmin
+          .from("purchase_items")
+          .select("*")
+          .eq("purchase_id", purchase.id);
 
-    // Get items for each purchase
-    const purchasesWithItems = await Promise.all((purchases || []).map(async (purchase) => {
-      const { data: items } = await supabaseAdmin
-        .from("purchase_items")
-        .select("*")
-        .eq("purchase_id", purchase.id);
+        return {
+          ...purchase,
+          items: items || [],
+          source: 'purchases'
+        };
+      }));
+      allPurchases = allPurchases.concat(purchasesWithItems);
+    }
 
-      return {
-        ...purchase,
-        items: items || []
-      };
-    }));
+    // Also get orders from the orders table (Stripe payment system)
+    const { data: orders, error: ordersError } = await supabaseAdmin
+      .from("orders")
+      .select("*")
+      .eq("buyer_id", user.id)
+      .order("created_at", { ascending: false });
 
-    res.json(purchasesWithItems);
+    if (!ordersError && orders) {
+      // Get items for each order and transform to match purchase format
+      const ordersWithItems = await Promise.all(orders.map(async (order) => {
+        const { data: items } = await supabaseAdmin
+          .from("order_items")
+          .select("*")
+          .eq("order_id", order.order_id);
+
+        // Transform order to match purchase format for frontend compatibility
+        return {
+          id: order.order_id,
+          order_number: order.order_id,
+          user_id: order.buyer_id,
+          subtotal: order.subtotal || (order.total_amount ? order.total_amount / 1.08 : 0),
+          tax: order.tax || (order.total_amount ? order.total_amount - (order.total_amount / 1.08) : 0),
+          total: order.total_amount || 0,
+          status: order.status || 'completed',
+          created_at: order.created_at,
+          items: (items || []).map(item => ({
+            ...item,
+            purchase_id: order.order_id,
+            product_id: item.product_id,
+            title: item.title,
+            price: item.price,
+            quantity: item.quantity || 1,
+            image_url: item.image_url,
+            category: item.category,
+            condition: item.condition,
+            seller_id: item.seller_id,
+            seller_name: item.seller_name
+          })),
+          source: 'orders'
+        };
+      }));
+      allPurchases = allPurchases.concat(ordersWithItems);
+    }
+
+    // Sort all purchases by date (newest first)
+    allPurchases.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    res.json(allPurchases);
 
   } catch (err) {
     console.error("Get purchases error:", err);
@@ -1908,25 +1959,61 @@ app.get("/api/purchases/stats/summary", async (req, res) => {
       return res.status(401).json({ error: "Not logged in" });
     }
 
-    // Get all purchases
+    let totalSpent = 0;
+    let totalOrders = 0;
+    let totalItems = 0;
+
+    // Get purchases from the purchases table (legacy system)
     const { data: purchases } = await supabaseAdmin
       .from("purchases")
-      .select("total, created_at")
+      .select("id, total, created_at")
       .eq("user_id", user.id);
 
-    const totalSpent = (purchases || []).reduce((sum, p) => sum + (p.total || 0), 0);
-    const totalOrders = (purchases || []).length;
+    if (purchases && purchases.length > 0) {
+      totalSpent += purchases.reduce((sum, p) => sum + (parseFloat(p.total) || 0), 0);
+      totalOrders += purchases.length;
 
-    // Get total items purchased
-    const { count: totalItems } = await supabaseAdmin
-      .from("purchase_items")
-      .select("*", { count: "exact", head: true })
-      .in("purchase_id", (purchases || []).map(p => p.id));
+      // Get items from purchase_items table
+      const purchaseIds = purchases.map(p => p.id).filter(id => id);
+      if (purchaseIds.length > 0) {
+        const { count: purchaseItemsCount } = await supabaseAdmin
+          .from("purchase_items")
+          .select("*", { count: "exact", head: true })
+          .in("purchase_id", purchaseIds);
+        totalItems += purchaseItemsCount || 0;
+      }
+    }
+
+    // Also get orders from the orders table (Stripe payment system)
+    const { data: orders } = await supabaseAdmin
+      .from("orders")
+      .select("order_id, total_amount, status, created_at")
+      .eq("buyer_id", user.id);
+
+    if (orders && orders.length > 0) {
+      // Only count completed/paid orders
+      const completedOrders = orders.filter(o => 
+        o.status === 'completed' || o.status === 'paid' || o.status === 'processing'
+      );
+      
+      totalSpent += completedOrders.reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0);
+      totalOrders += completedOrders.length;
+
+      // Get items from order_items table
+      const orderIds = completedOrders.map(o => o.order_id).filter(id => id);
+      if (orderIds.length > 0) {
+        const { count: orderItemsCount } = await supabaseAdmin
+          .from("order_items")
+          .select("*", { count: "exact", head: true })
+          .in("order_id", orderIds);
+        totalItems += orderItemsCount || 0;
+      }
+    }
 
     res.json({
       total_spent: totalSpent,
       total_orders: totalOrders,
-      total_items: totalItems || 0
+      total_items: totalItems
     });
 
   } catch (err) {
@@ -3031,8 +3118,8 @@ app.post('/auth/google/callback', async (req, res) => {
       userID: user.id,
       email: user.email,
       session: {
-        access_token: sessionData.session?.access_token,
-        refresh_token: sessionData.session?.refresh_token
+        access_token: sessionData.session && sessionData.session.access_token,
+        refresh_token: sessionData.session && sessionData.session.refresh_token
       }
     });
 
