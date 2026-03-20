@@ -672,11 +672,6 @@ function applyCategoryFilter() {
 
     // Use the existing viewCategory function (reads price from UI dropdowns, now cleared)
     viewCategory(category, null);
-
-    // Reset the category filter to default after selection
-    setTimeout(() => {
-      activeFilter.value = '';
-    }, 100);
   }
 }
 
@@ -1000,8 +995,14 @@ async function viewCategory(category, e) {
       localStorage.removeItem("persistedPriceFilter");
     }
 
-    // Navigate to landing page
-    window.location.href = "landingpage.html";
+    // Navigate to landing page.
+    // Use reload() when already on landing page so bfcache is bypassed and
+    // DOMContentLoaded fires fresh to pick up the new localStorage data.
+    if (window.location.pathname.endsWith('landingpage.html')) {
+      window.location.reload();
+    } else {
+      window.location.href = 'landingpage.html';
+    }
 
   } catch (err) {
     console.error("Error fetching category:", err);

@@ -169,6 +169,14 @@
                 'other': 'Other'
             };
 
+            // Bypass bfcache: if the browser restores this page from cache,
+            // force a real reload so the DOMContentLoaded logic re-runs with fresh localStorage data.
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+
             document.addEventListener("DOMContentLoaded", async () => {
             // Check for URL search parameter (from mobile redirect)
             const urlParams = new URLSearchParams(window.location.search);
