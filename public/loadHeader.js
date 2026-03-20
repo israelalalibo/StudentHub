@@ -81,25 +81,20 @@ function performMobileSearch() {
   }
 }
 
-// Visible mobile search bar function (Amazon-style)
+// Visible mobile search bar function
 function performVisibleMobileSearch() {
   const searchInput = document.getElementById('mobileSearchInputVisible');
-  const categorySelect = document.getElementById('mobileCategorySelect');
-  const priceSelect = document.getElementById('mobilePriceFilter');
   const query = searchInput ? searchInput.value.trim() : '';
-  const category = categorySelect ? categorySelect.value : '';
-  const price = priceSelect ? priceSelect.value : '';
+  const category = currentCategoryFilter;
+  const price = currentPriceFilter;
 
-  // Hide dropdown when searching
   const dropdown = document.getElementById('mobileSearchResultsDropdown');
   if (dropdown) dropdown.classList.remove('active');
 
-  // Store price filter for landing page
   if (price) {
     localStorage.setItem('priceFilter', price);
   }
 
-  // Build URL with parameters
   const params = [];
   if (category) params.push(`category=${encodeURIComponent(category)}`);
   if (query) params.push(`search=${encodeURIComponent(query)}`);
@@ -112,49 +107,27 @@ function performVisibleMobileSearch() {
   }
 }
 
-// Mobile price filter auto-apply
+// Mobile price filter auto-apply (backwards compatibility, called from hidden select)
 function applyMobilePriceFilter() {
   const priceSelect = document.getElementById('mobilePriceFilter');
-  const categorySelect = document.getElementById('mobileCategorySelect');
-  const searchInput = document.getElementById('mobileSearchInputVisible');
-
-  const price = priceSelect ? priceSelect.value : '';
-  const category = categorySelect ? categorySelect.value : '';
-  const query = searchInput ? searchInput.value.trim() : '';
-
-  // Store for later use
-  if (price) {
-    localStorage.setItem('priceFilter', price);
-  } else {
-    localStorage.removeItem('priceFilter');
-  }
-
-  // Build params and navigate to landingpage with filtered results
-  const params = [];
-  if (category) params.push(`category=${encodeURIComponent(category)}`);
-  if (query) params.push(`search=${encodeURIComponent(query)}`);
-  if (price) params.push(`price=${encodeURIComponent(price)}`);
-
-  if (params.length > 0) {
-    window.location.href = `landingpage.html?${params.join('&')}`;
+  if (priceSelect) {
+    currentPriceFilter = priceSelect.value;
+    updateMobileChips();
+    applyCurrentFilters();
   }
 }
-window.applyMobilePriceFilter = applyMobilePriceFilter;
-
-// Handle mobile category dropdown change - auto-search when category selected
+// Handle mobile category dropdown change (backwards compatibility)
 function handleMobileCategoryChange() {
   const categorySelect = document.getElementById('mobileCategorySelect');
   const searchInput = document.getElementById('mobileSearchInputVisible');
   const category = categorySelect ? categorySelect.value : '';
   const query = searchInput ? searchInput.value.trim() : '';
   
-  // If a category is selected and there's no search query, navigate to that category
   if (category && !query) {
     window.location.href = `landingpage.html?category=${encodeURIComponent(category)}`;
   }
 }
 
-// Make functions globally accessible
 window.handleMobileCategoryChange = handleMobileCategoryChange;
 
 // Mobile live search functionality
@@ -622,76 +595,457 @@ async function loadUserProfilePicture() {
   }
 }
 
-// Current filter values
+// ============================================
+// UNIFIED FILTER SYSTEM
+// ============================================
+
 let currentPriceFilter = '';
 let currentCategoryFilter = '';
 
-// Apply price filter to search
-function applyPriceFilter() {
-  const priceFilter = document.getElementById('priceFilter');
-  const searchInput = document.getElementById('liveSearchInput');
-  const resultDropdown = document.getElementById('searchResultsDropdown');
+const CATEGORY_LABELS = {
+  textbooks: '📚 Textbooks',
+  electronics: '💻 Electronics',
+  supplies: '✏️ Supplies',
+  furniture: '🪑 Furniture',
+  clothing: '👕 Clothing',
+  other: '📦 Other'
+};
 
-  if (priceFilter) {
-    currentPriceFilter = priceFilter.value;
+const PRICE_LABELS = {
+  '0-25': 'Under £25',
+  '25-50': '£25 – £50',
+  '50-100': '£50 – £100',
+  '100-200': '£100 – £200',
+  '200+': '£200+'
+};
 
-    // If there's a search query, re-run the search with the filter
-    if (searchInput && searchInput.value.trim()) {
-      fetchSearchResults(searchInput.value.trim(), resultDropdown);
-    }
+// --- Desktop filter dropdown logic ---
 
-    // Only persist price to localStorage when there's an active search query
-    // (prevents old price from bleeding into subsequent category selections)
-    if (currentPriceFilter && searchInput && searchInput.value.trim()) {
-      localStorage.setItem('priceFilter', currentPriceFilter);
-    } else if (!currentPriceFilter) {
+function initDesktopFilters() {
+  const categoryBtn = document.getElementById('categoryFilterBtn');
+  const categoryDropdown = document.getElementById('categoryDropdown');
+  const priceBtn = document.getElementById('priceFilterBtn');
+  const priceDropdown = document.getElementById('priceDropdown');
+  const clearAllBtn = document.getElementById('clearAllFiltersBtn');
+
+  if (!categoryBtn || !priceBtn) return;
+
+  categoryBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown('category');
+  });
+
+  priceBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown('price');
+  });
+
+  if (categoryDropdown) {
+    categoryDropdown.querySelectorAll('.filter-dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const val = item.dataset.value;
+        selectDesktopFilter('category', val === currentCategoryFilter ? '' : val);
+      });
+    });
+  }
+
+  if (priceDropdown) {
+    priceDropdown.querySelectorAll('.filter-dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const val = item.dataset.value;
+        selectDesktopFilter('price', val === currentPriceFilter ? '' : val);
+      });
+    });
+  }
+
+  if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', () => clearAllFilters());
+  }
+
+  document.addEventListener('click', () => {
+    closeAllDropdowns();
+  });
+}
+
+function toggleDropdown(type) {
+  const btn = document.getElementById(type === 'category' ? 'categoryFilterBtn' : 'priceFilterBtn');
+  const dd = document.getElementById(type === 'category' ? 'categoryDropdown' : 'priceDropdown');
+  const otherDd = document.getElementById(type === 'category' ? 'priceDropdown' : 'categoryDropdown');
+  const otherBtn = document.getElementById(type === 'category' ? 'priceFilterBtn' : 'categoryFilterBtn');
+
+  if (!btn || !dd) return;
+
+  const isOpen = dd.classList.contains('open');
+  if (otherDd) otherDd.classList.remove('open');
+  if (otherBtn) otherBtn.classList.remove('open');
+  dd.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('open'));
+}
+
+function selectDesktopFilter(type, value) {
+  closeAllDropdowns();
+
+  if (type === 'category') {
+    currentCategoryFilter = value;
+    syncHiddenSelect('categoryFilter', value);
+    updateDesktopBtnState('categoryFilterBtn', value, CATEGORY_LABELS);
+
+    // Mark selected item
+    const dd = document.getElementById('categoryDropdown');
+    if (dd) dd.querySelectorAll('.filter-dropdown-item').forEach(i => {
+      i.classList.toggle('selected', i.dataset.value === value);
+    });
+
+    if (value) {
       localStorage.removeItem('priceFilter');
+      localStorage.removeItem('persistedPriceFilter');
+      currentPriceFilter = '';
+      syncHiddenSelect('priceFilter', '');
+      updateDesktopBtnState('priceFilterBtn', '', PRICE_LABELS);
+      const pd = document.getElementById('priceDropdown');
+      if (pd) pd.querySelectorAll('.filter-dropdown-item').forEach(i => i.classList.remove('selected'));
     }
+  } else {
+    currentPriceFilter = value;
+    syncHiddenSelect('priceFilter', value);
+    updateDesktopBtnState('priceFilterBtn', value, PRICE_LABELS);
+
+    const dd = document.getElementById('priceDropdown');
+    if (dd) dd.querySelectorAll('.filter-dropdown-item').forEach(i => {
+      i.classList.toggle('selected', i.dataset.value === value);
+    });
+  }
+
+  updateActiveChips();
+  applyCurrentFilters();
+}
+
+function updateDesktopBtnState(btnId, value, labels) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  const labelEl = btn.querySelector('.filter-btn-label');
+  if (value && labels[value]) {
+    btn.classList.add('active');
+    if (labelEl) labelEl.textContent = labels[value].replace(/^[^\w]*/, '').trim();
+  } else {
+    btn.classList.remove('active');
+    if (labelEl) labelEl.textContent = btnId.includes('category') ? 'Category' : 'Price';
   }
 }
 
-// Apply category filter - navigates to category results (desktop and mobile)
+function syncHiddenSelect(selectId, value) {
+  const sel = document.getElementById(selectId);
+  if (sel) sel.value = value;
+}
+
+function updateActiveChips() {
+  const bar = document.getElementById('activeFiltersBar');
+  const container = document.getElementById('activeChips');
+  if (!bar || !container) return;
+
+  container.innerHTML = '';
+  let count = 0;
+
+  if (currentCategoryFilter) {
+    count++;
+    container.innerHTML += `<span class="filter-chip">${CATEGORY_LABELS[currentCategoryFilter] || currentCategoryFilter}<button class="filter-chip-remove" onclick="selectDesktopFilter('category','')">✕</button></span>`;
+  }
+  if (currentPriceFilter) {
+    count++;
+    container.innerHTML += `<span class="filter-chip">${PRICE_LABELS[currentPriceFilter] || currentPriceFilter}<button class="filter-chip-remove" onclick="selectDesktopFilter('price','')">✕</button></span>`;
+  }
+
+  bar.style.display = count > 0 ? 'block' : 'none';
+}
+
+function clearAllFilters() {
+  currentCategoryFilter = '';
+  currentPriceFilter = '';
+  syncHiddenSelect('categoryFilter', '');
+  syncHiddenSelect('priceFilter', '');
+  updateDesktopBtnState('categoryFilterBtn', '', CATEGORY_LABELS);
+  updateDesktopBtnState('priceFilterBtn', '', PRICE_LABELS);
+
+  document.querySelectorAll('.filter-dropdown-item').forEach(i => i.classList.remove('selected'));
+
+  localStorage.removeItem('priceFilter');
+  localStorage.removeItem('persistedPriceFilter');
+  localStorage.removeItem('categoryResults');
+  localStorage.removeItem('selectedCategory');
+  localStorage.removeItem('categoryPriceFilter');
+
+  updateActiveChips();
+  updateMobileChips();
+
+  // Reload to clear results
+  if (window.location.pathname.endsWith('landingpage.html')) {
+    window.location.href = 'landingpage.html';
+  }
+}
+
+// --- Mobile filter panel logic ---
+
+function initMobileFilters() {
+  const toggle = document.getElementById('mobileFilterToggle');
+  const panel = document.getElementById('mobileFilterPanel');
+  const applyBtn = document.getElementById('mobileFilterApply');
+  const clearBtn = document.getElementById('mobileFilterClear');
+
+  if (!toggle || !panel) return;
+
+  toggle.addEventListener('click', () => {
+    panel.classList.toggle('open');
+  });
+
+  // Category options
+  const catOptions = document.getElementById('mobileCategoryOptions');
+  if (catOptions) {
+    catOptions.querySelectorAll('.mobile-filter-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wasSelected = btn.classList.contains('selected');
+        catOptions.querySelectorAll('.mobile-filter-option').forEach(b => b.classList.remove('selected'));
+        if (!wasSelected) btn.classList.add('selected');
+      });
+    });
+  }
+
+  // Price options
+  const priceOptions = document.getElementById('mobilePriceOptions');
+  if (priceOptions) {
+    priceOptions.querySelectorAll('.mobile-filter-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wasSelected = btn.classList.contains('selected');
+        priceOptions.querySelectorAll('.mobile-filter-option').forEach(b => b.classList.remove('selected'));
+        if (!wasSelected) btn.classList.add('selected');
+      });
+    });
+  }
+
+  if (applyBtn) {
+    applyBtn.addEventListener('click', () => {
+      const selectedCat = catOptions?.querySelector('.mobile-filter-option.selected');
+      const selectedPrice = priceOptions?.querySelector('.mobile-filter-option.selected');
+
+      currentCategoryFilter = selectedCat ? selectedCat.dataset.value : '';
+      currentPriceFilter = selectedPrice ? selectedPrice.dataset.value : '';
+
+      syncHiddenSelect('mobileCategorySelect', currentCategoryFilter);
+      syncHiddenSelect('mobilePriceFilter', currentPriceFilter);
+      syncHiddenSelect('categoryFilter', currentCategoryFilter);
+      syncHiddenSelect('priceFilter', currentPriceFilter);
+
+      panel.classList.remove('open');
+      updateMobileChips();
+      applyCurrentFilters();
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      catOptions?.querySelectorAll('.mobile-filter-option').forEach(b => b.classList.remove('selected'));
+      priceOptions?.querySelectorAll('.mobile-filter-option').forEach(b => b.classList.remove('selected'));
+      currentCategoryFilter = '';
+      currentPriceFilter = '';
+      syncHiddenSelect('mobileCategorySelect', '');
+      syncHiddenSelect('mobilePriceFilter', '');
+      syncHiddenSelect('categoryFilter', '');
+      syncHiddenSelect('priceFilter', '');
+      panel.classList.remove('open');
+      updateMobileChips();
+
+      localStorage.removeItem('priceFilter');
+      localStorage.removeItem('persistedPriceFilter');
+      localStorage.removeItem('categoryResults');
+      localStorage.removeItem('selectedCategory');
+      localStorage.removeItem('categoryPriceFilter');
+
+      if (window.location.pathname.endsWith('landingpage.html')) {
+        window.location.href = 'landingpage.html';
+      }
+    });
+  }
+}
+
+function updateMobileChips() {
+  const container = document.getElementById('mobileActiveChips');
+  const countEl = document.getElementById('mobileFilterCount');
+  const toggleBtn = document.getElementById('mobileFilterToggle');
+  if (!container) return;
+
+  container.innerHTML = '';
+  let count = 0;
+
+  if (currentCategoryFilter) {
+    count++;
+    const chip = document.createElement('span');
+    chip.className = 'mobile-chip';
+    chip.innerHTML = `${CATEGORY_LABELS[currentCategoryFilter] || currentCategoryFilter}<span class="mobile-chip-x">✕</span>`;
+    chip.addEventListener('click', () => removeMobileFilter('category'));
+    container.appendChild(chip);
+  }
+  if (currentPriceFilter) {
+    count++;
+    const chip = document.createElement('span');
+    chip.className = 'mobile-chip';
+    chip.innerHTML = `${PRICE_LABELS[currentPriceFilter] || currentPriceFilter}<span class="mobile-chip-x">✕</span>`;
+    chip.addEventListener('click', () => removeMobileFilter('price'));
+    container.appendChild(chip);
+  }
+
+  if (countEl) {
+    countEl.textContent = count;
+    countEl.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+
+  if (toggleBtn) {
+    toggleBtn.classList.toggle('has-filters', count > 0);
+  }
+}
+
+function removeMobileFilter(type) {
+  if (type === 'category') {
+    currentCategoryFilter = '';
+    syncHiddenSelect('mobileCategorySelect', '');
+    syncHiddenSelect('categoryFilter', '');
+    const opts = document.getElementById('mobileCategoryOptions');
+    if (opts) opts.querySelectorAll('.mobile-filter-option').forEach(b => b.classList.remove('selected'));
+  } else {
+    currentPriceFilter = '';
+    syncHiddenSelect('mobilePriceFilter', '');
+    syncHiddenSelect('priceFilter', '');
+    localStorage.removeItem('priceFilter');
+    localStorage.removeItem('persistedPriceFilter');
+    const opts = document.getElementById('mobilePriceOptions');
+    if (opts) opts.querySelectorAll('.mobile-filter-option').forEach(b => b.classList.remove('selected'));
+  }
+  updateMobileChips();
+  applyCurrentFilters();
+}
+
+// --- Unified filter application ---
+
+function applyCurrentFilters() {
+  const searchInput = document.getElementById('liveSearchInput');
+  const mobileSearchInput = document.getElementById('mobileSearchInputVisible');
+  const query = (searchInput && searchInput.value.trim()) || (mobileSearchInput && mobileSearchInput.value.trim()) || '';
+
+  if (currentPriceFilter) {
+    localStorage.setItem('priceFilter', currentPriceFilter);
+  } else {
+    localStorage.removeItem('priceFilter');
+  }
+
+  if (currentCategoryFilter) {
+    viewCategory(currentCategoryFilter, null);
+    return;
+  }
+
+  if (query) {
+    const resultDropdown = document.getElementById('searchResultsDropdown');
+    fetchSearchResults(query, resultDropdown);
+    return;
+  }
+
+  if (currentPriceFilter) {
+    window.location.href = `landingpage.html?price=${encodeURIComponent(currentPriceFilter)}`;
+  }
+}
+
+// Backwards-compatible wrappers
+function applyPriceFilter() {
+  const priceFilter = document.getElementById('priceFilter');
+  if (priceFilter) {
+    currentPriceFilter = priceFilter.value;
+    updateDesktopBtnState('priceFilterBtn', currentPriceFilter, PRICE_LABELS);
+    updateActiveChips();
+    applyCurrentFilters();
+  }
+}
+
 function applyCategoryFilter() {
   const categoryFilter = document.getElementById('categoryFilter');
   const mobileCategoryFilter = document.getElementById('mobileCategorySelect');
+  const val = (categoryFilter && categoryFilter.value) || (mobileCategoryFilter && mobileCategoryFilter.value) || '';
 
-  // Check which filter has a value (desktop or mobile)
-  const activeFilter = (categoryFilter && categoryFilter.value) ? categoryFilter :
-                       (mobileCategoryFilter && mobileCategoryFilter.value) ? mobileCategoryFilter : null;
-
-  if (activeFilter) {
-    const category = activeFilter.value;
-
-    // Clear price filters so category selection is independent of any previous price filter
-    const priceFilter = document.getElementById('priceFilter');
-    const mobilePriceFilter = document.getElementById('mobilePriceFilter');
-    if (priceFilter) priceFilter.value = '';
-    if (mobilePriceFilter) mobilePriceFilter.value = '';
+  if (val) {
+    currentCategoryFilter = val;
+    currentPriceFilter = '';
+    syncHiddenSelect('priceFilter', '');
+    syncHiddenSelect('mobilePriceFilter', '');
     localStorage.removeItem('priceFilter');
     localStorage.removeItem('persistedPriceFilter');
-
-    // Use the existing viewCategory function (reads price from UI dropdowns, now cleared)
-    viewCategory(category, null);
+    updateDesktopBtnState('categoryFilterBtn', currentCategoryFilter, CATEGORY_LABELS);
+    updateDesktopBtnState('priceFilterBtn', '', PRICE_LABELS);
+    updateActiveChips();
+    viewCategory(val, null);
   }
 }
 
-// Make them available globally
+// Restore filters from persisted state (called after header loads)
+function restoreFilterState() {
+  const persistedCategory = localStorage.getItem('persistedCategory') || localStorage.getItem('selectedCategory') || '';
+  const persistedPrice = localStorage.getItem('persistedPriceFilter') || localStorage.getItem('priceFilter') || '';
+
+  if (persistedCategory) {
+    currentCategoryFilter = persistedCategory;
+    syncHiddenSelect('categoryFilter', persistedCategory);
+    updateDesktopBtnState('categoryFilterBtn', persistedCategory, CATEGORY_LABELS);
+
+    // Mark desktop dropdown item
+    const dd = document.getElementById('categoryDropdown');
+    if (dd) dd.querySelectorAll('.filter-dropdown-item').forEach(i => {
+      i.classList.toggle('selected', i.dataset.value === persistedCategory);
+    });
+
+    // Mark mobile option
+    const mOpts = document.getElementById('mobileCategoryOptions');
+    if (mOpts) mOpts.querySelectorAll('.mobile-filter-option').forEach(b => {
+      b.classList.toggle('selected', b.dataset.value === persistedCategory);
+    });
+  }
+
+  if (persistedPrice) {
+    currentPriceFilter = persistedPrice;
+    syncHiddenSelect('priceFilter', persistedPrice);
+    updateDesktopBtnState('priceFilterBtn', persistedPrice, PRICE_LABELS);
+
+    const dd = document.getElementById('priceDropdown');
+    if (dd) dd.querySelectorAll('.filter-dropdown-item').forEach(i => {
+      i.classList.toggle('selected', i.dataset.value === persistedPrice);
+    });
+
+    const mOpts = document.getElementById('mobilePriceOptions');
+    if (mOpts) mOpts.querySelectorAll('.mobile-filter-option').forEach(b => {
+      b.classList.toggle('selected', b.dataset.value === persistedPrice);
+    });
+  }
+
+  updateActiveChips();
+  updateMobileChips();
+}
+
+// Make functions globally accessible
 window.applyPriceFilter = applyPriceFilter;
 window.applyCategoryFilter = applyCategoryFilter;
+window.applyMobilePriceFilter = applyMobilePriceFilter;
+window.selectDesktopFilter = selectDesktopFilter;
+window.clearAllFilters = clearAllFilters;
 
 function initHeaderFeatures() {
-  // Query elements that must exist in the injected header
   const searchInput = document.getElementById("liveSearchInput");
   const resultDropdown = document.getElementById("searchResultsDropdown");
   const categoriesBtn = document.querySelector(".categories-btn");
   const categoriesMenu = document.querySelector(".categories-menu");
   const profileIcon = document.getElementById("profileIcon");
 
-  // Load user's profile picture for the header
   loadUserProfilePicture();
-
-  // Category toggle is handled by onclick="showCategories(event)" in header.html
-  // No duplicate listener needed here
 
   // Close menus when clicking outside
   document.addEventListener("click", (e) => {
@@ -707,57 +1061,41 @@ function initHeaderFeatures() {
     }
   });
 
-  // Attach desktop search if elements exist
+  // Desktop search input
   if (searchInput && resultDropdown) {
-    // Debounced input handler
     searchInput.addEventListener("input", async (e) => {
       const q = e.target.value.trim();
       await fetchSearchResults(q, resultDropdown);
     });
 
-    //When pressing Enter (keep query term)
     searchInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         const query = e.target.value.trim();
         localStorage.setItem("searchQuery", query);
-
-        // Also store the current price filter
-        const priceFilter = document.getElementById('priceFilter');
-        if (priceFilter && priceFilter.value) {
-          localStorage.setItem("priceFilter", priceFilter.value);
+        if (currentPriceFilter) {
+          localStorage.setItem("priceFilter", currentPriceFilter);
         }
-
         window.location.href = "landingpage.html";
       }
     });
 
-    // Optional: show dropdown on focus if input has text
     searchInput.addEventListener("focus", (e) => {
       if (e.target.value.trim()) resultDropdown.style.display = "block";
     });
 
-    // Restore last search term and filters if available
+    // Restore last search term
     const previousQuery = localStorage.getItem("persistedSearchQuery");
-    const previousCategory = localStorage.getItem("persistedCategory");
-    const previousPrice = localStorage.getItem("persistedPriceFilter");
-
     if (previousQuery) {
       searchInput.value = previousQuery;
     }
-
-    const categoryFilter = document.getElementById('categoryFilter');
-    const priceFilter = document.getElementById('priceFilter');
-
-    if (categoryFilter && previousCategory) {
-      categoryFilter.value = previousCategory;
-    }
-
-    if (priceFilter && previousPrice) {
-      priceFilter.value = previousPrice;
-    }
   }
 
-  // Initialize mobile live search (must be done here, after header is in the DOM)
+  // Initialize new filter systems
+  initDesktopFilters();
+  initMobileFilters();
+  restoreFilterState();
+
+  // Mobile live search
   const visibleMobileSearch = document.getElementById('mobileSearchInputVisible');
   if (visibleMobileSearch) {
     visibleMobileSearch.addEventListener('keypress', function(e) {
@@ -767,20 +1105,14 @@ function initHeaderFeatures() {
       }
     });
 
-    // Live search on input with debounce
     visibleMobileSearch.addEventListener('input', function(e) {
       const query = e.target.value.trim();
-
-      if (mobileSearchTimeout) {
-        clearTimeout(mobileSearchTimeout);
-      }
-
+      if (mobileSearchTimeout) clearTimeout(mobileSearchTimeout);
       mobileSearchTimeout = setTimeout(() => {
         handleMobileLiveSearch(query);
       }, 300);
     });
 
-    // Hide dropdown when clicking outside
     document.addEventListener('click', function(e) {
       const dropdown = document.getElementById('mobileSearchResultsDropdown');
       const searchBar = document.querySelector('.mobile-search-bar');
@@ -801,10 +1133,7 @@ function initHeaderFeatures() {
     });
   }
 
-  // Sync cart badges between desktop and mobile
   syncCartBadges();
-
-  // Update mobile greeting and profile picture
   updateMobileGreeting();
   loadMobileProfilePicture();
 }
