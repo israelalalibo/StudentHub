@@ -1641,53 +1641,33 @@ body {
 .result-price { color:#667eea; font-weight:700; font-size:13px; margin-top:4px; }
 .no-results { padding:12px; color:#6b7280; text-align:center; }
 
-/*Search result fix */
-/* --- Search Results Section Visibility Fix --- */
+/* Search Results Section — desktop matches featured section */
 #searchResultsSection {
-  margin-top: 120px; /* pushes results below fixed header */
-  padding-top: 40px;
-  background: #747d818f; /* ensure contrast */
-  /* min-height: 100vh; ensures full page visibility */
-  display: none;
+  display: none; /* shown via JS */
 }
 
-/* Product cards should be visible and well-spaced */
-#searchResultsGrid .product-card {
-  background: rgba(239, 238, 238, 0.426);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.638);
-  border-radius: 20px;
-  transition: all 0.3s ease;
-  opacity: 1;
-}
+/* Desktop: match the featured products look exactly */
+@media (min-width: 769px) {
+  #searchResultsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    width: 100%;
+  }
 
-#searchResultsGrid .product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-}
+  #searchResultsGrid .product-card {
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    width: 100%;
+    min-width: 0;
+  }
 
-/* Keep search results grid looking consistent */
-#searchResultsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 25px;
-  padding: 20px 0;
-  width: 100%;
-}
-
-/* Ensure product cards fill their grid cell properly */
-#searchResultsGrid .product-card {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-
-/* Ensure a single product doesn't stretch full width */
-#searchResultsGrid.single-item {
-  grid-template-columns: repeat(4, 1fr);
-}
-
-#searchResultsGrid.single-item .product-card {
-  max-width: 300px;
+  #searchResultsGrid .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
 }
 
 /* ============================================
