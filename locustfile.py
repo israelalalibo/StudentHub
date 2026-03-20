@@ -22,42 +22,52 @@ Test user: create one in your app, then set env vars or edit below:
 """
 
 import os
+import threading
 from locust import HttpUser, task, between
 
 
 # Credentials for login stress test (one test user, many concurrent logins)
-TEST_EMAIL = os.environ.get("LOCUST_TEST_EMAIL", "loadtest@example.com")
-TEST_PASSWORD = os.environ.get("LOCUST_TEST_PASSWORD", "LoadTest123!")
+TEST_EMAIL = os.environ.get("LOCUST_TEST_EMAIL", "israelalalibo97@gmail.com")
+TEST_PASSWORD = os.environ.get("LOCUST_TEST_PASSWORD", "pass1965")
+
+# Shared auth state — only ONE login request is made regardless of user count.
+# All virtual users reuse the same token, avoiding Supabase Auth rate limits.
+_shared_lock = threading.Lock()
+_shared_token = None
+_shared_user_id = None
 
 
 class UniMarketUser(HttpUser):
     """
-    Simulates a logged-in user: signs in once, then browses and uses API.
-    Each new virtual user = one concurrent login in on_start.
+    Simulates a logged-in user: signs in once (shared across all users), then browses and uses API.
     """
     wait_time = between(1, 4)
 
     def on_start(self):
-        """Log in once per virtual user. Stores token for authenticated API calls."""
-        self.token = None
-        self.user_id = None
-        with self.client.post(
-            "/signin",
-            json={"email": TEST_EMAIL, "password": TEST_PASSWORD},
-            headers={"Content-Type": "application/json"},
-            catch_response=True,
-            name="/signin [login]",
-        ) as response:
-            if response.status_code == 200:
-                try:
-                    data = response.json()
-                    session = data.get("session") or {}
-                    self.token = session.get("access_token")
-                    self.user_id = data.get("userID")
-                except (ValueError, KeyError):
-                    response.failure("Missing token in signin response")
-            else:
-                response.failure(f"Login failed: {response.status_code}")
+        """Reuse a shared token; only the very first virtual user hits /signin."""
+        global _shared_token, _shared_user_id
+        with _shared_lock:
+            if _shared_token is None:
+                with self.client.post(
+                    "/signin",
+                    json={"email": TEST_EMAIL, "password": TEST_PASSWORD},
+                    headers={"Content-Type": "application/json"},
+                    catch_response=True,
+                    name="/signin [login]",
+                ) as response:
+                    if response.status_code == 200:
+                        try:
+                            data = response.json()
+                            session = data.get("session") or {}
+                            _shared_token = session.get("access_token")
+                            _shared_user_id = data.get("userID")
+                            response.success()
+                        except (ValueError, KeyError):
+                            response.failure("Missing token in signin response")
+                    else:
+                        response.failure(f"Login failed: {response.status_code}")
+        self.token = _shared_token
+        self.user_id = _shared_user_id
 
     def _auth_headers(self):
         if not self.token:

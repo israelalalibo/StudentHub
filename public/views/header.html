@@ -14,6 +14,9 @@
             
             <!-- Mobile Quick Actions (always visible on mobile) -->
             <div class="mobile-quick-actions">
+                <a href="./BookValuator.html" class="ai-valuator-mobile-btn" title="AI Valuator">
+                    ✨ <span class="ai-mobile-label">AI</span>
+                </a>
                 <a href="./profile.html" class="profile-icon-mobile" title="View Profile">
                     <img src="../images/profile-icon.png" alt="Profile" id="mobileProfilePicture"/>
                 </a>
@@ -96,18 +99,26 @@
             <div class="mobile-search-bar">
                 <select id="mobileCategorySelect" class="mobile-category-select" onchange="applyCategoryFilter()">
                     <option value="">Category</option>
-                        <option value="textbooks">Textbooks</option>
-                        <option value="electronics">Electronics</option>
-                        <option value="supplies">Supplies</option>
-                        <option value="furniture">Furniture</option>
-                        <option value="clothing">Clothing</option>
-                        <option value="other">Other</option>
+                    <option value="textbooks">Textbooks</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="supplies">Supplies</option>
+                    <option value="furniture">Furniture</option>
+                    <option value="clothing">Clothing</option>
+                    <option value="other">Other</option>
                 </select>
-                <input type="text" 
-                    class="mobile-search-input" 
+                <input type="text"
+                    class="mobile-search-input"
                     id="mobileSearchInputVisible"
                     placeholder="Search StudentHub"
                     autocomplete="off">
+                <select id="mobilePriceFilter" class="mobile-price-filter">
+                    <option value="">Price</option>
+                    <option value="0-25">&lt;£25</option>
+                    <option value="25-50">£25-50</option>
+                    <option value="50-100">£50-100</option>
+                    <option value="100-200">£100-200</option>
+                    <option value="200+">£200+</option>
+                </select>
                 <button class="mobile-search-button" onclick="performVisibleMobileSearch()">
                     🔍
                 </button>

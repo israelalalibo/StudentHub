@@ -52,7 +52,31 @@ body {
 .mobile-quick-actions {
     display: none;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+}
+
+/* AI Valuator button in mobile header */
+.ai-valuator-mobile-btn {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 16px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ai-valuator-mobile-btn:hover,
+.ai-valuator-mobile-btn:active {
+    opacity: 0.9;
+}
+
+.ai-mobile-label {
+    font-size: 12px;
 }
 
 .profile-icon-mobile {
@@ -139,6 +163,28 @@ body {
 }
 
 .mobile-category-select:focus {
+    background: #e5e7eb;
+}
+
+/* Mobile Price Filter Dropdown */
+.mobile-price-filter {
+    background: #f3f4f6;
+    border: none;
+    border-left: 1px solid #e5e7eb;
+    padding: 10px 6px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+    outline: none;
+    min-width: 48px;
+    max-width: 70px;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.mobile-price-filter:focus {
     background: #e5e7eb;
 }
 
@@ -1883,6 +1929,18 @@ body {
   .mobile-search-button {
     padding: 10px 14px;
     font-size: 16px;
+  }
+
+  .mobile-price-filter {
+    padding: 10px 4px;
+    font-size: 12px;
+    min-width: 42px;
+    max-width: 60px;
+  }
+
+  .ai-valuator-mobile-btn {
+    padding: 4px 8px;
+    font-size: 12px;
   }
 
   /* Hero adjustments */

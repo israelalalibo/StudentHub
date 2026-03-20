@@ -85,22 +85,26 @@ function performMobileSearch() {
 function performVisibleMobileSearch() {
   const searchInput = document.getElementById('mobileSearchInputVisible');
   const categorySelect = document.getElementById('mobileCategorySelect');
+  const priceSelect = document.getElementById('mobilePriceFilter');
   const query = searchInput ? searchInput.value.trim() : '';
   const category = categorySelect ? categorySelect.value : '';
-  
+  const price = priceSelect ? priceSelect.value : '';
+
   // Hide dropdown when searching
   const dropdown = document.getElementById('mobileSearchResultsDropdown');
   if (dropdown) dropdown.classList.remove('active');
-  
+
+  // Store price filter for landing page
+  if (price) {
+    localStorage.setItem('priceFilter', price);
+  }
+
   // Build URL with parameters
   const params = [];
-  if (category) {
-    params.push(`category=${encodeURIComponent(category)}`);
-  }
-  if (query) {
-    params.push(`search=${encodeURIComponent(query)}`);
-  }
-  
+  if (category) params.push(`category=${encodeURIComponent(category)}`);
+  if (query) params.push(`search=${encodeURIComponent(query)}`);
+  if (price) params.push(`price=${encodeURIComponent(price)}`);
+
   if (params.length > 0) {
     window.location.href = `landingpage.html?${params.join('&')}`;
   } else if (category) {
@@ -126,44 +130,56 @@ window.handleMobileCategoryChange = handleMobileCategoryChange;
 
 // Mobile live search functionality
 let mobileSearchTimeout = null;
+let _mobileSearchProducts = [];
+
+function selectMobileSearchResult(index) {
+  const product = _mobileSearchProducts[index];
+  if (product) {
+    localStorage.setItem('selectedProduct', JSON.stringify(product));
+    window.location.href = 'landingpage.html';
+  }
+}
+window.selectMobileSearchResult = selectMobileSearchResult;
 
 async function handleMobileLiveSearch(query) {
   const dropdown = document.getElementById('mobileSearchResultsDropdown');
   const categorySelect = document.getElementById('mobileCategorySelect');
+  const mobilePriceSelect = document.getElementById('mobilePriceFilter');
   const category = categorySelect ? categorySelect.value : '';
-  
+  const price = mobilePriceSelect ? mobilePriceSelect.value : '';
+
   if (!dropdown) return;
-  
+
   if (!query || query.length < 2) {
     dropdown.classList.remove('active');
     return;
   }
-  
+
   try {
     let url = `/api/products/search?q=${encodeURIComponent(query)}&limit=5`;
-    if (category) {
-      url += `&category=${encodeURIComponent(category)}`;
-    }
-    
+    if (category) url += `&category=${encodeURIComponent(category)}`;
+    if (price) url += `&price=${encodeURIComponent(price)}`;
+
     const response = await fetch(url);
     if (!response.ok) throw new Error('Search failed');
-    
+
     const products = await response.json();
-    
+    _mobileSearchProducts = products;
+
     if (products.length === 0) {
       dropdown.innerHTML = '<div class="no-results">No products found</div>';
     } else {
-      dropdown.innerHTML = products.map(product => `
-        <div class="search-result-item" onclick="window.location.href='product_detail.html?id=${product.id}'">
-          <img src="${product.image_url || '/images/placeholder.jpg'}" alt="${product.title}" onerror="this.src='/images/placeholder.jpg'">
+      dropdown.innerHTML = products.map((product, index) => `
+        <div class="search-result-item" onclick="selectMobileSearchResult(${index})">
+          <img src="${product.image_url || '../images/default-placeholder.png'}" alt="${escapeHtml(product.title || '')}" onerror="this.src='../images/default-placeholder.png'">
           <div class="search-result-info">
-            <div class="search-result-title">${product.title}</div>
-            <div class="search-result-price">£${parseFloat(product.price).toFixed(2)}</div>
+            <div class="search-result-title">${escapeHtml(product.title || 'Untitled')}</div>
+            <div class="search-result-price">£${parseFloat(product.price || 0).toFixed(2)}</div>
           </div>
         </div>
       `).join('');
     }
-    
+
     dropdown.classList.add('active');
   } catch (error) {
     console.error('Mobile search error:', error);

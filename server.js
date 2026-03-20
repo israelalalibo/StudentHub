@@ -69,6 +69,11 @@ if (supabaseUrl && supabaseServiceKey) {
 } else {
   console.error('Supabase not initialized - missing credentials');
 }
+
+// In-memory cache for featured products (avoids full table scan on every request)
+let featuredCache = null;
+let featuredCacheTime = 0;
+const FEATURED_CACHE_TTL = 60_000; // 60 seconds
 const app = express();
 
 app.use(cors()); //Allow frontend to communicate with backend securely during local or deployed testing
@@ -747,7 +752,7 @@ app.get("/api/products/search", async (req, res) => {
     // Build query
     let query = supabaseAdmin
       .from("ProductTable")
-      .select("id, title, price, image_url, category")
+      .select("product_id, title, price, image_url, category, seller_id, description, condition, created_at")
       .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
     
     // Add category filter if provided
@@ -772,8 +777,17 @@ app.get("/api/products/search", async (req, res) => {
 // ============ FEATURED PRODUCTS API ============
 // Get featured products prioritized by review count
 app.get("/api/featured-products", async (req, res) => {
+  if (!supabaseAdmin) {
+    return res.status(503).json({ error: "Database not available" });
+  }
+
   try {
     const limit = parseInt(req.query.limit) || 8;
+
+    // Serve from cache if still fresh
+    if (featuredCache && Date.now() - featuredCacheTime < FEATURED_CACHE_TTL) {
+      return res.json(featuredCache.slice(0, limit));
+    }
 
     // Get all products with seller info
     const { data: products, error: productsError } = await supabaseAdmin
@@ -825,9 +839,11 @@ app.get("/api/featured-products", async (req, res) => {
       return new Date(b.created_at) - new Date(a.created_at);
     });
 
-    // Return top featured products
+    // Cache the full sorted list, then slice to limit
+    featuredCache = productsWithReviews;
+    featuredCacheTime = Date.now();
+
     const featured = productsWithReviews.slice(0, limit);
-    
     console.log(`Returning ${featured.length} featured products`);
     res.json(featured);
 
@@ -838,7 +854,7 @@ app.get("/api/featured-products", async (req, res) => {
 });
 
 app.get("/search", async (req, res) => {
-  const query = req.query.query || "";
+  const query = req.query.q || req.query.query || "";
   const priceFilter = req.query.price || "";
   console.log("Search query received:", query, "Price filter:", priceFilter);
   
@@ -1164,7 +1180,7 @@ app.get("/api/profile", async (req, res) => {
       return res.status(401).json({ error: "Not logged in" });
     }
 
-    // Get student info (use maybeSingle to handle case where no record exists)
+    // Get student info (maybeSingle to handle case where no record exists)
     // Use supabaseAdmin for data queries
     const { data: studentData, error: studentError } = await supabaseAdmin
       .from("student")

@@ -25,16 +25,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     await window.restoreSession();
   }
 
-  // Check for conversation ID in URL
+  // Check for conversation ID or seller/product in URL
   const urlParams = new URLSearchParams(window.location.search);
   const conversationId = urlParams.get('conversation');
+  const sellerId = urlParams.get('seller');
+  const productId = urlParams.get('product');
 
   // Load conversations list
   await loadConversations();
 
-  // If conversation ID provided, open it
+  // If conversation ID provided, open it directly
   if (conversationId) {
     openConversation(conversationId);
+  } else if (sellerId) {
+    // Contact button: create/find a conversation with this seller, then open it
+    try {
+      const response = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          seller_id: sellerId,
+          product_id: productId || null
+        })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        openConversation(data.conversation.id);
+      } else {
+        const err = await response.json().catch(() => ({}));
+        console.error('Could not start conversation:', err.error || response.status);
+      }
+    } catch (err) {
+      console.error('Error starting conversation:', err);
+    }
   }
 });
 
@@ -261,7 +284,7 @@ async function sendMessage() {
   try {
     const response = await fetch('/api/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         conversation_id: currentConversationId,
         content: content
