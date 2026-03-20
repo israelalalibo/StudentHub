@@ -520,7 +520,9 @@
                                 <img src="${sanitizeImageUrl(item.image_url)}"
                                     alt="${escapeHtml(item.title)}"
                                     onerror="this.src='../images/default-placeholder.png';"
-                                    class="product-image">
+                                    class="product-image"
+                                    loading="lazy"
+                                    decoding="async">
                                 ${item.review_count > 0 ? `<span class="review-badge">⭐ ${item.review_count} review${item.review_count > 1 ? 's' : ''}</span>` : ''}
                             </div>
                             <div class="product-info">
@@ -577,7 +579,9 @@
                                 <img src="${sanitizeImageUrl(item.image_url)}"
                                     alt="${escapeHtml(item.title || item.name)}"
                                     onerror="this.src='../images/default-placeholder.png';"
-                                    class="product-image">
+                                    class="product-image"
+                                    loading="lazy"
+                                    decoding="async">
                             </div>
                             <div class="product-info">
                                 <span class="product-category">${escapeHtml(item.category || 'Other')}</span>

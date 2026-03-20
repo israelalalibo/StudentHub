@@ -276,7 +276,7 @@ app.post('/api/forgot-password', async (req, res) => {
 
     // Determine the site URL for the redirect
     const siteUrl = process.env.SITE_URL
-      || (req.headers.host && req.headers.host.includes('localhost') ? `http://${req.headers.host}` : `https://${req.headers.host}`);
+      || (req.headers.host && req.headers.host.includes('localhost') ? `http://${req.headers.host}` : `https://${req.headers.host}`); 
 
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${siteUrl}/views/reset-password.html`
