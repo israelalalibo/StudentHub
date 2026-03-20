@@ -603,12 +603,12 @@ let currentPriceFilter = '';
 let currentCategoryFilter = '';
 
 const CATEGORY_LABELS = {
-  textbooks: '📚 Textbooks',
-  electronics: '💻 Electronics',
-  supplies: '✏️ Supplies',
-  furniture: '🪑 Furniture',
-  clothing: '👕 Clothing',
-  other: '📦 Other'
+  textbooks: 'Textbooks',
+  electronics: 'Electronics',
+  supplies: 'Supplies',
+  furniture: 'Furniture',
+  clothing: 'Clothing',
+  other: 'Other'
 };
 
 const PRICE_LABELS = {
