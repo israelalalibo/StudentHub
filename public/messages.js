@@ -3,6 +3,58 @@ let currentConversationId = null;
 let currentUserId = null;
 let messagePollingInterval = null;
 
+const ICON_LOCK = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>';
+const ICON_INBOX = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 011.183 1.98l.007.042a2.25 2.25 0 002.25 2.25h4.5a2.25 2.25 0 002.25-2.25l.007-.042a2.25 2.25 0 011.183-1.98H21.75M2.25 13.5V18a2.25 2.25 0 002.25 2.25H19.5A2.25 2.25 0 0021.75 18v-4.5M2.25 13.5V9A2.25 2.25 0 014.5 6.75h15A2.25 2.25 0 0121.75 9v4.5" /></svg>';
+const ICON_ALERT = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>';
+const ICON_CHAT_EMPTY = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" /></svg>';
+
+function getNoChatSelectedHTML() {
+  return `
+      <div class="no-chat-selected">
+        <div class="no-chat-graphic" aria-hidden="true">${ICON_CHAT_EMPTY}</div>
+        <h3>Select a conversation</h3>
+        <p>Choose someone from the list to open the thread.</p>
+      </div>`;
+}
+
+function setThreadOpen(open) {
+  const root = document.getElementById('messagesPage');
+  if (!root) return;
+  root.classList.toggle('thread-open', !!open);
+}
+
+function syncConversationUrl(conversationId) {
+  const base = 'messages.html';
+  const path = conversationId ? `${base}?conversation=${encodeURIComponent(conversationId)}` : base;
+  try {
+    history.replaceState({}, '', path);
+  } catch (e) { /* file:// or restricted */ }
+}
+
+/** Mobile: leave thread and return to inbox */
+function closeMobileThread() {
+  if (messagePollingInterval) {
+    clearInterval(messagePollingInterval);
+    messagePollingInterval = null;
+  }
+  currentConversationId = null;
+  setThreadOpen(false);
+  syncConversationUrl(null);
+
+  const chatArea = document.getElementById('chatArea');
+  if (chatArea) {
+    chatArea.innerHTML = getNoChatSelectedHTML();
+  }
+
+  document.querySelectorAll('.conversation-item').forEach((item) => {
+    item.classList.remove('active');
+  });
+
+  loadConversations();
+}
+
+window.closeMobileThread = closeMobileThread;
+
 // Get auth headers for API calls (so server can identify user per-request)
 function getAuthHeaders() {
   const headers = { 'Content-Type': 'application/json' };
@@ -72,7 +124,7 @@ async function loadConversations() {
       if (response.status === 401) {
         conversationsList.innerHTML = `
           <div class="no-conversations">
-            <div class="no-conversations-icon">🔒</div>
+            <div class="empty-state-graphic" aria-hidden="true">${ICON_LOCK}</div>
             <p>Please <a href="../index">log in</a> to view your messages</p>
           </div>
         `;
@@ -86,9 +138,9 @@ async function loadConversations() {
     if (conversations.length === 0) {
       conversationsList.innerHTML = `
         <div class="no-conversations">
-          <div class="no-conversations-icon">📭</div>
+          <div class="empty-state-graphic" aria-hidden="true">${ICON_INBOX}</div>
           <p>No conversations yet</p>
-          <p style="font-size: 0.85rem; margin-top: 8px;">Start a conversation by contacting a seller on a product page</p>
+          <p style="font-size: 0.85rem; margin-top: 8px;">Contact a seller from a product page to start messaging.</p>
         </div>
       `;
       return;
@@ -122,9 +174,9 @@ async function loadConversations() {
     console.error('Error loading conversations:', err);
     conversationsList.innerHTML = `
       <div class="no-conversations">
-        <div class="no-conversations-icon">⚠️</div>
+        <div class="empty-state-graphic" aria-hidden="true">${ICON_ALERT}</div>
         <p>Error loading conversations</p>
-        <p style="font-size: 0.85rem; margin-top: 8px;">${err.message}</p>
+        <p style="font-size: 0.85rem; margin-top: 8px;">${escapeHtml(err.message)}</p>
       </div>
     `;
   }
@@ -160,6 +212,9 @@ async function openConversation(conversationId) {
     // Render chat interface
     renderChatInterface(data);
 
+    setThreadOpen(true);
+    syncConversationUrl(conversationId);
+
     // Start polling for new messages
     startMessagePolling(conversationId);
 
@@ -170,9 +225,9 @@ async function openConversation(conversationId) {
     console.error('Error opening conversation:', err);
     chatArea.innerHTML = `
       <div class="no-chat-selected">
-        <div class="no-chat-icon">⚠️</div>
-        <h3>Error loading conversation</h3>
-        <p>${err.message}</p>
+        <div class="no-chat-graphic" aria-hidden="true">${ICON_ALERT}</div>
+        <h3>Something went wrong</h3>
+        <p>${escapeHtml(err.message)}</p>
       </div>
     `;
   }
@@ -200,6 +255,9 @@ function renderChatInterface(data) {
 
   chatArea.innerHTML = `
     <div class="chat-header">
+      <button type="button" class="chat-back-btn" onclick="closeMobileThread()" aria-label="Back to messages">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+      </button>
       ${displayPicture 
         ? `<img src="${displayPicture}" class="chat-header-avatar" style="width:44px;height:44px;border-radius:50%;object-fit:cover;" onerror="this.outerHTML='<div class=\\'chat-header-avatar\\'>${getInitials(displayName)}</div>'">`
         : `<div class="chat-header-avatar">${getInitials(displayName)}</div>`
@@ -211,7 +269,7 @@ function renderChatInterface(data) {
     </div>
     ${conversation.product_title ? `
       <div class="product-context">
-        📦 <span>About: <strong>${escapeHtml(conversation.product_title)}</strong></span>
+        <span class="product-context-label">Listing</span><strong>${escapeHtml(conversation.product_title)}</strong>
       </div>
     ` : ''}
     <div class="chat-messages" id="chatMessages">
@@ -228,9 +286,7 @@ function renderChatInterface(data) {
              id="messageInput" 
              placeholder="Type your message..."
              onkeypress="handleKeyPress(event)">
-      <button class="send-btn" onclick="sendMessage()">
-        Send ➤
-      </button>
+      <button type="button" class="send-btn" onclick="sendMessage()">Send</button>
     </div>
   `;
 

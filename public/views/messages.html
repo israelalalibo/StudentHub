@@ -19,6 +19,22 @@
       padding: 0;
     }
 
+    /* Messages page: hide marketplace search + filters in global header (mobile) */
+    @media (max-width: 768px) {
+      body.page-messages .mobile-search-row {
+        display: none !important;
+      }
+      body.page-messages {
+        padding-top: 72px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body.page-messages {
+        padding-top: 68px !important;
+      }
+    }
+
     .messages-page {
       margin-top: 100px;
       display: flex;
@@ -52,9 +68,7 @@
       margin: 0;
       font-size: 1.3rem;
       font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      letter-spacing: -0.02em;
     }
 
     .conversations-list {
@@ -140,9 +154,21 @@
       color: #6b7280;
     }
 
-    .no-conversations-icon {
-      font-size: 3rem;
-      margin-bottom: 16px;
+    .empty-state-graphic {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-state-graphic svg {
+      width: 26px;
+      height: 26px;
+      color: #9ca3af;
     }
 
     /* Chat Area */
@@ -306,10 +332,21 @@
       text-align: center;
     }
 
-    .no-chat-icon {
-      font-size: 5rem;
-      margin-bottom: 20px;
-      opacity: 0.5;
+    .no-chat-graphic {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .no-chat-graphic svg {
+      width: 32px;
+      height: 32px;
+      color: #9ca3af;
     }
 
     .no-chat-selected h3 {
@@ -326,17 +363,49 @@
     /* Product context banner */
     .product-context {
       padding: 10px 24px;
-      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-      border-bottom: 1px solid #bae6fd;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.85rem;
-      color: #0369a1;
+      background: #f8fafc;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.8125rem;
+      color: #475569;
+    }
+
+    .product-context-label {
+      font-weight: 600;
+      color: #64748b;
+      margin-right: 6px;
     }
 
     .product-context strong {
-      color: #075985;
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    /* Back to inbox (mobile thread view) */
+    .chat-back-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      margin-right: 4px;
+      margin-left: -8px;
+      padding: 0;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: #374151;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+
+    .chat-back-btn:hover {
+      background: #e5e7eb;
+    }
+
+    .chat-back-btn svg {
+      width: 22px;
+      height: 22px;
     }
 
     /* Loading states */
@@ -391,172 +460,171 @@
       }
     }
 
-    /* Mobile responsive */
+    /* Mobile: inbox OR thread (not stacked) */
     @media (max-width: 768px) {
       .messages-page {
-        margin-top: 80px;
+        margin-top: 0;
         flex-direction: column;
-        padding: 10px;
-        height: auto;
-        min-height: calc(100vh - 80px);
-        gap: 12px;
+        padding: 0;
+        gap: 0;
+        height: calc(100vh - 72px);
+        max-height: calc(100vh - 72px);
+        min-height: 0;
       }
 
       .conversations-sidebar {
         width: 100%;
-        max-height: 250px;
-        border-radius: 12px;
+        max-height: none;
+        flex: 1;
+        min-height: 0;
+        border-radius: 0;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
       }
-      
-      .sidebar-header {
-        padding: 14px 18px;
-      }
-      
-      .sidebar-header h2 {
-        font-size: 1rem;
-      }
-      
-      .conversations-list {
-        padding: 8px;
-      }
-      
-      .conversation-item {
-        padding: 10px 12px;
-        gap: 10px;
-      }
-      
-      .conversation-avatar {
-        width: 36px;
-        height: 36px;
-        font-size: 0.8rem;
-      }
-      
-      .conversation-preview {
-        font-size: 0.8rem;
+
+      .messages-page.thread-open .conversations-sidebar {
+        display: none;
       }
 
       .chat-area {
-        min-height: 400px;
-        border-radius: 12px;
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        border-radius: 0;
+        box-shadow: none;
       }
-      
-      .chat-header {
-        padding: 12px 16px;
+
+      .messages-page.thread-open .chat-area {
+        display: flex;
       }
-      
-      .chat-header-avatar {
-        width: 36px;
-        height: 36px;
+
+      .chat-messages {
+        flex: 1;
+        min-height: 0;
+      }
+
+      .chat-back-btn {
+        display: inline-flex;
+      }
+
+      .sidebar-header {
+        padding: 14px 18px;
+      }
+
+      .sidebar-header h2 {
+        font-size: 1.05rem;
+      }
+
+      .conversations-list {
+        padding: 8px;
+      }
+
+      .conversation-item {
+        padding: 12px 14px;
+        gap: 12px;
+      }
+
+      .conversation-avatar {
+        width: 40px;
+        height: 40px;
         font-size: 0.85rem;
       }
-      
+
+      .conversation-preview {
+        font-size: 0.8125rem;
+      }
+
+      .chat-header {
+        padding: 10px 14px;
+        flex-shrink: 0;
+      }
+
+      .chat-header-avatar {
+        width: 38px;
+        height: 38px;
+        font-size: 0.85rem;
+      }
+
       .chat-header-info h3 {
         font-size: 1rem;
       }
-      
+
       .chat-header-info p {
         font-size: 0.75rem;
       }
-      
-      .messages-container {
-        padding: 12px;
-      }
 
       .message {
-        max-width: 85%;
-        padding: 10px 14px;
-        font-size: 0.9rem;
+        max-width: 88%;
       }
-      
-      .message-avatar {
-        width: 28px;
-        height: 28px;
-        font-size: 0.7rem;
-      }
-      
+
       .chat-input-area {
         padding: 10px 12px;
         gap: 8px;
+        flex-shrink: 0;
       }
 
       .chat-input {
         flex: 1;
         min-width: 0;
-        padding: 10px 14px;
-        font-size: 0.9rem;
+        padding: 12px 16px;
+        font-size: 16px;
       }
 
       .send-btn {
-        padding: 10px 16px;
-        font-size: 0.85rem;
+        padding: 12px 18px;
+        font-size: 0.875rem;
         white-space: nowrap;
         flex-shrink: 0;
       }
-      
-      .no-chat-icon {
-        font-size: 3rem;
-      }
-      
+
       .no-chat-selected h3 {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
       }
-      
+
       .product-context {
-        padding: 8px 16px;
-        font-size: 0.8rem;
+        padding: 8px 14px;
+        font-size: 0.8125rem;
+        flex-shrink: 0;
+      }
+
+      #footer {
+        display: none;
       }
     }
-    
-    /* Small Mobile */
+
     @media (max-width: 480px) {
       .messages-page {
-        margin-top: 130px;
-        padding: 8px;
+        height: calc(100vh - 68px);
+        max-height: calc(100vh - 68px);
+      }
+    }
+
+    /* Desktop / tablet: always show split layout even when thread is "open" */
+    @media (min-width: 769px) {
+      .messages-page.thread-open .conversations-sidebar {
+        display: flex !important;
       }
 
-      .conversations-sidebar {
-        max-height: 200px;
+      .messages-page.thread-open .chat-area {
+        display: flex !important;
       }
 
-      .conversation-avatar {
-        width: 32px;
-        height: 32px;
-      }
-
-      .chat-area {
-        min-height: 350px;
-      }
-
-      .message {
-        max-width: 90%;
-        padding: 8px 12px;
-      }
-
-      .chat-input-area {
-        padding: 8px 10px;
-        gap: 6px;
-      }
-
-      .chat-input {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-      }
-
-      .send-btn {
-        padding: 8px 12px;
-        font-size: 0.8rem;
+      .chat-back-btn {
+        display: none !important;
       }
     }
   </style>
 </head>
-<body>
+<body class="page-messages">
   <div id="header"></div>
 
-  <div class="messages-page">
+  <div class="messages-page" id="messagesPage">
     <!-- Conversations Sidebar -->
     <div class="conversations-sidebar">
       <div class="sidebar-header">
-        <h2>💬 Messages</h2>
+        <h2>Messages</h2>
       </div>
       <div class="conversations-list" id="conversationsList">
         <div class="loading-spinner">
@@ -568,9 +636,11 @@
     <!-- Chat Area -->
     <div class="chat-area" id="chatArea">
       <div class="no-chat-selected">
-        <div class="no-chat-icon">💬</div>
+        <div class="no-chat-graphic" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" /></svg>
+        </div>
         <h3>Select a conversation</h3>
-        <p>Choose a conversation from the list to start messaging</p>
+        <p>Choose someone from the list to open the thread.</p>
       </div>
     </div>
   </div>
