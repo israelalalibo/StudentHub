@@ -174,6 +174,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const urlSearch = urlParams.get('search');
             const urlCategory = urlParams.get('category');
+            const urlPrice = urlParams.get('price') || localStorage.getItem('priceFilter') || '';
 
             const savedResults = localStorage.getItem("searchResults");
             const savedQuery   = localStorage.getItem("searchQuery");
@@ -186,31 +187,45 @@
             let products = [];
             let queryTerm = null;
             let isCategory = false;
-            
+
             // Variables to persist in header after loading
             let persistSearchQuery = '';
             let persistCategory = '';
-            let persistPriceFilter = localStorage.getItem("priceFilter") || '';
+            let persistPriceFilter = urlPrice || localStorage.getItem("priceFilter") || '';
 
             try {
-                // Check URL search parameter first (for mobile redirects)
                 if (urlSearch) {
                     queryTerm = urlSearch;
                     persistSearchQuery = urlSearch;
-                    const res = await fetch(`/search?query=${encodeURIComponent(urlSearch)}`);
+                    let fetchUrl = `/search?query=${encodeURIComponent(urlSearch)}`;
+                    if (urlPrice) fetchUrl += `&price=${encodeURIComponent(urlPrice)}`;
+                    const res = await fetch(fetchUrl);
                     products = await res.json();
+                    if (urlPrice) persistPriceFilter = urlPrice;
                     console.log("URL search:", urlSearch, products.length, "items");
                     // Clean URL without reloading
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else if (urlCategory) {
                     // Category from URL parameter (footer/sidebar links)
-                    const res = await fetch(`/search/category?category=${encodeURIComponent(urlCategory)}`);
+                    let fetchUrl = `/search/category?category=${encodeURIComponent(urlCategory)}`;
+                    if (urlPrice) fetchUrl += `&price=${encodeURIComponent(urlPrice)}`;
+                    const res = await fetch(fetchUrl);
                     if (res.ok) {
                         products = await res.json();
                         queryTerm = categoryDisplayNames[urlCategory] || urlCategory;
                         persistCategory = urlCategory;
                         isCategory = true;
+                        if (urlPrice) persistPriceFilter = urlPrice;
                         console.log("URL category:", urlCategory, products.length, "items");
+                    }
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else if (urlPrice && !urlSearch && !urlCategory) {
+                    // Price-only filter: show all products in that price range
+                    const res = await fetch(`/search?query=&price=${encodeURIComponent(urlPrice)}`);
+                    if (res.ok) {
+                        products = await res.json();
+                        persistPriceFilter = urlPrice;
+                        queryTerm = 'All Products';
                     }
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else if (categoryResults) {
@@ -314,21 +329,25 @@
                 } else {
                     sectionSubtitle.textContent = `Browse all items in this category`;
                 }
+            } else if (persistPriceFilter && sectionTitle && sectionSubtitle && !persistSearchQuery && !persistCategory) {
+                sectionTitle.textContent = "Filtered Results";
+                sectionSubtitle.textContent = `Showing products: ${priceFilterNames[persistPriceFilter] || persistPriceFilter}`;
             } else if (sectionTitle && sectionSubtitle) {
                 sectionTitle.textContent = "Search Results";
-                sectionSubtitle.textContent = `Here's what we found for your search`;
+                const priceLabel = persistPriceFilter ? ` · ${priceFilterNames[persistPriceFilter] || persistPriceFilter}` : '';
+                sectionSubtitle.textContent = `Here's what we found for your search${priceLabel}`;
             }
 
             //check to see user has pressed enter to select multiple items or if user has clicked an item only from dropdown
             let shouldScrollToResults = false;
             
-            if (urlSearch || isCategory || savedQuery){
+            if (urlSearch || urlCategory || (urlPrice && !urlSearch && !urlCategory) || isCategory || savedQuery){
                 searchResultsSection.style.display = "block";
                 featuredSection.style.display = "none";
                 shouldScrollToResults = true;
                 console.log("Showing search/category results");
             }
-            else if (!savedResults){
+            else if (!savedResults && !selectedItem){
                 searchResultsSection.style.display = "none";
                 featuredSection.style.display = "block";
                 // Clear persisted filters when showing default view
@@ -337,16 +356,6 @@
                 localStorage.removeItem("persistedPriceFilter");
                 localStorage.removeItem("priceFilter");
                 console.log("from block 2");
-            }
-            else if (!selectedItem){
-                searchResultsSection.style.display = "none";
-                featuredSection.style.display = "block";
-                // Clear persisted filters when showing default view
-                localStorage.removeItem("persistedSearchQuery");
-                localStorage.removeItem("persistedCategory");
-                localStorage.removeItem("persistedPriceFilter");
-                localStorage.removeItem("priceFilter");
-                console.log("from block 3");
             }else{
                 featuredSection.style.display = "none";
                 searchResultsSection.style.display = "block";

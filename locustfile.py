@@ -27,8 +27,8 @@ from locust import HttpUser, task, between
 
 
 # Credentials for login stress test (one test user, many concurrent logins)
-TEST_EMAIL = os.environ.get("LOCUST_TEST_EMAIL", "israelalalibo97@gmail.com")
-TEST_PASSWORD = os.environ.get("LOCUST_TEST_PASSWORD", "pass1965")
+TEST_EMAIL = os.environ.get("LOCUST_TEST_EMAIL", "")
+TEST_PASSWORD = os.environ.get("LOCUST_TEST_PASSWORD", "")
 
 # Shared auth state — only ONE login request is made regardless of user count.
 # All virtual users reuse the same token, avoiding Supabase Auth rate limits.

@@ -112,6 +112,35 @@ function performVisibleMobileSearch() {
   }
 }
 
+// Mobile price filter auto-apply
+function applyMobilePriceFilter() {
+  const priceSelect = document.getElementById('mobilePriceFilter');
+  const categorySelect = document.getElementById('mobileCategorySelect');
+  const searchInput = document.getElementById('mobileSearchInputVisible');
+
+  const price = priceSelect ? priceSelect.value : '';
+  const category = categorySelect ? categorySelect.value : '';
+  const query = searchInput ? searchInput.value.trim() : '';
+
+  // Store for later use
+  if (price) {
+    localStorage.setItem('priceFilter', price);
+  } else {
+    localStorage.removeItem('priceFilter');
+  }
+
+  // Build params and navigate to landingpage with filtered results
+  const params = [];
+  if (category) params.push(`category=${encodeURIComponent(category)}`);
+  if (query) params.push(`search=${encodeURIComponent(query)}`);
+  if (price) params.push(`price=${encodeURIComponent(price)}`);
+
+  if (params.length > 0) {
+    window.location.href = `landingpage.html?${params.join('&')}`;
+  }
+}
+window.applyMobilePriceFilter = applyMobilePriceFilter;
+
 // Handle mobile category dropdown change - auto-search when category selected
 function handleMobileCategoryChange() {
   const categorySelect = document.getElementById('mobileCategorySelect');
@@ -620,6 +649,12 @@ function applyPriceFilter() {
 function applyCategoryFilter() {
   const categoryFilter = document.getElementById('categoryFilter');
   const mobileCategoryFilter = document.getElementById('mobileCategorySelect');
+  const mobilePriceFilter = document.getElementById('mobilePriceFilter');
+
+  // If mobile price filter has a value, persist it so viewCategory picks it up
+  if (mobilePriceFilter && mobilePriceFilter.value) {
+    localStorage.setItem('priceFilter', mobilePriceFilter.value);
+  }
 
   // Check which filter has a value (desktop or mobile)
   const activeFilter = (categoryFilter && categoryFilter.value) ? categoryFilter :
