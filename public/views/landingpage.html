@@ -229,7 +229,8 @@
                     }
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else if (categoryResults) {
-                // Case: Category search
+                // Case: Category search — clear stale price so it doesn't restore to dropdown
+                persistPriceFilter = '';
                 products = JSON.parse(categoryResults);
                 queryTerm = categoryDisplayNames[selectedCategory] || selectedCategory;
                 persistCategory = selectedCategory;

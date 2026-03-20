@@ -631,17 +631,22 @@ function applyPriceFilter() {
   const priceFilter = document.getElementById('priceFilter');
   const searchInput = document.getElementById('liveSearchInput');
   const resultDropdown = document.getElementById('searchResultsDropdown');
-  
+
   if (priceFilter) {
     currentPriceFilter = priceFilter.value;
-    
+
     // If there's a search query, re-run the search with the filter
     if (searchInput && searchInput.value.trim()) {
       fetchSearchResults(searchInput.value.trim(), resultDropdown);
     }
-    
-    // Store filter for landing page
-    localStorage.setItem('priceFilter', currentPriceFilter);
+
+    // Only persist price to localStorage when there's an active search query
+    // (prevents old price from bleeding into subsequent category selections)
+    if (currentPriceFilter && searchInput && searchInput.value.trim()) {
+      localStorage.setItem('priceFilter', currentPriceFilter);
+    } else if (!currentPriceFilter) {
+      localStorage.removeItem('priceFilter');
+    }
   }
 }
 
@@ -649,12 +654,6 @@ function applyPriceFilter() {
 function applyCategoryFilter() {
   const categoryFilter = document.getElementById('categoryFilter');
   const mobileCategoryFilter = document.getElementById('mobileCategorySelect');
-  const mobilePriceFilter = document.getElementById('mobilePriceFilter');
-
-  // If mobile price filter has a value, persist it so viewCategory picks it up
-  if (mobilePriceFilter && mobilePriceFilter.value) {
-    localStorage.setItem('priceFilter', mobilePriceFilter.value);
-  }
 
   // Check which filter has a value (desktop or mobile)
   const activeFilter = (categoryFilter && categoryFilter.value) ? categoryFilter :
@@ -663,10 +662,18 @@ function applyCategoryFilter() {
   if (activeFilter) {
     const category = activeFilter.value;
 
-    // Use the existing viewCategory function
+    // Clear price filters so category selection is independent of any previous price filter
+    const priceFilter = document.getElementById('priceFilter');
+    const mobilePriceFilter = document.getElementById('mobilePriceFilter');
+    if (priceFilter) priceFilter.value = '';
+    if (mobilePriceFilter) mobilePriceFilter.value = '';
+    localStorage.removeItem('priceFilter');
+    localStorage.removeItem('persistedPriceFilter');
+
+    // Use the existing viewCategory function (reads price from UI dropdowns, now cleared)
     viewCategory(category, null);
 
-    // Reset the filter to default after selection
+    // Reset the category filter to default after selection
     setTimeout(() => {
       activeFilter.value = '';
     }, 100);
@@ -955,13 +962,10 @@ async function viewCategory(category, e) {
       categoriesMenu.classList.remove("show");
     }
 
-    // Get the current price filter value
+    // Get the current price filter value from UI dropdowns only (desktop + mobile)
     const priceFilter = document.getElementById('priceFilter');
-    const priceValue = priceFilter ? priceFilter.value : '';
-    
-    // Also check localStorage for price filter (in case coming from mobile)
-    const storedPrice = localStorage.getItem('priceFilter') || '';
-    const finalPriceFilter = priceValue || storedPrice;
+    const mobilePriceFilter = document.getElementById('mobilePriceFilter');
+    const finalPriceFilter = (priceFilter && priceFilter.value) || (mobilePriceFilter && mobilePriceFilter.value) || '';
 
     // Build the URL with price filter if set
     let fetchUrl = `/search/category?category=${encodeURIComponent(category)}`;
@@ -986,10 +990,15 @@ async function viewCategory(category, e) {
       localStorage.removeItem("categoryPriceFilter");
     }
     
-    // Clear any previous search data to avoid conflicts
+    // Clear any previous search data and stale price filter to avoid conflicts
     localStorage.removeItem("searchResults");
     localStorage.removeItem("searchQuery");
     localStorage.removeItem("selectedProduct");
+    // Clear stale price so category results don't restore an old price to the dropdown
+    if (!finalPriceFilter) {
+      localStorage.removeItem("priceFilter");
+      localStorage.removeItem("persistedPriceFilter");
+    }
 
     // Navigate to landing page
     window.location.href = "landingpage.html";
