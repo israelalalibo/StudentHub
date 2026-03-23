@@ -1324,14 +1324,12 @@ async function viewCategory(category, e) {
       localStorage.removeItem("persistedPriceFilter");
     }
 
-    // Navigate to landing page.
-    // Use reload() when already on landing page so bfcache is bypassed and
-    // DOMContentLoaded fires fresh to pick up the new localStorage data.
-    if (window.location.pathname.endsWith('landingpage.html')) {
-      window.location.reload();
-    } else {
-      window.location.href = 'landingpage.html';
-    }
+    // Always navigate to a clean landingpage.html URL (no query params).
+    // Using href instead of reload() ensures any stale ?price= or ?search=
+    // params in the current URL are stripped, so the landing page reads the
+    // correct categoryResults from localStorage instead of falling into the
+    // price-only or search-only branch.
+    window.location.href = 'landingpage.html';
 
   } catch (err) {
     console.error("Error fetching category:", err);
