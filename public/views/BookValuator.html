@@ -22,7 +22,7 @@
 
         <!-- Mode Toggle -->
         <div class="flex rounded-lg bg-gray-200 p-1 mb-6">
-            <button type="button" id="mode-book" class="flex-1 py-2 px-4 text-sm font-medium rounded-md bg-indigo-600 text-white transition-colors" onclick="setMode('book')">
+            <button type="button" id="mode-book" class="flex-1 py-2 px-4 text-sm font-medium rounded-md bg-blue-600 text-white transition-colors" onclick="setMode('book')">
                 Book Appraisal
             </button>
             <button type="button" id="mode-item" class="flex-1 py-2 px-4 text-sm font-medium rounded-md text-gray-700 transition-colors" onclick="setMode('item')">
@@ -39,12 +39,12 @@
                 <div class="space-y-6">
                     <div>
                         <label for="isbn" class="block text-sm font-medium text-gray-700">ISBN (10 or 13)</label>
-                        <input type="text" id="isbn" name="isbn" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <input type="text" id="isbn" name="isbn" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     </div>
 
                     <div>
                         <label for="condition" class="block text-sm font-medium text-gray-700">Overall Condition</label>
-                        <select id="condition" name="condition" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <select id="condition" name="condition" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
                             <option>Like New</option>
                             <option>Very Good</option>
                             <option selected>Good</option>
@@ -55,23 +55,23 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Specific Damages (if any)</label>
                         <div class="mt-2 grid grid-cols-2 gap-4">
-                           <label class="inline-flex items-center"><input type="checkbox" name="damages" value="highlighting" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"> <span class="ml-2">Highlighting/Writing</span></label>
-                           <label class="inline-flex items-center"><input type="checkbox" name="damages" value="water damage" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"> <span class="ml-2">Water Damage</span></label>
-                           <label class="inline-flex items-center"><input type="checkbox" name="damages" value="torn pages" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"> <span class="ml-2">Torn/Bent Pages</span></label>
-                           <label class="inline-flex items-center"><input type="checkbox" name="damages" value="broken spine" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"> <span class="ml-2">Broken Spine</span></label>
+                           <label class="inline-flex items-center"><input type="checkbox" name="damages" value="highlighting" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"> <span class="ml-2">Highlighting/Writing</span></label>
+                           <label class="inline-flex items-center"><input type="checkbox" name="damages" value="water damage" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"> <span class="ml-2">Water Damage</span></label>
+                           <label class="inline-flex items-center"><input type="checkbox" name="damages" value="torn pages" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"> <span class="ml-2">Torn/Bent Pages</span></label>
+                           <label class="inline-flex items-center"><input type="checkbox" name="damages" value="broken spine" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"> <span class="ml-2">Broken Spine</span></label>
                         </div>
                     </div>
 
                     <div>
                         <label for="binding" class="block text-sm font-medium text-gray-700">Binding Type</label>
-                        <select id="binding" name="binding" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <select id="binding" name="binding" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
                             <option>Paperback</option>
                             <option>Hardcover</option>
                         </select>
                     </div>
                     <div class="flex items-start">
                         <div class="flex items-center h-5">
-                            <input id="first_edition" name="first_edition" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                            <input id="first_edition" name="first_edition" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                         </div>
                         <div class="ml-3 text-sm">
                             <label for="first_edition" class="font-medium text-gray-700">First Edition?</label>
@@ -79,7 +79,7 @@
                     </div>
                     <div class="flex items-start">
                         <div class="flex items-center h-5">
-                            <input id="signed" name="signed" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                            <input id="signed" name="signed" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                         </div>
                         <div class="ml-3 text-sm">
                             <label for="signed" class="font-medium text-gray-700">Signed by Author?</label>
@@ -94,19 +94,19 @@
                     <div>
                         <label for="item-name" class="block text-sm font-medium text-gray-700">Item Name</label>
                         <input type="text" id="item-name" name="item_name"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             placeholder="e.g. Vintage Rolex Submariner">
                     </div>
                     <div>
                         <label for="item-description" class="block text-sm font-medium text-gray-700">Description</label>
                         <textarea id="item-description" name="item_description" rows="3"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             placeholder="Describe the item, including brand, model, age, notable features..."></textarea>
                     </div>
                     <div>
                         <label for="item-condition" class="block text-sm font-medium text-gray-700">Condition</label>
                         <select id="item-condition" name="item_condition"
-                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
                             <option>New / Sealed</option>
                             <option>Like New</option>
                             <option selected>Good</option>
@@ -117,7 +117,7 @@
                     <div>
                         <label for="item-category" class="block text-sm font-medium text-gray-700">Category</label>
                         <select id="item-category" name="item_category"
-                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
                             <option>Electronics</option>
                             <option>Furniture</option>
                             <option>Clothing & Accessories</option>
@@ -133,13 +133,13 @@
                     <div>
                         <label for="item-image" class="block text-sm font-medium text-gray-700">Upload Image (optional)</label>
                         <input type="file" id="item-image" name="item_image" accept="image/jpeg,image/png,image/webp"
-                            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         <p class="mt-1 text-xs text-gray-500">JPG, PNG, or WebP. Max 4MB.</p>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="w-full inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button type="submit" class="w-full inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 Get Estimated Value
             </button>
         </form>
@@ -148,15 +148,15 @@
         <div id="result-container" class="mt-8 p-6 bg-gray-50 rounded-lg hidden">
              <h2 class="text-2xl font-semibold text-gray-800 mb-4">Valuation Result</h2>
              <div id="loader" class="text-center">
-                <p id="loader-text" class="text-lg text-indigo-600">Appraising your item...</p>
+                <p id="loader-text" class="text-lg text-blue-600">Appraising your item...</p>
              </div>
              <div id="result-content" class="hidden">
                 <p class="text-lg text-gray-600">Estimated Value:</p>
-                <p id="predicted-value" class="text-4xl font-bold text-indigo-600 mb-4"></p>
+                <p id="predicted-value" class="text-4xl font-bold text-blue-600 mb-4"></p>
                 <p class="text-md font-semibold text-gray-700">Reasoning:</p>
                 <p id="reasoning" class="text-gray-600 italic"></p>
                 <button id="listItemBtn" style="display: none;"
-                    class="mt-6 w-full inline-flex justify-center items-center gap-2 py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all"
+                    class="mt-6 w-full inline-flex justify-center items-center gap-2 py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
                     onclick="window.location.href='./sellItem.html'">
                     List This Item for Sale
                 </button>

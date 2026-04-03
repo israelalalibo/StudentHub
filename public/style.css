@@ -33,7 +33,7 @@ body {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+    background: linear-gradient(90deg, #3b82f6, #2563eb, #93c5fd, #60a5fa);
     background-size: 300% 100%;
     animation: gradient 3s ease infinite;
 }
@@ -84,7 +84,7 @@ body {
 }
 
 .toggle-btn.active {
-    color: #667eea;
+    color: #3b82f6;
 }
 
 .toggle-slider {
@@ -128,7 +128,7 @@ body {
 
 .form-input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -168,7 +168,7 @@ body {
 }
 
 .password-toggle:hover {
-    color: #667eea;
+    color: #3b82f6;
 }
 
 .error-message {
@@ -201,7 +201,7 @@ body {
 }
 
 .forgot-password a {
-    color: #667eea;
+    color: #3b82f6;
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
@@ -214,7 +214,7 @@ body {
 .submit-btn {
     width: 100%;
     padding: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border: none;
     border-radius: 12px;

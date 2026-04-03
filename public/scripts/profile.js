@@ -34,7 +34,7 @@ async function loadProfileData() {
         <img src="${profile.profile_picture}" 
              alt="Profile Picture" 
              class="profile-avatar-large"
-             style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #667eea;"
+             style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #3b82f6;"
              onerror="this.outerHTML='<div class=\\'profile-avatar-large\\'>${initials}</div>'">
       `;
     } else {

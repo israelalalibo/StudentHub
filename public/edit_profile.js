@@ -29,10 +29,10 @@ function renderProfileImage(user) {
         container.innerHTML = `
             <img src="${user.profile_picture}"
                  class="img-fluid rounded-circle"
-                 style="width:150px; height:150px; object-fit:cover; border:3px solid #667eea;"
+                 style="width:150px; height:150px; object-fit:cover; border:3px solid #3b82f6;"
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="rounded-circle align-items-center justify-content-center"
-                 style="width:150px; height:150px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: none;">
+                 style="width:150px; height:150px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); display: none;">
                 <span class="display-3 text-white fw-bold">${initials}</span>
             </div>
         `;
@@ -41,7 +41,7 @@ function renderProfileImage(user) {
     } else {
         container.innerHTML = `
             <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
-                 style="width:150px; height:150px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                 style="width:150px; height:150px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
                 <span class="display-3 text-white fw-bold">${initials}</span>
             </div>
         `;
@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     container.innerHTML = `
                         <img src="${event.target.result}"
                              class="img-fluid rounded-circle"
-                             style="width:150px; height:150px; object-fit:cover; border:3px solid #667eea;">
+                             style="width:150px; height:150px; object-fit:cover; border:3px solid #3b82f6;">
                     `;
                     
                     // Show delete button and hide no image text

@@ -20,18 +20,18 @@ function setMode(mode) {
     if (mode === 'book') {
         bookFields.classList.remove('hidden');
         itemFields.classList.add('hidden');
-        modeBookBtn.classList.add('bg-indigo-600', 'text-white');
+        modeBookBtn.classList.add('bg-blue-600', 'text-white');
         modeBookBtn.classList.remove('text-gray-700');
-        modeItemBtn.classList.remove('bg-indigo-600', 'text-white');
+        modeItemBtn.classList.remove('bg-blue-600', 'text-white');
         modeItemBtn.classList.add('text-gray-700');
         document.getElementById('isbn').required = true;
         document.getElementById('item-name').required = false;
     } else {
         bookFields.classList.add('hidden');
         itemFields.classList.remove('hidden');
-        modeItemBtn.classList.add('bg-indigo-600', 'text-white');
+        modeItemBtn.classList.add('bg-blue-600', 'text-white');
         modeItemBtn.classList.remove('text-gray-700');
-        modeBookBtn.classList.remove('bg-indigo-600', 'text-white');
+        modeBookBtn.classList.remove('bg-blue-600', 'text-white');
         modeBookBtn.classList.add('text-gray-700');
         document.getElementById('isbn').required = false;
         document.getElementById('item-name').required = true;

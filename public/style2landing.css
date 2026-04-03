@@ -44,7 +44,7 @@ body {
 .logo {
     font-size: 24px;
     font-weight: 700;
-    color: #667eea;
+    color: #3b82f6;
     text-decoration: none;
 }
 
@@ -60,7 +60,7 @@ body {
     display: flex;
     align-items: center;
     gap: 3px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     text-decoration: none;
     border-radius: 16px;
@@ -193,7 +193,7 @@ body {
 }
 
 .mobile-filter-toggle.has-filters {
-    border-color: #a5b4fc;
+    border-color: #93c5fd;
     background: rgba(102, 126, 234, 0.25);
 }
 
@@ -208,7 +208,7 @@ body {
     min-width: 18px;
     height: 18px;
     border-radius: 9px;
-    background: #667eea;
+    background: #3b82f6;
     color: white;
     font-size: 11px;
     font-weight: 700;
@@ -304,7 +304,7 @@ body {
 }
 
 .mobile-filter-option.selected {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border-color: transparent;
     font-weight: 600;
@@ -323,7 +323,7 @@ body {
     padding: 10px 16px;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     font-size: 14px;
     font-weight: 600;
@@ -414,7 +414,7 @@ body {
 }
 
 .mobile-search-results-dropdown .search-result-price {
-    color: #667eea;
+    color: #3b82f6;
     font-weight: 700;
     font-size: 14px;
 }
@@ -506,7 +506,7 @@ body {
 
 .search-input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -553,14 +553,14 @@ body {
 }
 
 .filter-btn:hover {
-    border-color: #667eea;
-    background: #f5f3ff;
-    color: #667eea;
+    border-color: #3b82f6;
+    background: #eff6ff;
+    color: #3b82f6;
 }
 
 .filter-btn.active {
-    border-color: #667eea;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.35);
 }
@@ -613,13 +613,13 @@ body {
 }
 
 .filter-dropdown-item:hover {
-    background: #f5f3ff;
-    color: #667eea;
+    background: #eff6ff;
+    color: #3b82f6;
 }
 
 .filter-dropdown-item.selected {
-    background: linear-gradient(135deg, #667eea12 0%, #764ba212 100%);
-    color: #667eea;
+    background: linear-gradient(135deg, #3b82f612 0%, #2563eb12 100%);
+    color: #3b82f6;
     font-weight: 600;
 }
 
@@ -627,7 +627,7 @@ body {
     content: '✓';
     float: right;
     font-weight: 700;
-    color: #667eea;
+    color: #3b82f6;
 }
 
 /* Active Filter Chips Bar (Desktop) */
@@ -666,12 +666,12 @@ body {
     align-items: center;
     gap: 5px;
     padding: 4px 10px 4px 12px;
-    background: #f5f3ff;
-    border: 1px solid #ddd6fe;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
     border-radius: 16px;
     font-size: 12px;
     font-weight: 600;
-    color: #667eea;
+    color: #3b82f6;
     animation: chipSlideIn 0.2s ease;
 }
 
@@ -683,8 +683,8 @@ body {
     height: 16px;
     border-radius: 50%;
     border: none;
-    background: #ddd6fe;
-    color: #667eea;
+    background: #bfdbfe;
+    color: #3b82f6;
     font-size: 10px;
     cursor: pointer;
     padding: 0;
@@ -693,7 +693,7 @@ body {
 }
 
 .filter-chip-remove:hover {
-    background: #667eea;
+    background: #3b82f6;
     color: white;
 }
 
@@ -744,7 +744,7 @@ body {
 }
 
 .profile-icon-wrapper.has-picture {
-    border: 2px solid #667eea;
+    border: 2px solid #3b82f6;
     /* Adjust size to account for border */
     width: 40px;
     height: 40px;
@@ -775,7 +775,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
 }
 
@@ -786,12 +786,12 @@ body {
 
 .btn-outline {
     background: transparent;
-    color: #667eea;
-    border: 2px solid #667eea;
+    color: #3b82f6;
+    border: 2px solid #3b82f6;
 }
 
 .btn-outline:hover {
-    background: #667eea;
+    background: #3b82f6;
     color: white;
 }
 
@@ -805,7 +805,7 @@ body {
 }
 
 .cart-icon:hover {
-    background: #667eea;
+    background: #3b82f6;
     color: white;
     transform: translateY(-2px);
 }
@@ -842,7 +842,7 @@ body {
     font-size: 48px;
     font-weight: 700;
     margin-bottom: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -909,14 +909,14 @@ body {
 .category-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
-    border-color: #667eea;
+    border-color: #3b82f6;
 }
 
 .category-icon {
     width: 60px;
     height: 60px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     border-radius: 15px;
     display: flex;
     align-items: center;
@@ -1023,7 +1023,7 @@ body {
 .product-price {
     font-size: 20px;
     font-weight: 700;
-    color: #667eea;
+    color: #3b82f6;
     margin: 0;
     line-height: 1.2;
 }
@@ -1075,8 +1075,8 @@ body {
 
 .product-category {
     display: inline-block;
-    background: linear-gradient(135deg, #667eea18 0%, #764ba218 100%);
-    color: #5b21b6;
+    background: linear-gradient(135deg, #3b82f618 0%, #2563eb18 100%);
+    color: #1e3a8a;
     padding: 3px 10px;
     border-radius: 999px;
     font-size: 10px;
@@ -1102,7 +1102,7 @@ body {
     width: 48px;
     height: 48px;
     border: 4px solid #e5e7eb;
-    border-top-color: #667eea;
+    border-top-color: #3b82f6;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     margin-bottom: 16px;
@@ -1129,7 +1129,7 @@ body {
 
 .pagination-btn {
     padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -1183,7 +1183,7 @@ body {
     width: 60px;
     height: 60px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1240,7 +1240,7 @@ body {
 }
 
 .footer-section ul li a:hover {
-    color: #667eea;
+    color: #3b82f6;
 }
 
 .footer-bottom {
@@ -1431,7 +1431,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     text-decoration: none;
     border-radius: 25px;
@@ -1446,7 +1446,7 @@ body {
 .ai-valuator-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
 }
 
 .ai-valuator-btn:active {
@@ -1504,7 +1504,7 @@ body {
     left: -2px;
     right: -2px;
     bottom: -2px;
-    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #4facfe);
+    background: linear-gradient(45deg, #3b82f6, #2563eb, #93c5fd, #4facfe);
     border-radius: 25px;
     opacity: 0;
     z-index: -1;
@@ -1538,7 +1538,7 @@ body {
 }
 
 .categories-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     padding: 10px 18px;
     border: none;
@@ -1584,7 +1584,7 @@ body {
 
 .categories-menu a:hover {
     background: #f8fafc;
-    color: #667eea;
+    color: #3b82f6;
 }
 
 /* Styling for messages*/
@@ -1617,7 +1617,7 @@ body {
     max-width: 60%;
 }
 .sent .bubble {
-    background: #667eea;
+    background: #3b82f6;
     color: white;
     border-bottom-right-radius: 5px;
 }
@@ -1674,7 +1674,7 @@ body {
 }
 .result-meta { flex: 1; display:flex; flex-direction: column; }
 .result-title { font-weight:600; color:#111827; font-size:14px; }
-.result-price { color:#667eea; font-weight:700; font-size:13px; margin-top:4px; }
+.result-price { color:#3b82f6; font-weight:700; font-size:13px; margin-top:4px; }
 .no-results { padding:12px; color:#6b7280; text-align:center; }
 
 /* Search Results Section */
@@ -1775,7 +1775,7 @@ body {
 .hamburger-line {
   width: 100%;
   height: 3px;
-  background: #667eea;
+  background: #3b82f6;
   border-radius: 2px;
   transition: all 0.3s ease;
 }
@@ -1827,7 +1827,7 @@ body {
   align-items: center;
   gap: 10px;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
   margin: -60px -20px 20px -20px;
   padding-top: 70px;
@@ -1923,7 +1923,7 @@ body {
 
 .mobile-search-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
 
@@ -1960,7 +1960,7 @@ body {
 
 .mobile-quick-links a:hover {
   background: #f3f4f6;
-  color: #667eea;
+  color: #3b82f6;
 }
 
 /* ============================================
