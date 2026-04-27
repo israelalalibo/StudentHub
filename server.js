@@ -423,26 +423,6 @@ app.post('/api/restore-session', async (req, res) => {
   }
 });
 
-async function callGeminiWithRetry(model, contentParts, maxAttempts = 3) { //Retries the Gemini API call in case of rate limit errors, with exponential backoff
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await model.generateContent(contentParts);
-    } catch (err) {
-      const isRateLimit = err.message && (
-        err.message.includes('429') ||
-        err.message.includes('rate limit') ||
-        err.message.includes('RESOURCE_EXHAUSTED')
-      );
-      if (isRateLimit && attempt < maxAttempts) {
-        const waitMs = attempt * 20000; // 20s, 40s
-        await new Promise(resolve => setTimeout(resolve, waitMs));
-        continue;
-      }
-      throw err;
-    }
-  }
-}
-
 async function getBookInfoFromISBN(isbn) {
   try {
     const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
@@ -521,22 +501,29 @@ app.post('/bookValuator', async (req, res) => {
       generationConfig: { responseMimeType: "application/json" }
     });
 
-    const apiResult = await callGeminiWithRetry(model, userQuery);
+    const apiResult = await model.generateContent(userQuery);
     const modelResponse = apiResult.response.text();
 
     let result;
     try {
       result = JSON.parse(modelResponse);
     } catch {
-      result = {
-        predicted_value: null,
-        reasoning: modelResponse || "Model returned an unexpected response."
-      };
+      const jsonMatch = modelResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try { result = JSON.parse(jsonMatch[0]); } catch { result = null; }
+      }
     }
+
+    if (!result || result.predicted_value == null) {
+      return res.status(500).json({ error: "Could not parse a valuation from the AI response. Please try again.", success: false });
+    }
+
+    const rawValue = result.predicted_value;
+    const numericValue = typeof rawValue === 'number' ? rawValue : parseFloat(String(rawValue).replace(/[^0-9.]/g, ''));
 
     res.status(200).json({
       success: true,
-      predicted_value: result.predicted_value,
+      predicted_value: isNaN(numericValue) ? null : numericValue,
       reasoning: result.reasoning
     });
   } catch (err) {
@@ -636,22 +623,31 @@ app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res)
       });
     }
 
-    const apiResult = await callGeminiWithRetry(model, contentParts);
+    const apiResult = await model.generateContent(contentParts);
     const modelResponse = apiResult.response.text();
 
     let result;
     try {
       result = JSON.parse(modelResponse);
     } catch {
-      result = {
-        predicted_value: null,
-        reasoning: modelResponse || "Model returned an unexpected response."
-      };
+      // Gemini sometimes wraps JSON in markdown code fences — strip and retry
+      const jsonMatch = modelResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try { result = JSON.parse(jsonMatch[0]); } catch { result = null; }
+      }
     }
+
+    if (!result || result.predicted_value == null) {
+      return res.status(500).json({ error: "Could not parse a valuation from the AI response. Please try again.", success: false });
+    }
+
+    // Normalise value to a number in case the model returns a string like "£15"
+    const rawValue = result.predicted_value;
+    const numericValue = typeof rawValue === 'number' ? rawValue : parseFloat(String(rawValue).replace(/[^0-9.]/g, ''));
 
     res.status(200).json({
       success: true,
-      predicted_value: result.predicted_value,
+      predicted_value: isNaN(numericValue) ? null : numericValue,
       reasoning: result.reasoning
     });
 
