@@ -423,6 +423,26 @@ app.post('/api/restore-session', async (req, res) => {
   }
 });
 
+async function callGeminiWithRetry(model, contentParts, maxAttempts = 3) { //Retries the Gemini API call in case of rate limit errors, with exponential backoff
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await model.generateContent(contentParts);
+    } catch (err) {
+      const isRateLimit = err.message && (
+        err.message.includes('429') ||
+        err.message.includes('rate limit') ||
+        err.message.includes('RESOURCE_EXHAUSTED')
+      );
+      if (isRateLimit && attempt < maxAttempts) {
+        const waitMs = attempt * 20000; // 20s, 40s
+        await new Promise(resolve => setTimeout(resolve, waitMs));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
 async function getBookInfoFromISBN(isbn) {
   try {
     const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
@@ -501,8 +521,8 @@ app.post('/bookValuator', async (req, res) => {
       generationConfig: { responseMimeType: "application/json" }
     });
 
-    const apiResult = await model.generateContent(userQuery); // Generate content based on the user query and system prompt
-    const modelResponse = apiResult.response.text(); // Extract the text response from the model's output
+    const apiResult = await callGeminiWithRetry(model, userQuery);
+    const modelResponse = apiResult.response.text();
 
     let result;
     try {
@@ -616,7 +636,7 @@ app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res)
       });
     }
 
-    const apiResult = await model.generateContent(contentParts);
+    const apiResult = await callGeminiWithRetry(model, contentParts);
     const modelResponse = apiResult.response.text();
 
     let result;

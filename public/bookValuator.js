@@ -43,7 +43,7 @@ window.setMode = setMode;
 
 // Rate limiting - prevent too many requests
 let lastRequestTime = 0;
-const COOLDOWN_MS = 5000; // 5 seconds between requests
+const COOLDOWN_MS = 30000; // 30 seconds — buffer for Gemini free-tier rate limit + server retry
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
