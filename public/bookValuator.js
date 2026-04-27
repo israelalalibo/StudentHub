@@ -43,7 +43,7 @@ window.setMode = setMode;
 
 // Rate limiting - prevent too many requests
 let lastRequestTime = 0;
-const COOLDOWN_MS = 10000; // 10 seconds between requests
+const COOLDOWN_MS = 5000; // 5 seconds between requests
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();

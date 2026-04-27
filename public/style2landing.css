@@ -60,7 +60,7 @@ body {
     display: flex;
     align-items: center;
     gap: 3px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     color: white;
     text-decoration: none;
     border-radius: 16px;
@@ -414,7 +414,7 @@ body {
 }
 
 .mobile-search-results-dropdown .search-result-price {
-    color: #3b82f6;
+    color: #059669;
     font-weight: 700;
     font-size: 14px;
 }
@@ -842,7 +842,7 @@ body {
     font-size: 48px;
     font-weight: 700;
     margin-bottom: 20px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #4f46e5 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1023,7 +1023,7 @@ body {
 .product-price {
     font-size: 20px;
     font-weight: 700;
-    color: #3b82f6;
+    color: #059669;
     margin: 0;
     line-height: 1.2;
 }
@@ -1075,8 +1075,8 @@ body {
 
 .product-category {
     display: inline-block;
-    background: linear-gradient(135deg, #3b82f618 0%, #2563eb18 100%);
-    color: #1e3a8a;
+    background: #ede9fe;
+    color: #6d28d9;
     padding: 3px 10px;
     border-radius: 999px;
     font-size: 10px;
@@ -1431,7 +1431,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     color: white;
     text-decoration: none;
     border-radius: 25px;
@@ -1439,14 +1439,14 @@ body {
     font-size: 14px;
     transition: all 0.3s ease;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
     border: 2px solid transparent;
 }
 
 .ai-valuator-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+    background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
 }
 
 .ai-valuator-btn:active {
@@ -1504,7 +1504,7 @@ body {
     left: -2px;
     right: -2px;
     bottom: -2px;
-    background: linear-gradient(45deg, #3b82f6, #2563eb, #93c5fd, #4facfe);
+    background: linear-gradient(45deg, #f59e0b, #d97706, #fbbf24, #f97316);
     border-radius: 25px;
     opacity: 0;
     z-index: -1;
@@ -1674,7 +1674,7 @@ body {
 }
 .result-meta { flex: 1; display:flex; flex-direction: column; }
 .result-title { font-weight:600; color:#111827; font-size:14px; }
-.result-price { color:#3b82f6; font-weight:700; font-size:13px; margin-top:4px; }
+.result-price { color:#059669; font-weight:700; font-size:13px; margin-top:4px; }
 .no-results { padding:12px; color:#6b7280; text-align:center; }
 
 /* Search Results Section */

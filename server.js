@@ -494,15 +494,15 @@ app.post('/bookValuator', async (req, res) => {
     ${JSON.stringify(bookData, null, 2)}`;
 
     // Use official Google Generative AI SDK
-    const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-    const model = genAI.getGenerativeModel({
+    const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY); // Initialize the model with system prompt and user query
+    const model = genAI.getGenerativeModel({ //Gets a GenerativeModel instance for the provided model name.
       model: "gemini-2.0-flash",
       systemInstruction: SYSTEM_PROMPT,
       generationConfig: { responseMimeType: "application/json" }
     });
 
-    const apiResult = await model.generateContent(userQuery);
-    const modelResponse = apiResult.response.text();
+    const apiResult = await model.generateContent(userQuery); // Generate content based on the user query and system prompt
+    const modelResponse = apiResult.response.text(); // Extract the text response from the model's output
 
     let result;
     try {
@@ -528,23 +528,23 @@ app.post('/bookValuator', async (req, res) => {
     } else if (errorMessage.includes('429') || errorMessage.includes('rate limit')) {
       errorMessage = "API rate limit exceeded. Please wait a moment and try again.";
     } else if (errorMessage.includes('API_KEY_INVALID') || errorMessage.includes('API key not valid')) {
-      errorMessage = "Invalid or expired API key. Please check your GOOGLE_API_KEY.";
+      errorMessage = "Invalid or expired API key. Please check GOOGLE_API_KEY.";
     }
 
     res.status(500).json({ error: errorMessage, success: false });
   }
 });
 
-// ============================================
+
 // GENERAL ITEM VALUATOR ENDPOINT
-// ============================================
+
 
 // Multer config for item valuator images (memory storage for base64 conversion)
 const itemImageUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 4 * 1024 * 1024 }, // 4MB limit
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];  //make sure only these safefile types are accepted
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -555,7 +555,7 @@ const itemImageUpload = multer({
 
 app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res) => {
   try {
-    const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+    const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;  
 
     if (!GOOGLE_API_KEY) {
       return res.status(500).json({
@@ -596,7 +596,7 @@ app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res)
     - Category: ${item_category}
     `;
 
-    // Use official Google Generative AI SDK
+    // Use official Google Generative AI SDK and initialise the model with system prompt and user query
     const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash",
