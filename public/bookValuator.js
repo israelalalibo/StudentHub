@@ -139,9 +139,7 @@ form.addEventListener('submit', async (e) => {
                 listing.category = document.getElementById('item-category').value;
 
                 const desc = document.getElementById('item-description').value;
-                listing.description = desc
-                    ? `${desc}\n\nAI Estimated Value: £${data.predicted_value}`
-                    : `Condition: ${listing.condition}. AI Estimated Value: £${data.predicted_value}`;
+                listing.description = desc || `Condition: ${listing.condition}.`;
             }
 
             localStorage.setItem('valuatorListing', JSON.stringify(listing));
