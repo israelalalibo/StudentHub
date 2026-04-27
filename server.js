@@ -496,7 +496,7 @@ app.post('/bookValuator', async (req, res) => {
     // Use official Google Generative AI SDK
     const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY); // Initialize the model with system prompt and user query
     const model = genAI.getGenerativeModel({ //Gets a GenerativeModel instance for the provided model name.
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-pro",
       systemInstruction: SYSTEM_PROMPT,
       generationConfig: { responseMimeType: "application/json" }
     });
@@ -606,7 +606,7 @@ app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res)
     // Use official Google Generative AI SDK and initialise the model with system prompt and user query
     const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-pro",
       systemInstruction: SYSTEM_PROMPT,
       generationConfig: { responseMimeType: "application/json" }
     });
@@ -624,6 +624,7 @@ app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res)
     }
 
     const apiResult = await model.generateContent(contentParts);
+    console.log("Coming from after genrateContent is called"); //debugging log to check if the code is reaching this point after calling the model
     const modelResponse = apiResult.response.text();
 
     let result;
