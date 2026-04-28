@@ -46,7 +46,7 @@ let lastRequestTime = 0;
 const COOLDOWN_MS = 10000; // 10 seconds between requests
 
 form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    e.preventDefault();//prevent default form submission behavior to handle it with JavaScript
 
     // Check cooldown
     const now = Date.now();
@@ -75,7 +75,7 @@ form.addEventListener('submit', async (e) => {
                 isbn: formData.get('isbn'),
                 condition: formData.get('condition'),
                 binding: formData.get('binding'),
-                first_edition: formData.get('first_edition') === 'on',
+                first_edition: formData.get('first_edition') === 'on', // Convert to boolean
                 signed: formData.get('signed') === 'on',
                 damages: damages
             };
@@ -94,7 +94,7 @@ form.addEventListener('submit', async (e) => {
             itemFormData.append('item_category', document.getElementById('item-category').value);
 
             const imageFile = document.getElementById('item-image').files[0];
-            if (imageFile) {
+            if (imageFile) { // Only append if an image was selected as it's optional
                 itemFormData.append('item_image', imageFile);
             }
 
@@ -104,7 +104,7 @@ form.addEventListener('submit', async (e) => {
             });
         }
 
-        const data = await response.json();
+        const data = await response.json(); // Parse the JSON response from the server
 
         const listItemBtn = document.getElementById('listItemBtn');
 
@@ -121,8 +121,8 @@ form.addEventListener('submit', async (e) => {
                 const conditionVal = formData.get('condition');
 
                 // Extract book title from the reasoning text if available
-                const titleMatch = data.reasoning.match(/"([^"]+)"/);
-                listing.title = titleMatch ? titleMatch[1] : `Book (ISBN: ${formData.get('isbn')})`;
+                const titleMatch = data.reasoning.match(/"([^"]+)"/); //Look for any text within quotes in the reasoning (title mentioned)
+                listing.title = titleMatch ? titleMatch[1] : `Book (ISBN: ${formData.get('isbn')})`; //Fallback to generic title if not found
                 listing.condition = conditionVal;
                 listing.category = 'TextBook';
 
@@ -131,7 +131,7 @@ form.addEventListener('submit', async (e) => {
                 if (formData.get('first_edition') === 'on') parts.push('First Edition');
                 if (formData.get('signed') === 'on') parts.push('Signed by Author');
                 if (damages.length > 0) parts.push(`Noted issues: ${damages.join(', ')}`);
-                parts.push(`AI Estimated Value: £${data.predicted_value}`);
+                //parts.push(`AI Estimated Value: £${data.predicted_value}`);
                 listing.description = parts.join('. ') + '.';
             } else {
                 listing.title = document.getElementById('item-name').value;
