@@ -433,7 +433,7 @@
             if(url.startsWith("http")) return url;
             return `https://bfpaawywaljnfudynnke.supabase.co/storage/v1/object/public/${url}`;
             }
-            function escapeHtml(str){
+            function escapeHtml(str){ // Basic HTML escaping to prevent XSS in product titles and other text fields
             return str ? str.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : "";
             }
 
@@ -584,7 +584,7 @@
                                     decoding="async">
                             </div>
                             <div class="product-info">
-                                <span class="product-category">${escapeHtml(item.category || 'Other')}</span>
+                                <span class="product-category">${escapeHtml(item.category || 'Other')}</span> 
                                 <h3 class="product-title">${escapeHtml(item.title || item.name)}</h3>
                                 <div class="product-price">£${parseFloat(item.price || 0).toFixed(2)}</div>
                                 <span class="product-condition">${escapeHtml(item.condition || 'Good')}</span>
@@ -618,7 +618,7 @@
                 // Add to Cart buttons
                 document.querySelectorAll('#searchResultsGrid .add-to-cart-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); // Prevent card click event
                         const index = parseInt(btn.dataset.productIndex);
                         const item = window.searchProducts[index];
                         if (item && window.Cart) {

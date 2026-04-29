@@ -275,8 +275,8 @@ app.post('/api/forgot-password', async (req, res) => {
     }
 
     // Determine the site URL for the redirect
-    const siteUrl = process.env.SITE_URL
-      || (req.headers.host && req.headers.host.includes('localhost') ? `http://${req.headers.host}` : `https://${req.headers.host}`); 
+    const siteUrl = process.env.SITE_URL  // Use SITE_URL env var if set, otherwise construct from request (assumes HTTPS in production)
+      || (req.headers.host && req.headers.host.includes('localhost') ? `http://${req.headers.host}` : `https://${req.headers.host}`);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${siteUrl}/views/reset-password.html`
@@ -548,7 +548,7 @@ app.post('/bookValuator', async (req, res) => {
 
 // Multer config for item valuator images (memory storage for base64 conversion)
 const itemImageUpload = multer({
-  storage: multer.memoryStorage(),
+  storage: multer.memoryStorage(), // Store files in memory
   limits: { fileSize: 4 * 1024 * 1024 }, // 4MB limit
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];  //make sure only these safefile types are accepted
@@ -631,7 +631,6 @@ app.post('/itemValuator', itemImageUpload.single('item_image'), async (req, res)
     try {
       result = JSON.parse(modelResponse);
     } catch {
-      // Gemini sometimes wraps JSON in markdown code fences — strip and retry
       const jsonMatch = modelResponse.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try { result = JSON.parse(jsonMatch[0]); } catch { result = null; }
@@ -1491,7 +1490,7 @@ app.get("/api/cart/count", async (req, res) => {
 // Get all conversations for the logged-in user
 app.get("/api/conversations", async (req, res) => {
   try {
-    const { user, error: userError } = await getAuthUser(req);
+    const { user, error: userError } = await getAuthUser(req); 
     if (userError || !user) {
       return res.status(401).json({ error: "Not logged in" });
     }
@@ -1506,7 +1505,7 @@ app.get("/api/conversations", async (req, res) => {
     if (error) throw error;
 
     // Enrich with participant info
-    const enrichedConversations = await Promise.all((data || []).map(async (conv) => {
+    const enrichedConversations = await Promise.all((data || []).map(async (conv) => { 
       const otherUserId = conv.buyer_id === user.id ? conv.seller_id : conv.buyer_id;
       
       // Get other user's info including profile picture
@@ -1522,8 +1521,8 @@ app.get("/api/conversations", async (req, res) => {
         .select("content, created_at, sender_id")
         .eq("conversation_id", conv.id)
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(1) // Get only the last message
+        .maybeSingle(); // maybeSingle to handle case where there are no messages yet
 
       // Get unread count
       const { count: unreadCount } = await supabaseAdmin
